@@ -2,6 +2,7 @@
 #include<vector>
 #include <typeinfo>
 #include<stdarg.h>
+#pragma once
 using namespace std;
 
 template <typename T>
