@@ -86,7 +86,7 @@ ndarray<T> numcpp::normal(double mean, double scale, vector<long>& shape){
     // 创建随机数生成器
     unsigned seed = chrono::system_clock::now().time_since_epoch().count(); // 随机数种子
     default_random_engine generator(seed);
-    uniform_real_distribution<double> distribution(mean,scale); // 浮点型发生器
+    normal_distribution<double> distribution(mean,scale); // 浮点型发生器
     vector<T> arr(size);
     auto dice = bind(distribution,generator);
     for(long long i=0;i<size;++i) arr[i] = dice();

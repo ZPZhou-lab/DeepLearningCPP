@@ -40,6 +40,16 @@ int main(){
     cout<<mat3.iloc(9)<<endl;
 
     // 测试3
+    cout<<"\n"<<"Test3"<<endl;
+    vector<long> shape3 = {2,5,4};
+    ndarray<double> mat4 = nc.normal<double>(0,1,shape3);
+    mat4.show();
+
+    printf("Transpose: \n");
+    vector<int> axes = {2,0,1};
+    mat4 = mat4.transpose(axes);
+    mat4.show();
+    // 打印矩阵
 
     return 0;
 }
