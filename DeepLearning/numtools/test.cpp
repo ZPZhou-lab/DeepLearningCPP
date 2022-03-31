@@ -1,12 +1,14 @@
 #include "ndarray.cpp"
 #include "numcpp.cpp"
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 #include <chrono>
+#include <ctime>
 using namespace std;
 
 
 int main(){
     cout<<"Compiled Successfully"<<endl;
+    clock_t startTime, endTime;
     numcpp nc;
 
     // 测试1
@@ -40,15 +42,27 @@ int main(){
     cout<<mat3.iloc(9)<<endl;
 
     // 测试3
-    cout<<"\n"<<"Test3"<<endl;
-    vector<long> shape3 = {2,5,4};
+    cout<<"\n"<<"Transpose Test"<<endl;
+    vector<long> shape3 = {2000,3000};
     ndarray<double> mat4 = nc.normal<double>(0,1,shape3);
-    mat4.show();
+    //mat4.show();
 
     printf("Transpose: \n");
-    vector<int> axes = {2,0,1};
+    printf("Number of elements: %d\n", mat4.size());
+    vector<int> axes = {1,0};
+    startTime = clock();
     mat4 = mat4.transpose(axes);
-    mat4.show();
+    endTime = clock();
+    printf("Time used %.6fs\n", (double)(endTime - startTime) / CLOCKS_PER_SEC);
+    printf("-----------------------------------------\n");
+
+    printf("Transpose using New Algorithm: \n");
+    printf("Number of elements: %d\n", mat4.size());
+    startTime = clock();
+    mat4 = mat4.transpose2(axes);
+    endTime = clock();
+    printf("Time used %.6fs\n", (double)(endTime - startTime) / CLOCKS_PER_SEC);
+
     // 打印矩阵
 
     return 0;

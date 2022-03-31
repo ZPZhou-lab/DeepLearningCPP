@@ -45,6 +45,7 @@ public:
     vector<long long> idx_prod(void);
     // 维度变换
     ndarray transpose(vector<int>& axes);
+    ndarray transpose2(vector<int>& axes);
     ndarray reshape(vector<int>& shape);
     ndarray flatten(void);
     
@@ -123,6 +124,27 @@ vector<long> to_at(long long iloc, vector<long long> idx_prod, int ndim){
         iloc %= idx_prod[ndim-1-i];
     }
     return at;
+}
+
+// 坐标置换辅助函数
+// vector<long> permutation(vector<long>& at, vector<int>& axes){
+//     vector<long> permuted(at.size());
+//     for(int i=0;i<(int)at.size();++i) permuted[i] = at[axes[i]];
+//     return permuted;
+// }
+
+// 计算转置的下标映射关系
+long long trans_map(long long iloc, vector<long long> old_idx_prod, vector<long long> new_idx_prod, 
+                    long long size, int ndim, vector<int>& axes){
+    long long loc = 0;
+    for(int i=0;i<ndim;++i){
+        long s = iloc / old_idx_prod[ndim-1-i];
+        iloc %= old_idx_prod[ndim-1-i];
+        loc += new_idx_prod[axes[ndim-1-i]] * s;
+        
+    }
+    assert(loc >= 0 && loc < size);
+    return loc;
 }
 
 // 默认构造函数
@@ -278,3 +300,46 @@ ndarray<T> ndarray<T>::transpose(vector<int>& axes){
     this->_shape = permutation(this->_shape,axes);
     return trans;
 }
+
+
+// 维度变换
+template <typename T>
+ndarray<T> ndarray<T>::transpose2(vector<int>& axes){
+    // 异常检测
+    try{
+        if((int)axes.size() != this->_ndim){
+            throw "axes don't match array";
+        }
+        set<int> tmp;
+        for(auto axis : axes){
+            if(axis < -this->_ndim || axis >= this->_ndim){
+                throw "axis is out of bounds for array of dimension ";
+            }
+            if(axis < 0){
+                axis = this->_ndim - axis;
+            }
+            if(tmp.find(axis) != tmp.end()){
+                throw "repeated axis in transpose";
+            }
+            tmp.insert(axis);
+        }
+    }catch(const char* msg){
+        cout<<msg<<endl;
+        assert(false);
+    }
+    // 开始计算矩阵转置
+    for(int i=0;i<(int)axes.size();++i) axes[i] = axes[i] < 0 ? this->_ndim-axes[i] : axes[i];
+    // 构造新的数据，赋予新的维度
+    vector<long> new_shape = permutation(this->_shape,axes);
+    // 创建新的矩阵数组
+    vector<T> _data(this->data.begin(),this->data.end());
+    ndarray<T> trans(_data,new_shape);
+    vector<long long> new_idx_prod = trans.idx_prod();
+    for(long long i=0;i<this->_size;++i){
+        long long to = trans_map(i,this->_idx_prod,new_idx_prod,this->_size,this->_ndim,axes);
+        trans.change(to,this->data[i]);
+    }
+    return trans;
+}
+
+
