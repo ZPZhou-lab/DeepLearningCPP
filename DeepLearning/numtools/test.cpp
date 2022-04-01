@@ -43,27 +43,18 @@ int main(){
 
     // 测试3
     cout<<"\n"<<"Transpose Test"<<endl;
-    vector<long> shape3 = {2000,3000};
+    vector<long> shape3 = {2,4,3};
     ndarray<double> mat4 = nc.normal<double>(0,1,shape3);
-    //mat4.show();
+    mat4.show();
 
     printf("Transpose: \n");
     printf("Number of elements: %d\n", mat4.size());
-    vector<int> axes = {1,0};
-    startTime = clock();
+    vector<int> axes = {2,0,1};
+    // startTime = clock();
     mat4 = mat4.transpose(axes);
-    endTime = clock();
-    printf("Time used %.6fs\n", (double)(endTime - startTime) / CLOCKS_PER_SEC);
-    printf("-----------------------------------------\n");
-
-    printf("Transpose using New Algorithm: \n");
-    printf("Number of elements: %d\n", mat4.size());
-    startTime = clock();
-    mat4 = mat4.transpose2(axes);
-    endTime = clock();
-    printf("Time used %.6fs\n", (double)(endTime - startTime) / CLOCKS_PER_SEC);
-
-    // 打印矩阵
+    mat4.show();
+    // endTime = clock();
+    // printf("Time used %.6fs\n", (double)(endTime - startTime) / CLOCKS_PER_SEC);
 
     return 0;
 }
