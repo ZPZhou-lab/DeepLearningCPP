@@ -25,6 +25,7 @@ int main(){
     cout<<"size: "<<mat1.size()<<endl;
     cout<<mat1.at(0,2,0)<<endl;
     cout<<mat1.iloc(9)<<endl;
+    mat1.show();
     
     // 测试2
     cout<<"\n"<<"Test2"<<endl;
@@ -43,18 +44,18 @@ int main(){
 
     // 测试3
     cout<<"\n"<<"Transpose Test"<<endl;
-    vector<long> shape3 = {2,4,3};
+    vector<long> shape3 = {4000,5000};
     ndarray<double> mat4 = nc.normal<double>(0,1,shape3);
-    mat4.show();
+    // mat4.show();
 
-    printf("Transpose: \n");
+    printf("Transpose Using Fast Rotating Shaft: \n");
     printf("Number of elements: %d\n", mat4.size());
-    vector<int> axes = {2,0,1};
-    // startTime = clock();
+    vector<int> axes = {1,0};
+    startTime = clock();
     mat4 = mat4.transpose(axes);
-    mat4.show();
-    // endTime = clock();
-    // printf("Time used %.6fs\n", (double)(endTime - startTime) / CLOCKS_PER_SEC);
+    // mat4.show();
+    endTime = clock();
+    printf("Time used %.6fs\n", (double)(endTime - startTime) / CLOCKS_PER_SEC);
 
     return 0;
 }

@@ -10,18 +10,22 @@ class ndarray{
 private:
     typedef T value_type; // 定义类别属性
     vector<long> _shape; // 矩阵维度
+    vector<int> _axes; // 轴
+    vector<int> _inv_axes; // 轴的逆
     vector<T> data; // 数据
     value_type _dtype; // 数据类型
     int _ndim; // 维度数量
     long long _size; // 元素个数
-    vector<long long> _idx_prod; // 存在数组维度的累计乘积
+    vector<long long> _raw_idx_prod; // 存在数组维度的原始累计乘积
+    vector<long long> _new_idx_prod; // 存在数组维度的新的累计乘积
 
 public:
     // 默认构造函数
     ndarray();
     // 构造函数
     ndarray(vector<T>& arr, vector<long>& shape);
-    ndarray(vector<T>& arr, vector<long>& shape, vector<long long>& idx_prod);
+    ndarray(vector<T>& arr, vector<long>& shape, vector<int>& inv_axes, 
+            vector<long long>& raw_idx_prod, vector<long long>& new_idx_prod);
     // 析构函数
     ~ndarray();
     
@@ -41,9 +45,6 @@ public:
     // 矩阵形状
     vector<long> shape(void);
 
-    void change(long long iloc, T num); // 改变某个位置处元素的值
-
-    vector<long long> idx_prod(void);
     // 维度变换
     ndarray transpose(vector<int>& axes);
     ndarray reshape(vector<int>& shape);
@@ -94,7 +95,7 @@ vector<vector<long>> permutation_generator(vector<long>& shape){
     return orders;
 }
 
-// 根据索引判断位置
+// 将索引映射到正确的下标
 template <typename ...Args>
 long long to_iloc(vector<long long> idx_prod, int ndim, long long size,Args...args){
     // 取出索引
@@ -107,7 +108,7 @@ long long to_iloc(vector<long long> idx_prod, int ndim, long long size,Args...ar
     assert(loc >= 0 && loc < size);
     return loc;
 }
-// 另一种访问元素位置的模板
+// 另一种模板
 long long to_iloc(vector<long long> idx_prod, int ndim, long long size, vector<long> at){
     long long loc = 0;
     for(int i=0;i<ndim;++i) loc += idx_prod[ndim-i-1]*at[i];
@@ -115,7 +116,7 @@ long long to_iloc(vector<long long> idx_prod, int ndim, long long size, vector<l
     return loc;
 }
 
-// 把位置转换为索引
+// 将下标映射到正确的索引
 vector<long> to_at(long long iloc, vector<long long> idx_prod, int ndim){
     vector<long> at;
     for(int i=0;i<ndim;++i){
@@ -126,15 +127,15 @@ vector<long> to_at(long long iloc, vector<long long> idx_prod, int ndim){
     return at;
 }
 
-// 计算转置的下标映射关系
-long long trans_map(long long iloc, vector<long long>& old_idx_prod, vector<long long>& new_idx_prod, 
-                    long long size, int ndim, vector<int>& axes){
+// 根据axes，将当前索引映射到正确的数据下标
+long long iloc_map(long long iloc, vector<long long>& raw_idx_prod, vector<long long>& new_idx_prod, 
+                   long long size, int ndim, vector<int>& axes){
     long long loc = 0;
     for(int i=0;i<ndim;++i){
-        long s = iloc / old_idx_prod[ndim-1-i];
-        iloc %= old_idx_prod[ndim-1-i];
+        long s = iloc / new_idx_prod[ndim-1-i];
+        iloc %= new_idx_prod[ndim-1-i];
         // 与其对应的下标进行交换
-        loc += new_idx_prod[axes[ndim-1-i]] * s;
+        loc += raw_idx_prod[axes[ndim-1-i]] * s;
     }
     assert(loc >= 0 && loc < size);
     return loc;
@@ -157,14 +158,18 @@ ndarray<T>::ndarray(vector<T>& arr, vector<long>& shape){
     this->_shape = shape;
     this->_size = size;
     this->_ndim = shape.size();
+    for(int i=0;i<this->_ndim;++i) this->_axes.emplace_back(i);
+    this->_inv_axes = this->_axes;
     // 统计累计索引
     vector<long long> idx_prod(this->_ndim,1);
     for(int i=this->_ndim-1;i>0;--i) idx_prod[this->_ndim-i] = idx_prod[this->_ndim-i-1] * this->_shape[i];
-    this->_idx_prod = idx_prod;
+    this->_raw_idx_prod = idx_prod;
+    this->_new_idx_prod = idx_prod;
 }
 // 构造函数
 template <typename T>
-ndarray<T>::ndarray(vector<T>& arr, vector<long>& shape, vector<long long>& idx_prod){
+ndarray<T>::ndarray(vector<T>& arr, vector<long>& shape, vector<int>& inv_axes, 
+                    vector<long long>& raw_idx_prod, vector<long long>& new_idx_prod){
     long long size = 1;
     for(auto s : shape) size *= s;
     assert((long long)arr.size() == size);
@@ -172,8 +177,11 @@ ndarray<T>::ndarray(vector<T>& arr, vector<long>& shape, vector<long long>& idx_
     this->_shape = shape;
     this->_size = size;
     this->_ndim = shape.size();
+    for(int i=0;i<this->_ndim;++i) this->_axes.emplace_back(i);
+    this->_inv_axes = inv_axes;
     // 统计累计索引
-    this->_idx_prod = idx_prod;
+    this->_raw_idx_prod = raw_idx_prod;
+    this->_new_idx_prod = new_idx_prod;
 }
 
 //  析构函数
@@ -186,14 +194,16 @@ ndarray<T>::~ndarray(){
 template <typename T>
 template <typename ...Args>
 T ndarray<T>::at(Args...args){
-    long long loc = to_iloc(this->_idx_prod,this->_ndim,this->_size,args...);
-    return this->data[loc];
+    long long iloc = to_iloc(this->_new_idx_prod,this->_ndim,this->_size,args...);
+    iloc = iloc_map(iloc,this->_raw_idx_prod,this->_new_idx_prod,this->_size,this->_ndim,this->_inv_axes);
+    return this->data[iloc];
 }
 
 // 用序号访问元素
 template <typename T>
 T ndarray<T>::iloc(long long idx){
     // 取出索引
+    idx = iloc_map(idx,this->_raw_idx_prod,this->_new_idx_prod,this->_size,this->_ndim,this->_inv_axes);
     return this->data[idx];
 }
 
@@ -226,18 +236,6 @@ vector<long> ndarray<T>::shape(void){
     return this->_shape;
 }
 
-// 返回各维度累计乘积
-template <typename T>
-vector<long long> ndarray<T>::idx_prod(void){
-    return this->_idx_prod;
-}
-
-// 改变某个位置处元素的值
-template <typename T>
-void ndarray<T>::change(long long iloc, T num){
-    this->data[iloc] = num;
-}
-
 template <typename T>
 void ndarray<T>::show(void){
     if(this->_ndim == 1){
@@ -245,13 +243,12 @@ void ndarray<T>::show(void){
         printf("\n");
     }else{
         for(long long i=0;i<this->_size;++i){
-            printf("%+12.4f", this->data[i]);
+            printf("%+12.4f", iloc(i));
             for(int j=1;j<this->_ndim;++j){
-                if((i+1)%this->_idx_prod[j] == 0) printf("\n");
+                if((i+1)%this->_new_idx_prod[j] == 0) printf("\n");
             }
         }
     }
-
 }
 
 // 维度变换
@@ -279,20 +276,15 @@ ndarray<T> ndarray<T>::transpose(vector<int>& axes){
         cout<<msg<<endl;
         assert(false);
     }
-    // 开始计算矩阵转置
-    for(int i=0;i<(int)axes.size();++i) axes[i] = axes[i] < 0 ? this->_ndim-axes[i] : axes[i];
-    // 构造新的数据，赋予新的维度
-    vector<long> new_shape = permutation(this->_shape,axes);
+    // 新的形状
+    vector<long> new_shape = permutation(this->_shape, axes);
+    // 计算新的idx_prod
     // 统计累计索引
-    vector<long long> new_idx_prod(this->_ndim,1);
-    for(int i=this->_ndim-1;i>0;--i) new_idx_prod[this->_ndim-i] = new_idx_prod[this->_ndim-i-1] * new_shape[i];
-    // 创建新的矩阵数组
-    vector<T> _data(this->_size);
-    // 交换元素位置
-    for(long long i=0;i<this->_size;++i){
-        long long to = trans_map(i,this->_idx_prod,new_idx_prod,this->_size,this->_ndim,axes);
-        _data[to] = this->data[i];
-    }
-    ndarray<T> trans(_data,new_shape,new_idx_prod);
+    vector<long long> idx_prod(this->_ndim,1);
+    for(int i=this->_ndim-1;i>0;--i) idx_prod[this->_ndim-i] = idx_prod[this->_ndim-i-1] * new_shape[i];
+    // 创建axes的逆变换
+    vector<int> inv_axes(this->_ndim,0);
+    for(int i=0;i<this->_ndim;++i) inv_axes[axes[i]] = i;
+    ndarray<T> trans(this->data,new_shape,inv_axes,this->_raw_idx_prod,idx_prod);
     return trans;
 }
