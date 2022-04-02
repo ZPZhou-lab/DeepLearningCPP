@@ -20,6 +20,11 @@ public:
     template <typename T>
     ndarray<T> ones(vector<long>& shape);
 
+    template <typename T>
+    ndarray<T> arange(long long start, long long end);
+    template <typename T>
+    ndarray<T> linspace(double start, double end, long long N);
+
     // 创建均匀分布随机矩阵
     template <typename T>
     ndarray<T> rand(double low, double high, vector<long>& shape);
@@ -28,7 +33,7 @@ public:
     template <typename T>
     ndarray<T> normal(double mean, double scale, vector<long>& shape);
     template <typename T> // 换个名字
-    ndarray<T> randn(double mean, double scale, vector<long>& shape);
+    ndarray<T> randn(vector<long>& shape);
 };
 
 
@@ -52,6 +57,27 @@ ndarray<T> numcpp::ones(vector<long>& shape){
     return mat;
 }
 
+// 构造等距点
+template <typename T>
+ndarray<T> numcpp::arange(long long start, long long end){
+    long long size = end - start;
+    vector<T> arr(size,1);
+    for(long long i=0;i<size;++i) arr[i] = (T)(start + i);
+    vector<long> shape = {(long)size};
+    ndarray<T> mat(arr,shape);
+    return mat;
+}
+// 构造等距点
+template <typename T>
+ndarray<T> numcpp::linspace(double start, double end, long long N){
+    long long size = N;
+    T sep = (end - start) / (N-1);
+    vector<T> arr(size,1);
+    for(long long i=0;i<size;++i) arr[i] = (T)(start + i*sep);
+    vector<long> shape = {(long)size};
+    ndarray<T> mat(arr,shape);
+    return mat;
+}
 
 // 构造均匀分布矩阵
 template <typename T>
@@ -93,8 +119,8 @@ ndarray<T> numcpp::normal(double mean, double scale, vector<long>& shape){
     ndarray<T> mat(arr,shape);
     return mat;
 }
-// 构造正态分布矩阵的重构
+// 构造标准正态分布随机矩阵
 template <typename T>
-ndarray<T> numcpp::randn(double mean, double scale, vector<long>& shape){
-    return this->normal<T>(mean,scale,shape);
+ndarray<T> numcpp::randn(vector<long>& shape){
+    return this->normal<T>(0,1,shape);
 }

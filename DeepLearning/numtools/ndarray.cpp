@@ -47,7 +47,7 @@ public:
 
     // 维度变换
     ndarray transpose(vector<int>& axes);
-    ndarray reshape(vector<int>& shape);
+    ndarray reshape(vector<long>& shape);
     ndarray flatten(void);
     
     // 打印矩阵
@@ -288,3 +288,22 @@ ndarray<T> ndarray<T>::transpose(vector<int>& axes){
     ndarray<T> trans(this->data,new_shape,inv_axes,this->_raw_idx_prod,idx_prod);
     return trans;
 }
+
+// // 形状变换
+// template <typename T>
+// ndarray<T> ndarray<T>::reshape(vector<long>& shape){
+//     // 异常检测
+//     long long check_size = 1;
+//     for(auto s : shape) check_size *= s;
+//     try{
+//         if(this->_size != check_size){
+//             throw "cannot reshape array of size into new shape";
+//         }
+//     }catch(const char* msg){
+//         cout<<msg<<endl;
+//         assert(false);
+//     }
+//     // 新的形状
+
+//     return;
+// }

@@ -37,7 +37,7 @@ int main(){
     cout<<mat2.at(0,2,0)<<endl;
     cout<<mat2.iloc(9)<<endl;
 
-    ndarray<double> mat3 = nc.randn<double>(0,1,shape2);
+    ndarray<double> mat3 = nc.randn<double>(shape2);
     cout<<"dtype: "<<mat3.dtype()<<endl;
     cout<<mat3.at(0,2,0)<<endl;
     cout<<mat3.iloc(9)<<endl;
@@ -56,6 +56,12 @@ int main(){
     // mat4.show();
     endTime = clock();
     printf("Time used %.6fs\n", (double)(endTime - startTime) / CLOCKS_PER_SEC);
+
+    // 等距格点测试
+    ndarray<double> mat5 = nc.arange<double>(0,10);
+    mat5.show();
+    ndarray<double> mat6 = nc.linspace<double>(0,1,10);
+    mat6.show();
 
     return 0;
 }
