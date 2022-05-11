@@ -307,3 +307,34 @@ ndarray<T> ndarray<T>::transpose(vector<int>& axes){
 
 //     return;
 // }
+
+// 形状变换reshape和转置操作transpose
+/*
+    数据结构
+    ======================================
+    1. 使用一维数组data保存同一数据类型的元素
+    2. 需要包含dtype
+    3. 包含ndim和shape
+    4. 包含strides，用于确认多维度数组元素的访问
+    5. 用一个scalar确认索引位置
+    6. axes存储矩阵轴的情况
+
+    reshape
+    ======================================
+    1. 不改变data
+    2. 操作ndim, shape和strides
+    3. 瞬时完成，应与数组元素个数无关
+
+    transpose
+    ======================================
+    1. 不改变data
+    2. 操作ndim, shape和strides
+    3. 操作axes
+    4. 瞬时完成，应与数组元素个数无关
+
+    reshape 和 transpose
+    ======================================
+    当对进行过transpose操作的数组reshape时，
+    需要重新更改data里的元素位置，并重设数组
+    axes，注意，此时该操作与数组元素个数有关
+*/
