@@ -1,9 +1,9 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 #include "ndarray.cpp"
-#include<vector>
+#include <vector>
 #include <typeinfo>
-#include<random>
-#include<chrono>
+#include <random>
+#include <chrono>
 #pragma once
 using namespace std;
 
@@ -14,11 +14,11 @@ class numcpp{
 public:
     // 创建零矩阵
     template <typename T>
-    ndarray<T> zeros(vector<long>& shape);
+    ndarray<T> zeros(vector<int>& shape);
 
     // 创建全1矩阵
     template <typename T>
-    ndarray<T> ones(vector<long>& shape);
+    ndarray<T> ones(vector<int>& shape);
 
     template <typename T>
     ndarray<T> arange(long long start, long long end);
@@ -27,19 +27,19 @@ public:
 
     // 创建均匀分布随机矩阵
     template <typename T>
-    ndarray<T> rand(double low, double high, vector<long>& shape);
+    ndarray<T> rand(double low, double high, vector<int>& shape);
 
     // 创建正态分布随机矩阵
     template <typename T>
-    ndarray<T> normal(double mean, double scale, vector<long>& shape);
+    ndarray<T> normal(double mean, double scale, vector<int>& shape);
     template <typename T> // 换个名字
-    ndarray<T> randn(vector<long>& shape);
+    ndarray<T> randn(vector<int>& shape);
 };
 
 
 // 构造零矩阵
 template <typename T>
-ndarray<T> numcpp::zeros(vector<long>& shape){
+ndarray<T> numcpp::zeros(vector<int>& shape){
     long long size = 1;
     for(auto s : shape) size *= s;
     vector<T> arr(size,0);
@@ -49,7 +49,7 @@ ndarray<T> numcpp::zeros(vector<long>& shape){
 
 // 构造全1矩阵
 template <typename T>
-ndarray<T> numcpp::ones(vector<long>& shape){
+ndarray<T> numcpp::ones(vector<int>& shape){
     long long size = 1;
     for(auto s : shape) size *= s;
     vector<T> arr(size,1);
@@ -63,7 +63,7 @@ ndarray<T> numcpp::arange(long long start, long long end){
     long long size = end - start;
     vector<T> arr(size,1);
     for(long long i=0;i<size;++i) arr[i] = (T)(start + i);
-    vector<long> shape = {(long)size};
+    vector<int> shape = {(int)size};
     ndarray<T> mat(arr,shape);
     return mat;
 }
@@ -74,14 +74,14 @@ ndarray<T> numcpp::linspace(double start, double end, long long N){
     T sep = (end - start) / (N-1);
     vector<T> arr(size,1);
     for(long long i=0;i<size;++i) arr[i] = (T)(start + i*sep);
-    vector<long> shape = {(long)size};
+    vector<int> shape = {(int)size};
     ndarray<T> mat(arr,shape);
     return mat;
 }
 
 // 构造均匀分布矩阵
 template <typename T>
-ndarray<T> numcpp::rand(double low, double high, vector<long>& shape){
+ndarray<T> numcpp::rand(double low, double high, vector<int>& shape){
     long long size = 1;
     for(auto s : shape) size *= s;
     typedef T value_type; // 定义类别属性
@@ -106,7 +106,7 @@ ndarray<T> numcpp::rand(double low, double high, vector<long>& shape){
 
 // 构造正态分布矩阵
 template <typename T>
-ndarray<T> numcpp::normal(double mean, double scale, vector<long>& shape){
+ndarray<T> numcpp::normal(double mean, double scale, vector<int>& shape){
     long long size = 1;
     for(auto s : shape) size *= s;
     // 创建随机数生成器
@@ -121,6 +121,6 @@ ndarray<T> numcpp::normal(double mean, double scale, vector<long>& shape){
 }
 // 构造标准正态分布随机矩阵
 template <typename T>
-ndarray<T> numcpp::randn(vector<long>& shape){
+ndarray<T> numcpp::randn(vector<int>& shape){
     return this->normal<T>(0,1,shape);
 }
