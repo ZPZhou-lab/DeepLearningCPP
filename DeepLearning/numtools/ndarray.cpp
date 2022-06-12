@@ -31,16 +31,6 @@ private:
     // a vector represents the axes
     vector<int> _axes;
 
-    // vector<long> _shape; // 矩阵维度
-    // vector<int> _axes; // 轴
-    // vector<int> _inv_axes; // 轴的逆
-    // vector<T> data; // 数据
-
-    // int _ndim; // 维度数量
-    // long long _size; // 元素个数
-    // vector<long long> _raw_idx_prod; // 存在数组维度的原始累计乘积
-    // vector<long long> _new_idx_prod; // 存在数组维度的新的累计乘积
-
 public:
     // default constructer
     ndarray();
@@ -99,52 +89,6 @@ vector<int> permute(vector<int>& vec, vector<int>& axes){
     return permuted;
 }
 
-// // 将索引映射到正确的下标
-// template <typename ...Args>
-// long long to_iloc(vector<long long> idx_prod, int ndim, long long size,Args...args){
-//     // 取出索引
-//     vector<int> idx;
-//     idx = fetchArgs(idx,args...);
-//     // 判断维度是否正确
-//     assert((int)idx.size() == ndim);
-//     long long loc = 0;
-//     for(int i=0;i<ndim;++i) loc += idx_prod[ndim-i-1]*idx[i];
-//     assert(loc >= 0 && loc < size);
-//     return loc;
-// }
-// // 另一种模板
-// long long to_iloc(vector<long long> idx_prod, int ndim, long long size, vector<long> at){
-//     long long loc = 0;
-//     for(int i=0;i<ndim;++i) loc += idx_prod[ndim-i-1]*at[i];
-//     assert(loc >= 0 && loc < size);
-//     return loc;
-// }
-
-// // 将下标映射到正确的索引
-// vector<long> to_at(long long iloc, vector<long long> idx_prod, int ndim){
-//     vector<long> at;
-//     for(int i=0;i<ndim;++i){
-//         long s = iloc / idx_prod[ndim-1-i];
-//         at.emplace_back(s);
-//         iloc %= idx_prod[ndim-1-i];
-//     }
-//     return at;
-// }
-
-// // 根据axes，将当前索引映射到正确的数据下标
-// long long iloc_map(long long iloc, vector<long long>& raw_idx_prod, vector<long long>& new_idx_prod, 
-//                    long long size, int ndim, vector<int>& axes){
-//     long long loc = 0;
-//     for(int i=0;i<ndim;++i){
-//         long s = iloc / new_idx_prod[ndim-1-i];
-//         iloc %= new_idx_prod[ndim-1-i];
-//         // 与其对应的下标进行交换
-//         loc += raw_idx_prod[axes[ndim-1-i]] * s;
-//     }
-//     assert(loc >= 0 && loc < size);
-//     return loc;
-// }
-
 // default constructer
 template <typename T>
 ndarray<T>::ndarray(){
@@ -195,24 +139,6 @@ ndarray<T>::ndarray(vector<T>& array, vector<int>& shape, vector<int>& strides, 
     this->_strides = strides;
     this->_axes = axes;
 }
-
-// // 构造函数
-// template <typename T>
-// ndarray<T>::ndarray(vector<T>& arr, vector<long>& shape, vector<int>& inv_axes, 
-//                     vector<long long>& raw_idx_prod, vector<long long>& new_idx_prod){
-//     long long size = 1;
-//     for(auto s : shape) size *= s;
-//     assert((long long)arr.size() == size);
-//     this->data = arr;
-//     this->_shape = shape;
-//     this->_size = size;
-//     this->_ndim = shape.size();
-//     for(int i=0;i<this->_ndim;++i) this->_axes.emplace_back(i);
-//     this->_inv_axes = inv_axes;
-//     // 统计累计索引
-//     this->_raw_idx_prod = raw_idx_prod;
-//     this->_new_idx_prod = new_idx_prod;
-// }
 
 //  destructer
 template <typename T>
@@ -326,16 +252,6 @@ ndarray<T> ndarray<T>::transpose(vector<int>& axes){
     vector<int> __shape = permute(this->_shape, axes);
     // update axes
     vector<int> __axes = permute(this->_shape, axes);
-
-    // // 新的形状
-    // vector<long> new_shape = permutation(this->_shape, axes);
-    // // 计算新的idx_prod
-    // // 统计累计索引
-    // vector<long long> idx_prod(this->_ndim,1);
-    // for(int i=this->_ndim-1;i>0;--i) idx_prod[this->_ndim-i] = idx_prod[this->_ndim-i-1] * new_shape[i];
-    // // 创建axes的逆变换
-    // vector<int> inv_axes(this->_ndim,0);
-    // for(int i=0;i<this->_ndim;++i) inv_axes[axes[i]] = i;
     
     // transformed array
     ndarray<T> trans(this->data,__shape,__strides,__axes);
@@ -396,33 +312,9 @@ ndarray<T> ndarray<T>::reshape(vector<int> &shape){
     return trans;
 }
 
-// 形状变换reshape和转置操作transpose
-/*
-    数据结构
-    ======================================
-    1. 使用一维数组data保存同一数据类型的元素
-    2. 需要包含dtype
-    3. 包含ndim和shape
-    4. 包含strides，用于确认多维度数组元素的访问
-    5. 用一个scalar确认索引位置
-    6. axes存储矩阵轴的情况
-
-    reshape
-    ======================================
-    1. 不改变data
-    2. 操作ndim, shape和strides
-    3. 瞬时完成，应与数组元素个数无关
-
-    transpose
-    ======================================
-    1. 不改变data
-    2. 操作ndim, shape和strides
-    3. 操作axes
-    4. 瞬时完成，应与数组元素个数无关
-
-    reshape 和 transpose
-    ======================================
-    当对进行过transpose操作的数组reshape时，
-    需要重新更改data里的元素位置，并重设数组
-    axes，注意，此时该操作与数组元素个数有关
-*/
+// flatten
+template <typename T>
+ndarray<T> ndarray<T>::flatten(void){
+    vector<int> shape = {(int)this->_size};
+    return reshape(shape);
+}

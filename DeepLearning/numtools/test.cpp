@@ -28,6 +28,10 @@ int main(){
     cout<<mat1.at(0,2,0)<<endl;
     cout<<mat1.item(1)<<endl;
     mat1.show();
+    vector<int> axes3 = {2,1,0};
+    mat1 = mat1.transpose(axes3);
+    mat1 = mat1.flatten();
+    mat1.show();
     
     // 测试2
     cout<<"\n"<<"Test2"<<endl;
