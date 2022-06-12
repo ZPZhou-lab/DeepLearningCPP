@@ -23,6 +23,13 @@ void __check_index(int idx, int bound, int axis){
     assert(idx >= 0 && idx < bound);
 }
 
+void __check_index(int idx, int bound){
+    if(idx >= bound || idx < 0){
+        printf("index %d is out of bounds with size %d\n",idx,bound);
+    }
+    assert(idx >= 0 && idx < bound);
+}
+
 void __check_axes(vector<int>& axes, int ndim){
     try{
         string msg;

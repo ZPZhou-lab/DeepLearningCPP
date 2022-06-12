@@ -31,6 +31,11 @@ private:
     // a vector represents the axes
     vector<int> _axes;
 
+    // cumulative prod of shape, used to locate element
+    vector<long long> __shape_cumprod;
+    // maintenance function of shape_cumprod
+    void __update_shape_cumprod(void);
+
 public:
     // default constructer
     ndarray();
@@ -121,6 +126,8 @@ ndarray<T>::ndarray(vector<T>& array, vector<int>& shape){
     this->_axes = vector<int>(this->_ndim,0);
     for(int i=0;i<_ndim;++i) this->_axes[i] = i;
 
+    __update_shape_cumprod();
+
 }
 
 // constructer
@@ -140,6 +147,8 @@ ndarray<T>::ndarray(vector<T>& array, vector<int>& shape, vector<int>& strides, 
 
     this->_strides = strides;
     this->_axes = axes;
+
+    __update_shape_cumprod();
 }
 
 //  destructer
@@ -148,15 +157,26 @@ ndarray<T>::~ndarray(){
     cout<<"Destructor called"<<endl;
 }
 
+// maintenance function of shape_cumprod
+template <typename T>
+void ndarray<T>::__update_shape_cumprod(void){
+    this->__shape_cumprod = vector<long long>(_ndim,1);
+    for(int i=_ndim-1;i>0;i--) this->__shape_cumprod[i-1] = this->__shape_cumprod[i] * this->_shape[i];
+}
+
 // access element by flat index
 template <typename T>
 T ndarray<T>::item(long long args){
+    // check index
+    __check_index(args,this->_size);
+
     // initial flat index
     long long flat = 0;
     // compute flat index
-    long long step = this->_size / this->_strides[_ndim - 1];
-    flat += args / step;
-    flat += (args%step * this->_strides[_ndim - 1]);
+    for(int i=0;i<_ndim;++i){
+        flat += this->_strides[i] * (args / this->__shape_cumprod[i]);
+        args %= this->__shape_cumprod[i];
+    }
     
     return this->data[flat];
 }
