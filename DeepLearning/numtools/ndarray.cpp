@@ -57,6 +57,8 @@ public:
     int ndim(void);
     // return the shape of the nd-array
     vector<int> shape(void);
+    // return the strides of the nd-array
+    vector<int> strides(void);
 
     // array transform
     ndarray transpose(vector<int>& axes);
@@ -217,6 +219,12 @@ vector<int> ndarray<T>::shape(void){
     return this->_shape;
 }
 
+// the strides of the nd-array
+template <typename T>
+vector<int> ndarray<T>::strides(void){
+    return this->_strides;
+}
+
 // print the array
 template <typename T>
 void ndarray<T>::show(void){
@@ -317,4 +325,43 @@ template <typename T>
 ndarray<T> ndarray<T>::flatten(void){
     vector<int> shape = {(int)this->_size};
     return reshape(shape);
+}
+
+// squeeze
+template <typename T>
+ndarray<T> ndarray<T>::squeeze(void){
+    vector<int> __axes, __shape, __strides, __axes_idx;
+    int __ndim = 0;
+    for(int i=0;i<_ndim;++i){
+        // squeeze the dimension when shape equals to 1
+        if(this->_shape[i] != 1){
+            // update shape and strides
+            __shape.emplace_back(this->_shape[i]);
+            __strides.emplace_back(this->_strides[i]);
+
+            // update axes
+            __axes.emplace_back(this->_axes[i]);
+            // record axes index
+            __axes_idx.emplace_back(__ndim);
+            __ndim++;
+        }
+    }
+
+    // sort the axes and adjust axes index
+    // insert-sort
+    for(int j=1;j<__ndim;j++){
+        for(int i=j;i>0;i--){
+            if(__axes[i] < __axes[i-1]){
+                // swap
+                swap(__axes[i],__axes[i-1]);
+                swap(__axes_idx[i],__axes_idx[i-1]);
+            }else{
+                break;
+            }
+        }
+    }
+    
+    ndarray<T> trans(this->data,__shape,__strides,__axes_idx);
+
+    return trans;
 }
