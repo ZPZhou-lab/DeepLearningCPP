@@ -46,8 +46,10 @@ int main(){
 
     // 测试3
     cout<<"\n"<<"Transpose Test"<<endl;
-    vector<int> shape3 = {4000,5000};
-    ndarray<double> mat4 = nc.normal<double>(0,1,shape3);
+    vector<int> shape3 = {8000,5000};
+    ndarray<int> mat4 = nc.arange<int>(0, 40000000);
+    mat4 = mat4.reshape(shape3);
+
     // mat4.show();
 
     printf("Transpose Using Fast Rotating Shaft: \n");
@@ -65,9 +67,23 @@ int main(){
     ndarray<double> mat6 = nc.linspace<double>(0,1,10);
     mat6.show();
 
-    vector<int> shape4 = {2,5};
+    mat5 = nc.arange<double>(0,20);
+    vector<int> shape4 = {2,5,2};
+    mat5 = mat5.reshape(shape4);
+    vector<int> axes2 = {2,0,1};
+    mat5 = mat5.transpose(axes2);
+    mat5.show();
+    shape4 = {5,4};
     mat5 = mat5.reshape(shape4);
     mat5.show();
+
+    shape4 = {500,400,200};
+    startTime = clock();
+    mat4 = mat4.reshape(shape4);
+    // mat4.show();
+    endTime = clock();
+    printf("Time used %.6fs\n", (double)(endTime - startTime) / CLOCKS_PER_SEC);
+    printf("item 999 %d\n",mat4.item(999));
 
     return 0;
 }

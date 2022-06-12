@@ -363,23 +363,33 @@ ndarray<T> ndarray<T>::reshape(vector<int> &shape){
             break;
         }
     }
+
+    // update ndim
+    int __ndim = shape.size();
+
+    // update strides
+    vector<int> __strides = vector<int>(__ndim,1);
+    for(int i=__ndim-1;i>0;i--) __strides[i-1] = __strides[i] * shape[i];
+
+    // update axes
+    vector<int> __axes = vector<int>(__ndim,0);
+    for(int i=0;i<__ndim;++i) __axes[i] = i;
+
     // use permutation to adjust the position of elements then reshape
     if(flag){
-        return *this;
+        // adjust the position of elements
+        // copy construction
+        vector<T> array(this->data);
+
+        // element table switching
+        for(long long i=0;i<this->_size;++i){
+            array[i] = item(i);
+        }
+
+        trans = ndarray<T>(array,shape,__strides,__axes);
     }
     // do not need to adjust the position of elements
     else{
-        // update ndim
-        int __ndim = shape.size();
-
-        // update strides
-        vector<int> __strides = vector<int>(__ndim,1);
-        for(int i=__ndim-1;i>0;i--) __strides[i-1] = __strides[i] * shape[i];
-
-        // update axes
-        vector<int> __axes = vector<int>(__ndim,0);
-        for(int i=0;i<__ndim;++i) __axes[i] = i;
-
         trans = ndarray<T>(this->data,shape,__strides,__axes);
     }
 
