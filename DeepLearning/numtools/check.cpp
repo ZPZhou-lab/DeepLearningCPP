@@ -12,22 +12,22 @@ using namespace std;
 void __check_shape(long long array_size, long long shape_size){
     if(array_size != shape_size){
         printf("the number of elements in array(%lld) does not match that of shape(%lld)\n",array_size,shape_size);
+        assert(array_size == shape_size);
     }
-    assert(array_size == shape_size);
 }
 
 void __check_index(int idx, int bound, int axis){
     if(idx >= bound || idx < 0){
         printf("index %d is out of bounds for axis %d with size %d\n",idx,axis,bound);
+        assert(idx >= 0 && idx < bound);
     }
-    assert(idx >= 0 && idx < bound);
 }
 
 void __check_index(int idx, int bound){
     if(idx >= bound || idx < 0){
         printf("index %d is out of bounds with size %d\n",idx,bound);
-    }
-    assert(idx >= 0 && idx < bound);
+        assert(idx >= 0 && idx < bound);
+    }   
 }
 
 void __check_axes(vector<int>& axes, int ndim){
@@ -56,4 +56,14 @@ void __check_axes(vector<int>& axes, int ndim){
         cout<<msg<<endl;
         assert(false);
     }
+}
+
+void __check_squeeze(vector<int> axis, vector<int> shape){
+    for(auto i:axis){
+        if(shape[i] > 1){
+            printf("cannot select an axis to squeeze out which has size not equal to one\n");
+            assert(false);
+        }
+    }
+    
 }

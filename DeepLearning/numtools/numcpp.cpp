@@ -125,7 +125,7 @@ ndarray<T> numcpp::normal(double mean, double scale, vector<int>& shape){
     unsigned seed = chrono::system_clock::now().time_since_epoch().count();
     default_random_engine generator(seed);
     // the float generator
-    normal_distribution<double> distribution(mean,scale);
+    normal_distribution<T> distribution(mean,scale);
 
     vector<T> arr(size);
     auto dice = bind(distribution,generator);

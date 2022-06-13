@@ -1,7 +1,9 @@
 #include <bits/stdc++.h>
 #include <cassert>
 #include <csignal>
+#include <cstddef>
 #include <cstdio>
+#include <unordered_set>
 #include <vector>
 #include <typeinfo>
 #include <stdarg.h>
@@ -69,7 +71,7 @@ public:
     ndarray transpose(vector<int>& axes);
     ndarray reshape(vector<int>& shape);
     ndarray flatten(void);
-    ndarray squeeze(void);
+    ndarray squeeze(vector<int> axis=vector<int>());
     
     // 打印矩阵
     void show(void);
@@ -349,22 +351,57 @@ ndarray<T> ndarray<T>::flatten(void){
 
 // squeeze
 template <typename T>
-ndarray<T> ndarray<T>::squeeze(void){
+ndarray<T> ndarray<T>::squeeze(vector<int> axis){
+    // initialization
     vector<int> __axes, __shape, __strides, __axes_idx;
     int __ndim = 0;
-    for(int i=0;i<_ndim;++i){
-        // squeeze the dimension when shape equals to 1
-        if(this->_shape[i] != 1){
-            // update shape and strides
-            __shape.emplace_back(this->_shape[i]);
-            __strides.emplace_back(this->_strides[i]);
 
-            // update axes
-            __axes.emplace_back(this->_axes[i]);
-            // record axes index
-            __axes_idx.emplace_back(__ndim);
-            __ndim++;
+    // squeeze all dimensions whose shape equall to 1
+    if(axis.size() == 0){
+        for(int i=0;i<_ndim;++i){
+            // squeeze the dimension when shape equals to 1
+            if(this->_shape[i] != 1){
+                // update shape and strides
+                __shape.emplace_back(this->_shape[i]);
+                __strides.emplace_back(this->_strides[i]);
+
+                // update axes
+                __axes.emplace_back(this->_axes[i]);
+                // record axes index
+                __axes_idx.emplace_back(__ndim);
+                __ndim++;
+            }
         }
+    }
+    // squeeze the specified axis
+    else{
+        // check squeeze
+        __check_squeeze(axis,this->_shape);
+
+        // squeeze the dimension specified
+        for(int i=0;i<_ndim;++i){
+            // determine whether squeeze the axis i
+            bool flag = true;
+            for(auto j:axis){
+                if(i == j){
+                    flag = false;
+                    break;
+                }
+            }
+            
+            if(flag){
+                // update shape and strides
+                __shape.emplace_back(this->_shape[i]);
+                __strides.emplace_back(this->_strides[i]);
+
+                // update axes
+                __axes.emplace_back(this->_axes[i]);
+                // record axes index
+                __axes_idx.emplace_back(__ndim);
+                __ndim++;
+            }
+        }
+
     }
 
     // sort the axes and adjust axes index
