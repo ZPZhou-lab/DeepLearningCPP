@@ -44,8 +44,6 @@ public:
     // constructer
     ndarray(vector<T>& array, vector<int>& shape);
     ndarray(vector<T>& array, vector<int>& shape, vector<int>& strides, vector<int>& axes);
-    ndarray(vector<T>& array, vector<long>& shape, vector<int>& inv_axes, 
-            vector<long long>& raw_idx_prod, vector<long long>& new_idx_prod);
     // destructor
     ~ndarray();
     
@@ -72,6 +70,10 @@ public:
     ndarray reshape(vector<int>& shape);
     ndarray flatten(void);
     ndarray squeeze(vector<int> axis=vector<int>());
+
+    // array operation
+    ndarray<double> mean(vector<int> axis);
+    double mean(void);
     
     // 打印矩阵
     void show(void);
@@ -419,6 +421,55 @@ ndarray<T> ndarray<T>::squeeze(vector<int> axis){
     }
     
     ndarray<T> trans(this->data,__shape,__strides,__axes_idx);
+
+    return trans;
+}
+
+// mean
+template <typename T>
+double ndarray<T>::mean(void){
+    double m = 0;
+    // compute sum
+    for(auto e:this->data) m += e;
+
+    // compute mean
+    m /= this->_size;
+    return m;
+}
+
+template <typename T>
+ndarray<double> ndarray<T>::mean(vector<int> axis){
+    // initialization
+    ndarray<double> trans;
+
+    // figure mean for all axes by default
+    if(axis.size() == 0){
+        vector<double> array = {this->mean()};
+        vector<int> shape = {1};
+
+        trans = ndarray<double>(array,shape);
+    }
+    // figure mean for specified axis
+    else{
+        vector<double> array;
+        vector<int> __shape = {};
+
+        for(int i=0;i<_ndim;++i){
+            // determine whether squeeze the axis i
+            bool flag = true;
+            for(auto j:axis){
+                if(j == i){
+                    flag = false;
+                    break;
+                }
+            }
+
+            if(flag){
+                __shape.emplace_back(this->_shape[i]);
+            }
+            // need to be down
+        }
+    }
 
     return trans;
 }

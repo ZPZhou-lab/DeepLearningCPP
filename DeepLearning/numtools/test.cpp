@@ -28,9 +28,8 @@ int main(){
 
     axis = {0,3,5};
     mat = mat.squeeze(axis);
-    shape = mat.shape();
-    for(auto s:shape) cout<<s<<" ";
-    cout<<endl;
+    double m = mat.mean();
+    cout<<"mean: "<<m<<endl;
 
     return 0;
 }
