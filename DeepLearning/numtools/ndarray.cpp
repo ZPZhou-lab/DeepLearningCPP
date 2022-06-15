@@ -72,6 +72,8 @@ public:
     ndarray squeeze(vector<int> axis=vector<int>());
 
     // array operation
+    ndarray sum(vector<int> axis);
+    T sum(void);
     ndarray<double> mean(vector<int> axis);
     double mean(void);
     
@@ -425,51 +427,58 @@ ndarray<T> ndarray<T>::squeeze(vector<int> axis){
     return trans;
 }
 
-// mean
+// sum
 template <typename T>
-double ndarray<T>::mean(void){
-    double m = 0;
-    // compute sum
-    for(auto e:this->data) m += e;
+T ndarray<T>::sum(void){
+    T s = 0;
+    for(auto e:this->data) s += e;
 
-    // compute mean
-    m /= this->_size;
-    return m;
+    return s;
 }
 
 template <typename T>
-ndarray<double> ndarray<T>::mean(vector<int> axis){
+ndarray<T> ndarray<T>::sum(vector<int> axis){
     // initialization
-    ndarray<double> trans;
+    ndarray<T> trans;
 
-    // figure mean for all axes by default
+    // figure sum for all axes by default
     if(axis.size() == 0){
-        vector<double> array = {this->mean()};
+        vector<T> array = {this->sum()};
         vector<int> shape = {1};
 
-        trans = ndarray<double>(array,shape);
+        trans = ndarray<T>(array,shape);
     }
-    // figure mean for specified axis
+    // figure sum for specified axis
     else{
-        vector<double> array;
-        vector<int> __shape = {};
 
-        for(int i=0;i<_ndim;++i){
-            // determine whether squeeze the axis i
-            bool flag = true;
-            for(auto j:axis){
-                if(j == i){
-                    flag = false;
-                    break;
-                }
-            }
-
-            if(flag){
-                __shape.emplace_back(this->_shape[i]);
-            }
-            // need to be down
-        }
     }
+
+    return trans;
+}
+
+// mean
+template <typename T>
+double ndarray<T>::mean(void){
+    double m;
+
+    T s = this->sum();
+    m = s / this->_size;
+
+    return m;
+}
+
+
+template <typename T>
+ndarray<double> ndarray<T>::mean(vector<int> axis){
+    // figure sum
+    ndarray<T> s = this->sum(axis);
+
+    // cimpute number of elements
+    long long __num = 1;
+    for(auto i:axis) __num *= this->_shape[i];    
+
+    // compute mean
+    ndarray<double> trans = s / __num;
 
     return trans;
 }
