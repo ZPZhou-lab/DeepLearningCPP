@@ -82,8 +82,12 @@ public:
     ndarray<double> mean(vector<int> axis, bool keepdim=false);
     double mean(void);
     
-    // 打印矩阵
+    // show matrix
     void show(void);
+
+    // opetator reload
+    template<typename T1>
+    ndarray<double> operator / (const T1 b);
 };
 
 // get parameters from an indefinite length parameter list
@@ -166,6 +170,18 @@ ndarray<T>::ndarray(vector<T>& array, vector<int>& shape, vector<int>& strides, 
 template <typename T>
 ndarray<T>::~ndarray(){
     cout<<"Destructor called"<<endl;
+}
+
+// operator reload
+template <typename T>
+template <typename T1>
+ndarray<double> ndarray<T>::operator/(const T1 b){
+    vector<double> res(this->data);
+    for(int i=0;i<_size;++i) res[i] /= b;
+
+    ndarray<double> trans(res,this->_shape);
+
+    return trans;
 }
 
 // maintenance function of shape_cumprod

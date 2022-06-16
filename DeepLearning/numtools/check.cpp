@@ -16,6 +16,19 @@ void __check_shape(long long array_size, long long shape_size){
     }
 }
 
+void __check_shape(vector<int>& shape1, vector<int>& shape2){
+    if(shape1.size() != shape2.size()){
+        printf("operands could not be broadcast together with shapes\n");
+        assert(shape1.size() == shape2.size());
+    }
+    for(int i=0;i<shape1.size();++i){
+        if(shape1[i] != shape2[i]){
+            printf("operands could not be broadcast together with shapes\n");
+            assert(shape1[i] == shape2[i]);
+        }
+    }
+}
+
 void __check_index(int idx, int bound, int axis){
     if(idx >= bound || idx < 0){
         printf("index %d is out of bounds for axis %d with size %d\n",idx,axis,bound);
