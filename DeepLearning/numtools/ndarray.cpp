@@ -38,6 +38,11 @@ private:
     // maintenance function of shape_cumprod
     void __update_shape_cumprod(void);
 
+    // internal(private) access method, check is omitted
+    T __item(long long args);
+    T __item(vector<int>& args);
+    vector<int> __item_loc(long long args, vector<int> axis=vector<int>());
+
 public:
     // default constructer
     ndarray();
@@ -72,9 +77,9 @@ public:
     ndarray squeeze(vector<int> axis=vector<int>());
 
     // array operation
-    ndarray sum(vector<int> axis);
+    ndarray sum(vector<int> axis, bool keepdim=false);
     T sum(void);
-    ndarray<double> mean(vector<int> axis);
+    ndarray<double> mean(vector<int> axis, bool keepdim=false);
     double mean(void);
     
     // 打印矩阵
@@ -170,6 +175,36 @@ void ndarray<T>::__update_shape_cumprod(void){
     for(int i=_ndim-1;i>0;i--) this->__shape_cumprod[i-1] = this->__shape_cumprod[i] * this->_shape[i];
 }
 
+// get flat index
+long long __flat_idx(vector<int>& loc, vector<int>& strides){
+    // initial flat index
+    long long flat = 0;
+
+    // compute flat index
+    for(int i=0;i<loc.size();++i){
+        flat += strides[i] * loc[i];
+    }
+
+    return flat;
+}
+
+// get item location vector
+template <typename T>
+vector<int> ndarray<T>::__item_loc(long long args, vector<int> axis){
+    // initial lication
+    vector<int> loc(_ndim,0);
+    
+    // compute location
+    for(int i=0;i<_ndim;++i){
+        loc[i] = (args / this->__shape_cumprod[i]);
+        args %= this->__shape_cumprod[i];
+    }
+    
+    for(auto j:axis) loc[j] = 0;
+
+    return loc;
+}
+
 // access element by flat index
 template <typename T>
 T ndarray<T>::item(long long args){
@@ -177,13 +212,13 @@ T ndarray<T>::item(long long args){
     __check_index(args,this->_size);
 
     // initial flat index
-    long long flat = 0;
+    long long flat = 0;    
+
     // compute flat index
     for(int i=0;i<_ndim;++i){
         flat += this->_strides[i] * (args / this->__shape_cumprod[i]);
         args %= this->__shape_cumprod[i];
     }
-    
     return this->data[flat];
 }
 
@@ -437,7 +472,7 @@ T ndarray<T>::sum(void){
 }
 
 template <typename T>
-ndarray<T> ndarray<T>::sum(vector<int> axis){
+ndarray<T> ndarray<T>::sum(vector<int> axis, bool keepdim){
     // initialization
     ndarray<T> trans;
 
@@ -450,7 +485,44 @@ ndarray<T> ndarray<T>::sum(vector<int> axis){
     }
     // figure sum for specified axis
     else{
+        // init new shape
+        vector<int> __shape;
+        long long __size = 1;
 
+        for(int i=0;i<_ndim;++i){
+            // flag variable juege whether squeeze the axis
+            bool flag = true;
+            for(auto j:axis){
+                if(i == j){
+                    flag = false;
+                    break;
+                }
+            }
+
+            if(flag){
+                __shape.emplace_back(this->_shape[i]);
+                __size *= this->_shape[i];
+            }else{
+                __shape.emplace_back(1);
+            }
+        }
+
+        // init result
+        vector<T> array(__size,0);
+        trans = ndarray<T>(array,__shape);
+        vector<int> __strides = trans.strides();
+
+        // assign element
+        for(long long i=0;i<_size;++i){
+            vector<int> loc = __item_loc(i,axis);
+            array[__flat_idx(loc,__strides)] += this->item(i);
+        }
+        cout<<endl;
+
+        // construct result
+        trans = ndarray<T>(array,__shape);
+        // squeeze
+        if(!keepdim) trans = trans.squeeze();
     }
 
     return trans;
@@ -469,9 +541,9 @@ double ndarray<T>::mean(void){
 
 
 template <typename T>
-ndarray<double> ndarray<T>::mean(vector<int> axis){
+ndarray<double> ndarray<T>::mean(vector<int> axis, bool keepdim){
     // figure sum
-    ndarray<T> s = this->sum(axis);
+    ndarray<T> s = this->sum(axis,keepdim);
 
     // cimpute number of elements
     long long __num = 1;

@@ -18,18 +18,21 @@ int main(){
     vector<int> axis;
     vector<int> strides;
 
-    shape = {400,250};
-    ndarray<double> mat = nc.randn<double>(shape);
-    axes = {1,0};
-    mat = mat.transpose(axes);
+    shape = {10,5,4,25};
+    ndarray<double> mat = nc.arange<double>(1, 5001);
+    mat = mat.reshape(shape);
+
+    axis = {0,3};
 
     double sum1 = mat.sum();
     ndarray<double> sum2 = mat.sum(axis);
     double mean1 = mat.mean();
     // ndarray<double> mean2 = mat.mean(axis);
     cout<<"sum: "<<sum1<<endl;
-    cout<<"sum: "<<sum2.item(0)<<endl;
+    // cout<<"sum: "<<sum2.item(0)<<endl;
     cout<<"mean: "<<mean1<<endl;
+
+    sum2.show();
 
     return 0;
 }
