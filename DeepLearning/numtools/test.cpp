@@ -18,26 +18,14 @@ int main(){
     vector<int> axis;
     vector<int> strides;
 
-    shape = {300,200,400};
-    ndarray<double> mat = nc.randn<double>(shape);
+    shape = {3,2,4};
+    ndarray<double> mat = nc.arange<double>(1, 25);
+    mat = mat.reshape(shape);
 
-    axis = {0,2};
-
-
-
-    double sum1 = mat.sum();
-    ndarray<double> sum2 = mat.sum(axis);
-    double mean1 = mat.mean();
-
-    startTime = clock();
-    ndarray<double> mean2 = mat.mean(axis);
-    endTime = clock();
-
-    printf("time used: %.4f\n",(double)(endTime - startTime) / CLOCKS_PER_SEC);
-
-    cout<<"sum: "<<sum1<<endl;
-    // cout<<"sum: "<<sum2.item(0)<<endl;
-    cout<<"mean: "<<mean1<<endl;
+    mat.show();
+\
+    mat = mat / 0.0;
+    mat.show();
 
     return 0;
 }

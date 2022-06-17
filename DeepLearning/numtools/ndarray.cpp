@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
 #include <cassert>
+#include <complex>
 #include <csignal>
 #include <cstddef>
 #include <cstdio>
@@ -86,8 +87,16 @@ public:
     void show(void);
 
     // opetator reload
+    // template<typename T1, typename T2>
+    // ndarray<T2> operator + (const T1 b);
     template<typename T1>
-    ndarray<double> operator / (const T1 b);
+    ndarray operator - (const T1 b);
+    template<typename T1>
+    ndarray operator * (const T1 b);
+    template<typename T1>
+    ndarray operator / (const T1 b);
+    template<typename T1>
+    ndarray operator + (const T1 b);
 };
 
 // get parameters from an indefinite length parameter list
@@ -175,11 +184,45 @@ ndarray<T>::~ndarray(){
 // operator reload
 template <typename T>
 template <typename T1>
-ndarray<double> ndarray<T>::operator/(const T1 b){
+ndarray<T> ndarray<T>::operator/(const T1 b){
     vector<double> res(this->data);
-    for(int i=0;i<_size;++i) res[i] /= b;
+    for(int i=0;i<this->_size;++i) res[i] /= b;
 
     ndarray<double> trans(res,this->_shape);
+
+    return trans;
+}
+
+
+template<typename T>
+template<typename T1>
+ndarray<T> ndarray<T>::operator+(const T1 b){
+    vector<T> res(this->data);
+    for(int i=0;i<this->_size;++i) res[i] += b;
+
+    ndarray<T> trans(res,this->_shape);
+
+    return trans;
+}
+
+template <typename T>
+template <typename T1>
+ndarray<T> ndarray<T>::operator*(const T1 b){
+    vector<double> res(this->data);
+    for(int i=0;i<this->_size;++i) res[i] *= b;
+
+    ndarray<T> trans(res,this->_shape);
+
+    return trans;
+}
+
+template <typename T>
+template <typename T1>
+ndarray<T> ndarray<T>::operator-(const T1 b){
+    vector<T> res(this->data);
+    for(int i=0;i<this->_size;++i) res[i] -= b;
+
+    ndarray<T> trans(res,this->_shape);
 
     return trans;
 }
