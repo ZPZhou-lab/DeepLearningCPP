@@ -21,8 +21,8 @@ private:
 
     // the numver of elements
     long long _size;
-   // store all elements in a vector
-   T *_data;
+    // store all elements in a vector
+    T *_data;
 
     // the numver of the dimensions
     int _ndim; 
@@ -40,9 +40,9 @@ private:
     void __update_shape_cumprod(void);
 
     // internal(private) access method, check is omitted
-    T __item(long long args);
-    T __item(vector<int>& args);
-    vector<int> __item_loc(long long args, vector<int> axis=vector<int>());
+    inline T __item(long long args);
+    inline T __item(vector<int>& args);
+    inline vector<int> __item_loc(long long args, vector<int> axis=vector<int>());
 
 public:
     // default constructer
@@ -54,8 +54,8 @@ public:
     ~ndarray();
     
     // access element
-    T item(long long args); // access element by flat index
-    T item(vector<int>& args); // access element by an nd-index into the array
+    inline T item(long long args); // access element by flat index
+    inline T item(vector<int>& args); // access element by an nd-index into the array
     
     template<typename ...Args> 
     T at(Args...args); // access element by an separate nd-index
@@ -143,7 +143,9 @@ ndarray<T>::ndarray(T *array, vector<int>& shape){
     // judge whether the number of array elements matches the dimension
     //__check_shape((long long)array.size(),size);
 
-    this->_data = array;
+    T *arr = (T*)malloc(sizeof(T)*size);
+    for(long long i=0;i<size;++i) arr[i] = array[i];
+    this->_data = arr;
     this->_shape = shape;
     this->_ndim = shape.size();
     this->_size = size;
@@ -170,7 +172,9 @@ ndarray<T>::ndarray(T *array, vector<int>& shape, vector<int>& strides, vector<i
     // judge whether the number of array elements matches the dimension
     // __check_shape((long long)array.size(),size);
 
-    this->_data = array;
+    T *arr = (T*)malloc(sizeof(T)*size);
+    for(long long i=0;i<size;++i) arr[i] = array[i];
+    this->_data = arr;
     this->_shape = shape;
     this->_size = size;
     this->_ndim = shape.size();
@@ -192,10 +196,10 @@ ndarray<T>::~ndarray(){
 template <typename T>
 template <typename T1>
 ndarray<T> ndarray<T>::operator/(const T1 b){
-    double res[this->_size];
-    for(long long i=0;i<this->_size;++i) res[i] = this->_data[i] / b;
+    double *array = (double*)malloc(sizeof(double)*this->_size);
+    for(long long i=0;i<this->_size;++i) array[i] = this->_data[i] / b;
 
-    ndarray<double> trans(res,this->_shape);
+    ndarray<double> trans(array,this->_shape);
 
     return trans;
 }
@@ -204,10 +208,10 @@ ndarray<T> ndarray<T>::operator/(const T1 b){
 template<typename T>
 template<typename T1>
 ndarray<T> ndarray<T>::operator+(const T1 b){
-    T res[this->_size];
-    for(long long i=0;i<this->_size;++i) res[i] = this->_data[i] + b;
+    T *array = (T*)malloc(sizeof(T)*this->_size);
+    for(long long i=0;i<this->_size;++i) array[i] = this->_data[i] + b;
 
-    ndarray<T> trans(res,this->_shape);
+    ndarray<T> trans(array,this->_shape);
 
     return trans;
 }
@@ -215,10 +219,10 @@ ndarray<T> ndarray<T>::operator+(const T1 b){
 template <typename T>
 template <typename T1>
 ndarray<T> ndarray<T>::operator*(const T1 b){
-    double res[this->_size];
-    for(long long i=0;i<this->_size;++i) res[i] = this->_data[i] * b;
+    double *array = (double*)malloc(sizeof(double)*this->_size);
+    for(long long i=0;i<this->_size;++i) array[i] = this->_data[i] * b;
 
-    ndarray<double> trans(res,this->_shape);
+    ndarray<double> trans(array,this->_shape);
 
     return trans;
 }
@@ -226,10 +230,10 @@ ndarray<T> ndarray<T>::operator*(const T1 b){
 template <typename T>
 template <typename T1>
 ndarray<T> ndarray<T>::operator-(const T1 b){
-    T res[this->_size];
-    for(long long i=0;i<this->_size;++i) res[i] = this->_data[i] - b;
+    T *array = (T*)malloc(sizeof(T)*this->_size);
+    for(long long i=0;i<this->_size;++i) array[i] = this->_data[i] - b;
 
-    ndarray<T> trans(res,this->_shape);
+    ndarray<T> trans(array,this->_shape);
 
     return trans;
 }
@@ -239,7 +243,7 @@ template <typename T1>
 ndarray<T> ndarray<T>::operator+(ndarray<T1> &b){
     ndarray<T> flat1 = this->flatten();
     ndarray<T1> flat2 = b.flatten();
-    T array[this->_size];
+    T *array = (T*)malloc(sizeof(T)*this->_size);
     for(long long i=0;i<this->_size;++i) array[i] = flat1.data()[i] + flat2.data()[i];
     // for(int i=0;i<this->_size;++i) array[i] += flat2.data()[i];
 
@@ -256,7 +260,7 @@ void ndarray<T>::__update_shape_cumprod(void){
 }
 
 // get flat index
-long long __flat_idx(vector<int>& loc, vector<int>& strides){
+inline long long __flat_idx(vector<int>& loc, vector<int>& strides){
     // initial flat index
     long long flat = 0;
 
@@ -270,7 +274,7 @@ long long __flat_idx(vector<int>& loc, vector<int>& strides){
 
 // get item location vector
 template <typename T>
-vector<int> ndarray<T>::__item_loc(long long args, vector<int> axis){
+inline vector<int> ndarray<T>::__item_loc(long long args, vector<int> axis){
     // initial lication
     vector<int> loc(_ndim,0);
     
@@ -287,7 +291,7 @@ vector<int> ndarray<T>::__item_loc(long long args, vector<int> axis){
 
 // access element by flat index
 template <typename T>
-T ndarray<T>::item(long long args){
+inline T ndarray<T>::item(long long args){
     // check index
     __check_index(args,this->_size);
 
@@ -304,7 +308,7 @@ T ndarray<T>::item(long long args){
 
 // access element by nd-array index
 template <typename T>
-T ndarray<T>::item(vector<int>& args){
+inline T ndarray<T>::item(vector<int>& args){
     // initial flat index
     long long flat = 0;
 
@@ -450,7 +454,7 @@ ndarray<T> ndarray<T>::reshape(vector<int> &shape){
     if(flag){
         // adjust the position of elements
         // copy construction
-        T array[this->_size];
+        T *array = (T*)malloc(sizeof(T)*this->_size);
 
         // element table switching
         for(long long i=0;i<this->_size;++i){
@@ -552,7 +556,7 @@ ndarray<T> ndarray<T>::squeeze(vector<int> axis){
 template <typename T>
 T ndarray<T>::sum(void){
     T s = 0;
-    for(auto e:this->_data) s += e;
+    for(long long i=0;i<this->_size;++i) s += this->_data[i];
 
     return s;
 }
@@ -594,7 +598,7 @@ ndarray<T> ndarray<T>::sum(vector<int> axis, bool keepdim){
         }
 
         // init result
-        T array[__size] = {0};
+        T *array = (T*)malloc(sizeof(T)*__size);
         trans = ndarray<T>(array,__shape);
         vector<int> __strides = trans.strides();
 
