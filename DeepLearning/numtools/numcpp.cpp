@@ -45,7 +45,7 @@ template <typename T>
 ndarray<T> numcpp::zeros(vector<int>& shape){
     long long size = 1;
     for(auto s : shape) size *= s;
-    vector<T> arr(size,0);
+    T arr[size] = 0;
     ndarray<T> mat(arr,shape);
     return mat;
 }
@@ -55,7 +55,7 @@ template <typename T>
 ndarray<T> numcpp::ones(vector<int>& shape){
     long long size = 1;
     for(auto s : shape) size *= s;
-    vector<T> arr(size,1);
+    T arr[size] = {1};
     ndarray<T> mat(arr,shape);
     return mat;
 }
@@ -64,7 +64,7 @@ ndarray<T> numcpp::ones(vector<int>& shape){
 template <typename T>
 ndarray<T> numcpp::arange(long long start, long long end){
     long long size = end - start;
-    vector<T> arr(size,1);
+    T* arr = new T[size];
     for(long long i=0;i<size;++i) arr[i] = (T)(start + i);
     vector<int> shape = {(int)size};
     ndarray<T> mat(arr,shape);
@@ -75,7 +75,7 @@ template <typename T>
 ndarray<T> numcpp::linspace(double start, double end, long long N){
     long long size = N;
     T sep = (end - start) / (N-1);
-    vector<T> arr(size,1);
+    T arr[size];
     for(long long i=0;i<size;++i) arr[i] = (T)(start + i*sep);
     vector<int> shape = {(int)size};
     ndarray<T> mat(arr,shape);
@@ -102,7 +102,7 @@ ndarray<T> numcpp::rand(double low, double high, vector<int>& shape){
     uniform_real_distribution<double> distribution_real(low,high);
 
     // create array
-    vector<T> arr(size);
+    T arr[size];
     if(int_dtypes.find(dataInfo.name()) != int_dtypes.end()){
         auto dice = bind(distribution_int,generator);
         for(long long i=0;i<size;++i) arr[i] = dice();
@@ -127,7 +127,7 @@ ndarray<T> numcpp::normal(double mean, double scale, vector<int>& shape){
     // the float generator
     normal_distribution<T> distribution(mean,scale);
 
-    vector<T> arr(size);
+    T arr[size];
     auto dice = bind(distribution,generator);
     for(long long i=0;i<size;++i) arr[i] = dice();
     ndarray<T> mat(arr,shape);

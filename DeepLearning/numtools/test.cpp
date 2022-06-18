@@ -16,24 +16,34 @@ int main(){
     vector<int> shape;
     vector<int> axes;
     vector<int> axis;
-    vector<int> strides;
-
+    vector<int> strides;;
     
-    ndarray<double> mat1 = nc.arange<double>(1, 25);
-    shape = {3,4,2};
-    mat1 = mat1.reshape(shape);
-
-    ndarray<double> mat2 = nc.arange<double>(-25, -1);
-    shape = {4,3,2};
-    mat2 = mat2.reshape(shape);
-
-    axes = {0,2,1};
+    shape = {500,800};
+    ndarray<double> mat1 = nc.randn<double>(shape);
+    axes = {1,0};
     mat1 = mat1.transpose(axes);
-    axes = {1,2,0};
-    mat2 = mat2.transpose(axes);
 
-    auto mat3 = mat1 + mat2;
-    mat3.show();
+    shape = {80,500,10};
+
+    startTime = clock();
+    mat1 = mat1.reshape(shape);
+    endTime = clock();
+    printf("time used: %.4fS\n",(double)(endTime - startTime) / CLOCKS_PER_SEC);
+
+    // ndarray<double> mat2 = nc.arange<double>(-25, -1);
+    // shape = {4,3,2};
+    // mat2 = mat2.reshape(shape);
+
+    // axes = {0,2,1};
+    // mat1 = mat1.transpose(axes);
+    // axes = {1,2,0};
+    // mat2 = mat2.transpose(axes);
+
+    // mat1.show();
+    // mat2.show();
+
+    // auto mat3 = mat1 / 2;
+    // mat3.show();
 
     return 0;
 }

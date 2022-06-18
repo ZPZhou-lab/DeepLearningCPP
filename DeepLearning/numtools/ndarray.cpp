@@ -19,10 +19,10 @@ private:
     typedef T value_type; 
     value_type _dtype;
 
-    // store all elements in a vector
-    vector<T> _data; 
     // the numver of elements
     long long _size;
+   // store all elements in a vector
+   T *_data;
 
     // the numver of the dimensions
     int _ndim; 
@@ -48,8 +48,8 @@ public:
     // default constructer
     ndarray();
     // constructer
-    ndarray(vector<T>& array, vector<int>& shape);
-    ndarray(vector<T>& array, vector<int>& shape, vector<int>& strides, vector<int>& axes);
+    ndarray(T *array, vector<int>& shape);
+    ndarray(T *array, vector<int>& shape, vector<int>& strides, vector<int>& axes);
     // destructor
     ~ndarray();
     
@@ -71,7 +71,7 @@ public:
     // return the strides of the nd-array
     vector<int> strides(void);
     // fetch _data
-    vector<T> data(void);
+    T* data(void);
 
     // array transform
     ndarray transpose(vector<int>& axes);
@@ -135,13 +135,13 @@ ndarray<T>::ndarray(){
 
 // constructer
 template <typename T>
-ndarray<T>::ndarray(vector<T>& array, vector<int>& shape){
+ndarray<T>::ndarray(T *array, vector<int>& shape){
     // compute size
     long long size = 1;
     for(auto s : shape) size *= s;
 
     // judge whether the number of array elements matches the dimension
-    __check_shape((long long)array.size(),size);
+    //__check_shape((long long)array.size(),size);
 
     this->_data = array;
     this->_shape = shape;
@@ -162,13 +162,13 @@ ndarray<T>::ndarray(vector<T>& array, vector<int>& shape){
 
 // constructer
 template <typename T>
-ndarray<T>::ndarray(vector<T>& array, vector<int>& shape, vector<int>& strides, vector<int>& axes){
+ndarray<T>::ndarray(T *array, vector<int>& shape, vector<int>& strides, vector<int>& axes){
     // compute size
     long long size = 1;
     for(auto s:shape) size *= s;
 
     // judge whether the number of array elements matches the dimension
-    __check_shape((long long)array.size(),size);
+    // __check_shape((long long)array.size(),size);
 
     this->_data = array;
     this->_shape = shape;
@@ -184,6 +184,7 @@ ndarray<T>::ndarray(vector<T>& array, vector<int>& shape, vector<int>& strides, 
 //  destructer
 template <typename T>
 ndarray<T>::~ndarray(){
+    // delete [] _data;
     cout<<"Destructor called"<<endl;
 }
 
@@ -191,8 +192,8 @@ ndarray<T>::~ndarray(){
 template <typename T>
 template <typename T1>
 ndarray<T> ndarray<T>::operator/(const T1 b){
-    vector<double> res(this->_data);
-    for(int i=0;i<this->_size;++i) res[i] /= b;
+    double res[this->_size];
+    for(long long i=0;i<this->_size;++i) res[i] = this->_data[i] / b;
 
     ndarray<double> trans(res,this->_shape);
 
@@ -203,8 +204,8 @@ ndarray<T> ndarray<T>::operator/(const T1 b){
 template<typename T>
 template<typename T1>
 ndarray<T> ndarray<T>::operator+(const T1 b){
-    vector<T> res(this->_data);
-    for(int i=0;i<this->_size;++i) res[i] += b;
+    T res[this->_size];
+    for(long long i=0;i<this->_size;++i) res[i] = this->_data[i] + b;
 
     ndarray<T> trans(res,this->_shape);
 
@@ -214,10 +215,10 @@ ndarray<T> ndarray<T>::operator+(const T1 b){
 template <typename T>
 template <typename T1>
 ndarray<T> ndarray<T>::operator*(const T1 b){
-    vector<double> res(this->_data);
-    for(int i=0;i<this->_size;++i) res[i] *= b;
+    double res[this->_size];
+    for(long long i=0;i<this->_size;++i) res[i] = this->_data[i] * b;
 
-    ndarray<T> trans(res,this->_shape);
+    ndarray<double> trans(res,this->_shape);
 
     return trans;
 }
@@ -225,8 +226,8 @@ ndarray<T> ndarray<T>::operator*(const T1 b){
 template <typename T>
 template <typename T1>
 ndarray<T> ndarray<T>::operator-(const T1 b){
-    vector<T> res(this->_data);
-    for(int i=0;i<this->_size;++i) res[i] -= b;
+    T res[this->_size];
+    for(long long i=0;i<this->_size;++i) res[i] = this->_data[i] - b;
 
     ndarray<T> trans(res,this->_shape);
 
@@ -238,8 +239,9 @@ template <typename T1>
 ndarray<T> ndarray<T>::operator+(ndarray<T1> &b){
     ndarray<T> flat1 = this->flatten();
     ndarray<T1> flat2 = b.flatten();
-    vector<T> array(flat1.data());
-    for(int i=0;i<this->_size;++i) array[i] += flat2.data()[i];
+    T array[this->_size];
+    for(long long i=0;i<this->_size;++i) array[i] = flat1.data()[i] + flat2.data()[i];
+    // for(int i=0;i<this->_size;++i) array[i] += flat2.data()[i];
 
     ndarray<T> trans(array,this->_shape);
 
@@ -366,7 +368,7 @@ vector<int> ndarray<T>::strides(void){
 
 // fetch data
 template <typename T>
-vector<T> ndarray<T>::data(void){
+T* ndarray<T>::data(void){
     return this->_data;
 }
 
@@ -374,7 +376,7 @@ vector<T> ndarray<T>::data(void){
 template <typename T>
 void ndarray<T>::show(void){
     if(this->_ndim == 1){
-        for(auto d : _data) printf("%12.4f", d);
+        for(long long i=0;i<_size;++i) printf("%12.4f", _data[i]);
         printf("\n");
     }else{
         // compute cummulative prod of shape
@@ -448,7 +450,7 @@ ndarray<T> ndarray<T>::reshape(vector<int> &shape){
     if(flag){
         // adjust the position of elements
         // copy construction
-        vector<T> array(this->_data);
+        T array[this->_size];
 
         // element table switching
         for(long long i=0;i<this->_size;++i){
@@ -562,7 +564,7 @@ ndarray<T> ndarray<T>::sum(vector<int> axis, bool keepdim){
 
     // figure sum for all axes by default
     if(axis.size() == 0){
-        vector<T> array = {this->sum()};
+        T array[1] = {this->sum()};
         vector<int> shape = {1};
 
         trans = ndarray<T>(array,shape);
@@ -592,7 +594,7 @@ ndarray<T> ndarray<T>::sum(vector<int> axis, bool keepdim){
         }
 
         // init result
-        vector<T> array(__size,0);
+        T array[__size] = {0};
         trans = ndarray<T>(array,__shape);
         vector<int> __strides = trans.strides();
 
