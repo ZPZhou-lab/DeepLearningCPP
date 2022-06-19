@@ -18,14 +18,15 @@ int main(){
     vector<int> axis;
     vector<int> strides;;
     
-    vector<double> arr = {1,2,3,4};
-    shape = {2,2};
-    ndarray<double> mat(arr,shape);
+    ndarray<double> mat1 = nc.arange<double>(1, 25);
+    shape = {3,2,4};
+    mat1 = mat1.reshape(shape);
 
-    mat.show();
+    ndarray<double> mat2 = nc.arange<double>(-25, -1);
+    mat2 = mat2.reshape(shape);
 
-    arr[2] = 10;
-    mat.show();
+    auto mat3 = mat1 / mat2;
+    mat3.show();
 
     return 0;
 }

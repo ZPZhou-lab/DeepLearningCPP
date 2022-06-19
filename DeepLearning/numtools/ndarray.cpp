@@ -93,15 +93,21 @@ public:
     template<typename T1>
     ndarray operator - (const T1 b);
     template<typename T1>
-    ndarray operator * (const T1 b);
+    ndarray<double> operator * (const T1 b);
     template<typename T1>
-    ndarray operator / (const T1 b);
+    ndarray<double> operator / (const T1 b);
     template<typename T1>
     ndarray operator + (const T1 b);
 
     // operation between ndarray and ndarray
     template<typename T1>
     ndarray operator + (ndarray<T1> &b);
+    template<typename T1>
+    ndarray operator - (ndarray<T1> &b);
+    template<typename T1>
+    ndarray<double> operator * (ndarray<T1> &b);
+    template<typename T1>
+    ndarray<double> operator / (ndarray<T1> &b);
 
 };
 
@@ -190,7 +196,7 @@ ndarray<T>::~ndarray(){
 // operator reload
 template <typename T>
 template <typename T1>
-ndarray<T> ndarray<T>::operator/(const T1 b){
+ndarray<double> ndarray<T>::operator/(const T1 b){
     vector<double> res(this->_data);
     for(int i=0;i<this->_size;++i) res[i] /= b;
 
@@ -213,11 +219,11 @@ ndarray<T> ndarray<T>::operator+(const T1 b){
 
 template <typename T>
 template <typename T1>
-ndarray<T> ndarray<T>::operator*(const T1 b){
+ndarray<double> ndarray<T>::operator*(const T1 b){
     vector<double> res(this->_data);
     for(int i=0;i<this->_size;++i) res[i] *= b;
 
-    ndarray<T> trans(res,this->_shape);
+    ndarray<double> trans(res,this->_shape);
 
     return trans;
 }
@@ -245,6 +251,46 @@ ndarray<T> ndarray<T>::operator+(ndarray<T1> &b){
 
     return trans;
 }
+
+template <typename T>
+template <typename T1>
+ndarray<T> ndarray<T>::operator-(ndarray<T1> &b){
+    ndarray<T> flat1 = this->flatten();
+    ndarray<T1> flat2 = b.flatten();
+    vector<T> array(flat1.data());
+    for(int i=0;i<this->_size;++i) array[i] -= flat2.data()[i];
+
+    ndarray<T> trans(array,this->_shape);
+
+    return trans;
+}
+
+template <typename T>
+template <typename T1>
+ndarray<double> ndarray<T>::operator*(ndarray<T1> &b){
+    ndarray<T> flat1 = this->flatten();
+    ndarray<T1> flat2 = b.flatten();
+    vector<double> array(flat1.data());
+    for(int i=0;i<this->_size;++i) array[i] *= flat2.data()[i];
+
+    ndarray<double> trans(array,this->_shape);
+
+    return trans;
+}
+
+template <typename T>
+template <typename T1>
+ndarray<double> ndarray<T>::operator/(ndarray<T1> &b){
+    ndarray<T> flat1 = this->flatten();
+    ndarray<T1> flat2 = b.flatten();
+    vector<double> array(flat1.data());
+    for(int i=0;i<this->_size;++i) array[i] /= flat2.data()[i];
+
+    ndarray<double> trans(array,this->_shape);
+
+    return trans;
+}
+
 
 // maintenance function of shape_cumprod
 template <typename T>
