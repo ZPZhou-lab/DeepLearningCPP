@@ -61,17 +61,17 @@ public:
     T at(Args...args); // access element by an separate nd-index
 
     // return _data type
-    string dtype(void);
+    const string dtype(void);
     // return the number of elements
-    long long size(void);
+    const long long size(void);
     // return the number of dimensions
-    int ndim(void);
+    const int ndim(void);
     // return the shape of the nd-array
-    vector<int> shape(void);
+    const vector<int> shape(void);
     // return the strides of the nd-array
-    vector<int> strides(void);
+    const vector<int> strides(void);
     // fetch _data
-    vector<T> data(void);
+    const vector<T> data(void);
 
     // array transform
     ndarray transpose(vector<int>& axes);
@@ -254,7 +254,7 @@ void ndarray<T>::__update_shape_cumprod(void){
 }
 
 // get flat index
-long long __flat_idx(vector<int>& loc, vector<int>& strides){
+inline long long __flat_idx(vector<int>& loc, vector<int>& strides){
     // initial flat index
     long long flat = 0;
 
@@ -268,7 +268,7 @@ long long __flat_idx(vector<int>& loc, vector<int>& strides){
 
 // get item location vector
 template <typename T>
-vector<int> ndarray<T>::__item_loc(long long args, vector<int> axis){
+inline vector<int> ndarray<T>::__item_loc(long long args, vector<int> axis){
     // initial lication
     vector<int> loc(_ndim,0);
     
@@ -285,7 +285,7 @@ vector<int> ndarray<T>::__item_loc(long long args, vector<int> axis){
 
 // access element by flat index
 template <typename T>
-T ndarray<T>::item(long long args){
+inline T ndarray<T>::item(long long args){
     // check index
     __check_index(args,this->_size);
 
@@ -302,7 +302,7 @@ T ndarray<T>::item(long long args){
 
 // access element by nd-array index
 template <typename T>
-T ndarray<T>::item(vector<int>& args){
+inline T ndarray<T>::item(vector<int>& args){
     // initial flat index
     long long flat = 0;
 
@@ -320,7 +320,7 @@ T ndarray<T>::item(vector<int>& args){
 // access element by seperate nd-array index
 template <typename T>
 template <typename ...Args>
-T ndarray<T>::at(Args...args){
+inline T ndarray<T>::at(Args...args){
     // fetch nd-array index
     vector<int> idx;
     idx = fetchArgs(idx,args...);
@@ -331,7 +331,7 @@ T ndarray<T>::at(Args...args){
 
 // return _data type
 template <typename T>
-string ndarray<T>::dtype(void){
+const string ndarray<T>::dtype(void){
     map<string,string> dtypes = {
         {"i","int"}, {"f","float"}, {"d","double"}, {"l","long"}, {"b","bool"},
         {"e", "long double"}, {"x","long long"}
@@ -342,31 +342,31 @@ string ndarray<T>::dtype(void){
 
 // the number of elements
 template <typename T>
-long long ndarray<T>::size(void){
+const long long ndarray<T>::size(void){
     return this->_size;
 }
 
 // the number of dimensions
 template <typename T>
-int ndarray<T>::ndim(void){
+const int ndarray<T>::ndim(void){
     return this->_ndim;
 }
 
 // the number of elements in each dimension
 template <typename T>
-vector<int> ndarray<T>::shape(void){
+const vector<int> ndarray<T>::shape(void){
     return this->_shape;
 }
 
 // the strides of the nd-array
 template <typename T>
-vector<int> ndarray<T>::strides(void){
+const vector<int> ndarray<T>::strides(void){
     return this->_strides;
 }
 
 // fetch data
 template <typename T>
-vector<T> ndarray<T>::data(void){
+const vector<T> ndarray<T>::data(void){
     return this->_data;
 }
 
