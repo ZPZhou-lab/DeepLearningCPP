@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+#include <bits/types/clock_t.h>
 #include <cassert>
 #include <complex>
 #include <csignal>
@@ -6,11 +7,14 @@
 #include <cstdio>
 #include <unordered_set>
 #include <vector>
+#include <ctime>
 #include <typeinfo>
 #include <stdarg.h>
 #include "check.cpp"
 #pragma once
 using namespace std;
+
+clock_t tic, toc;
 
 template <typename T>
 class ndarray{
@@ -57,8 +61,7 @@ public:
     T item(long long args); // access element by flat index
     T item(vector<int>& args); // access element by an nd-index into the array
     
-    template<typename ...Args> 
-    T at(Args...args); // access element by an separate nd-index
+    T at(long long idx); // access element by index
 
     // return _data type
     const string dtype(void);
@@ -71,7 +74,7 @@ public:
     // return the strides of the nd-array
     const vector<int> strides(void);
     // fetch _data
-    const vector<T> data(void);
+    const vector<T> &data(void);
 
     // array transform
     ndarray transpose(vector<int>& axes);
@@ -245,7 +248,7 @@ ndarray<T> ndarray<T>::operator+(ndarray<T1> &b){
     ndarray<T> flat1 = this->flatten();
     ndarray<T1> flat2 = b.flatten();
     vector<T> array(flat1.data());
-    for(int i=0;i<this->_size;++i) array[i] += flat2.data()[i];
+    for(int i=0;i<this->_size;++i) array[i] += flat2.at(i);
 
     ndarray<T> trans(array,this->_shape);
 
@@ -258,7 +261,7 @@ ndarray<T> ndarray<T>::operator-(ndarray<T1> &b){
     ndarray<T> flat1 = this->flatten();
     ndarray<T1> flat2 = b.flatten();
     vector<T> array(flat1.data());
-    for(int i=0;i<this->_size;++i) array[i] -= flat2.data()[i];
+    for(int i=0;i<this->_size;++i) array[i] -= flat2.at(i);
 
     ndarray<T> trans(array,this->_shape);
 
@@ -271,7 +274,7 @@ ndarray<double> ndarray<T>::operator*(ndarray<T1> &b){
     ndarray<T> flat1 = this->flatten();
     ndarray<T1> flat2 = b.flatten();
     vector<double> array(flat1.data());
-    for(int i=0;i<this->_size;++i) array[i] *= flat2.data()[i];
+    for(int i=0;i<this->_size;++i) array[i] *= flat2.at(i);
 
     ndarray<double> trans(array,this->_shape);
 
@@ -284,7 +287,7 @@ ndarray<double> ndarray<T>::operator/(ndarray<T1> &b){
     ndarray<T> flat1 = this->flatten();
     ndarray<T1> flat2 = b.flatten();
     vector<double> array(flat1.data());
-    for(int i=0;i<this->_size;++i) array[i] /= flat2.data()[i];
+    for(int i=0;i<this->_size;++i) array[i] /= flat2.at(i);
 
     ndarray<double> trans(array,this->_shape);
 
@@ -365,13 +368,9 @@ inline T ndarray<T>::item(vector<int>& args){
 
 // access element by seperate nd-array index
 template <typename T>
-template <typename ...Args>
-inline T ndarray<T>::at(Args...args){
-    // fetch nd-array index
-    vector<int> idx;
-    idx = fetchArgs(idx,args...);
-
-    return item(idx);
+inline T ndarray<T>::at(long long idx){
+    // return element
+    return this->_data[idx];
 }
 
 
@@ -412,7 +411,7 @@ const vector<int> ndarray<T>::strides(void){
 
 // fetch data
 template <typename T>
-const vector<T> ndarray<T>::data(void){
+const vector<T> &ndarray<T>::data(void){
     return this->_data;
 }
 
