@@ -17,14 +17,12 @@ int main(){
     vector<int> axis;
     vector<int> strides;;
 
-    shape = {8000,5000};
-    ndarray<double> mat1 = nc.randn<double>(shape);    
-    ndarray<double> mat2 = nc.randn<double>(shape);
+    shape = {3,4};
+    auto mat1 = nc.randn<double>(shape);
+    mat1.show();
 
-    startTime = clock();
-    auto mat3 = mat1 * mat2;
-    endTime = clock();
-    printf("Time used: %.4fs\n",(double)(endTime - startTime) / CLOCKS_PER_SEC );
-
+    mat1[0] = 100;
+    mat1.show();
+    
     return 0;
 }

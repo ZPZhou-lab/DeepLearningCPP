@@ -92,6 +92,10 @@ public:
     void show(void);
 
     // opetator reload
+    // operator reload []
+    T &operator [] (long long args);
+    const T &operator [] (long long args) const;
+
     // operation between ndarray and real number
     template<typename T1>
     ndarray operator - (const T1 b);
@@ -373,6 +377,15 @@ inline T ndarray<T>::at(long long idx){
     return this->_data[idx];
 }
 
+template<typename T>
+T &ndarray<T>::operator[](long long args){
+    return this->_data[args];
+}
+
+template <typename T>
+const T &ndarray<T>::operator[](long long args) const{
+    return this->_data[args];
+}
 
 // return _data type
 template <typename T>
@@ -436,6 +449,7 @@ void ndarray<T>::show(void){
             }
         }
     }
+    printf("\n");
 }
 
 // transpose
