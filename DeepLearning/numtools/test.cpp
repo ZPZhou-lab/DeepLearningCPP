@@ -23,9 +23,10 @@ int main(){
     mat1.show();
 
     axis = {0};
-    auto mat2 = mat1.sum(axis,true);
-
+    auto mat2 = mat1.min(axis,true);
     mat2.show();
+
+    cout<<mat1.max()<<endl;
     
     return 0;
 }

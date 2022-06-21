@@ -1,10 +1,13 @@
 #include <bits/stdc++.h>
 #include <bits/types/clock_t.h>
 #include <cassert>
+#include <climits>
 #include <complex>
 #include <csignal>
 #include <cstddef>
 #include <cstdio>
+#include <string>
+#include <cmath>
 #include <unordered_set>
 #include <vector>
 #include <ctime>
@@ -83,9 +86,13 @@ public:
     ndarray squeeze(vector<int> axis=vector<int>());
 
     // array operation
-    ndarray reduction(vector<int> axis, void (*func)(vector<T>& array, long long flat_idx, T e), bool keepdim);
+    ndarray reduction(vector<int> axis, void (*func)(vector<T>& array, long long flat_idx, T e), bool keepdim, char method);
     ndarray sum(vector<int> axis, bool keepdim=false);
     T sum(void);
+    ndarray max(vector<int> axis, bool keepdim=false);
+    T max(void);
+    ndarray min(vector<int> axis, bool keepdim=false);
+    T min(void);
     ndarray<double> mean(vector<int> axis, bool keepdim=false);
     double mean(void);
     
@@ -615,6 +622,24 @@ T ndarray<T>::sum(void){
     return s;
 }
 
+// max
+template <typename T>
+T ndarray<T>::max(void){
+    T s = INT_MIN;
+    for(auto e:this->_data) s = std::max(s,e);
+
+    return s;
+}
+
+// min
+template <typename T>
+T ndarray<T>::min(void){
+    T s = INT_MAX;
+    for(auto e:this->_data) s = std::min(s,e);
+
+    return s;
+}
+
 template <typename T>
 void sum_reduction(vector<T> &array, long long flat_idx, T e){
     array[flat_idx] += e;
@@ -622,27 +647,53 @@ void sum_reduction(vector<T> &array, long long flat_idx, T e){
 
 template <typename T>
 void max_reduction(vector<T> &array, long long flat_idx,T e){
-    array[flat_idx] = max(array[flat_idx],e);
+    array[flat_idx] = std::max(array[flat_idx],e);
 }
 
 template <typename T>
 void min_reduction(vector<T> &array, long long flat_idx,T e){
-    array[flat_idx] = min(array[flat_idx],e);
+    array[flat_idx] = std::min(array[flat_idx],e);
 }
 
 template <typename T>
 ndarray<T> ndarray<T>::sum(vector<int> axis, bool keepdim){
-    return this->reduction(axis,sum_reduction, keepdim);
+    return this->reduction(axis,sum_reduction, keepdim,'s');
 }
 
 template <typename T>
-ndarray<T> ndarray<T>::reduction(vector<int> axis, void (*func)(vector<T> &array, long long flat_idx, T e), bool keepdim){
+ndarray<T> ndarray<T>::max(vector<int> axis, bool keepdim){
+    return this->reduction(axis,max_reduction, keepdim,'a');
+}
+
+template <typename T>
+ndarray<T> ndarray<T>::min(vector<int> axis, bool keepdim){
+    return this->reduction(axis,min_reduction, keepdim,'i');
+}
+
+template <typename T>
+ndarray<T> ndarray<T>::reduction(vector<int> axis, void (*func)(vector<T> &array, long long flat_idx, T e), 
+                                 bool keepdim, char method){
     // initialization
     ndarray<T> trans;
 
     // figure sum for all axes by default
     if(axis.size() == 0){
-        vector<T> array = {this->sum()};
+        vector<T> array;
+
+        switch (method) {
+            case 's':
+                array = {this->sum()};
+                break;
+            case 'a':
+                array = {this->max()};
+                break;
+            case 'i':
+                array = {this->min()};       
+                break;
+            default:
+                break;
+        }
+
         vector<int> shape = {1};
 
         trans = ndarray<T>(array,shape);
@@ -672,7 +723,28 @@ ndarray<T> ndarray<T>::reduction(vector<int> axis, void (*func)(vector<T> &array
         }
 
         // init result
-        vector<T> array(__size,0);
+        vector<T> array;
+
+        switch (method) {
+            case 's':
+            {
+                array = vector<T>(__size,0);
+                break;
+            }
+            case 'a':
+            {
+                array = vector<T>(__size,INT_MIN);
+                break;
+            }
+            case 'i':
+            {
+                array = vector<T>(__size,INT_MAX);
+                break;
+            } 
+            default:
+                break;
+        }
+        
         trans = ndarray<T>(array,__shape);
         vector<int> __strides = trans.strides();
 
