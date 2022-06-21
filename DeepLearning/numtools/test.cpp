@@ -17,12 +17,15 @@ int main(){
     vector<int> axis;
     vector<int> strides;;
 
-    shape = {3,4};
-    auto mat1 = nc.randn<double>(shape);
+    shape = {3,2,4};
+    auto mat1 = nc.arange<double>(1, 25);
+    mat1 = mat1.reshape(shape);
     mat1.show();
 
-    mat1[0] = 100;
-    mat1.show();
+    axis = {0};
+    auto mat2 = mat1.sum(axis,true);
+
+    mat2.show();
     
     return 0;
 }

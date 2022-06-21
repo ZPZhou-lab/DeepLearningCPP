@@ -83,6 +83,7 @@ public:
     ndarray squeeze(vector<int> axis=vector<int>());
 
     // array operation
+    ndarray reduction(vector<int> axis, void (*func)(vector<T>& array, long long flat_idx, T e), bool keepdim);
     ndarray sum(vector<int> axis, bool keepdim=false);
     T sum(void);
     ndarray<double> mean(vector<int> axis, bool keepdim=false);
@@ -615,7 +616,27 @@ T ndarray<T>::sum(void){
 }
 
 template <typename T>
+void sum_reduction(vector<T> &array, long long flat_idx, T e){
+    array[flat_idx] += e;
+}
+
+template <typename T>
+void max_reduction(vector<T> &array, long long flat_idx,T e){
+    array[flat_idx] = max(array[flat_idx],e);
+}
+
+template <typename T>
+void min_reduction(vector<T> &array, long long flat_idx,T e){
+    array[flat_idx] = min(array[flat_idx],e);
+}
+
+template <typename T>
 ndarray<T> ndarray<T>::sum(vector<int> axis, bool keepdim){
+    return this->reduction(axis,sum_reduction, keepdim);
+}
+
+template <typename T>
+ndarray<T> ndarray<T>::reduction(vector<int> axis, void (*func)(vector<T> &array, long long flat_idx, T e), bool keepdim){
     // initialization
     ndarray<T> trans;
 
@@ -658,7 +679,7 @@ ndarray<T> ndarray<T>::sum(vector<int> axis, bool keepdim){
         // assign element
         for(long long i=0;i<_size;++i){
             vector<int> loc = __item_loc(i,axis);
-            array[__flat_idx(loc,__strides)] += this->item(i);
+            func(array,__flat_idx(loc,__strides),this->item(i));
         }
         cout<<endl;
 
