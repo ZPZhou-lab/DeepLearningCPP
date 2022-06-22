@@ -17,16 +17,14 @@ int main(){
     vector<int> axis;
     vector<int> strides;;
 
-    shape = {3,2,4};
-    auto mat1 = nc.arange<double>(1, 25);
-    mat1 = mat1.reshape(shape);
-    mat1.show();
-
-    axis = {0};
-    auto mat2 = mat1.min(axis,true);
+    shape = {5,8,10};
+    auto mat1 = nc.randn<double>(shape);
+    
+    startTime = clock();
+    auto mat2 = mat1.argmin(1);
+    endTime = clock();
+    printf("time used: %.4f\n",(double)(endTime - startTime) / CLOCKS_PER_SEC);
     mat2.show();
 
-    cout<<mat1.max()<<endl;
-    
     return 0;
 }

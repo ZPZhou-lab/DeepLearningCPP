@@ -19,6 +19,10 @@ using namespace std;
 
 clock_t tic, toc;
 
+// data type
+static set<string> int_dtypes = {"i","l","x"};
+static set<string> real_dtypes = {"f","d","e"};
+
 template <typename T>
 class ndarray{
 private:
@@ -95,6 +99,10 @@ public:
     T min(void);
     ndarray<double> mean(vector<int> axis, bool keepdim=false);
     double mean(void);
+    long long argmax(void);
+    ndarray<int> argmax(int axis);
+    long long argmin(void);
+    ndarray<int> argmin(int axis);
     
     // show matrix
     void show(void);
@@ -439,8 +447,14 @@ const vector<T> &ndarray<T>::data(void){
 // print the array
 template <typename T>
 void ndarray<T>::show(void){
+    const type_info &_dataInfo = typeid(this->_dtype);
+    string dtype = _dataInfo.name();
     if(this->_ndim == 1){
-        for(auto d : _data) printf("%12.4f", d);
+        if(int_dtypes.find(dtype) == int_dtypes.end()){
+            for(auto d : _data) printf("%12.4f", d);
+        }else{
+            for(auto d : _data) printf("%8lld", d);
+        }
         printf("\n");
     }else{
         // compute cummulative prod of shape
@@ -449,8 +463,12 @@ void ndarray<T>::show(void){
 
         // print each element
         for(long long i=0;i<this->_size;++i){
-            printf("%12.4f", item(i));
-
+            if(int_dtypes.find(dtype) == int_dtypes.end()){
+                printf("%12.4f", item(i));
+            }else{
+                printf("%8lld", item(i));
+            }
+            
             // wrap if crossing a dimension
             for(int j=1;j<this->_ndim;++j){
                 if((i+1)%cumprod_shape[j] == 0) printf("\n");
@@ -775,7 +793,7 @@ double ndarray<T>::mean(void){
     return m;
 }
 
-
+// mean
 template <typename T>
 ndarray<double> ndarray<T>::mean(vector<int> axis, bool keepdim){
     // figure sum
@@ -787,6 +805,138 @@ ndarray<double> ndarray<T>::mean(vector<int> axis, bool keepdim){
 
     // compute mean
     ndarray<double> trans = s / __num;
+
+    return trans;
+}
+
+// argmax
+template <typename T>
+long long ndarray<T>::argmax(void){
+    ndarray<T> flat = this->flatten();
+    long long idx = 0;
+    T maxVal = flat[0];
+    for(long long i=0;i<this->_size;++i){
+        if(flat[i] > maxVal){
+            maxVal = flat[i];
+            idx = i;
+        }
+    }
+
+    return idx;
+}
+
+template <typename T>
+ndarray<int> ndarray<T>::argmax(int axis){
+    vector<int> __shape;
+    long long __size = 1;
+    for(int i=0;i<this->_ndim;++i){
+        if(i != axis){
+            __shape.emplace_back(this->_shape[i]);
+            __size *= this->_shape[i];
+        }
+    }
+
+    // initialization
+    vector<int> arr = vector<int>(__size,0);
+    ndarray<int> trans(arr,__shape);
+    // adjust elements
+    // get a copy of ndarray
+    ndarray<T> copy(this->_data,this->_shape,this->_strides,this->_axes);
+    // add a dimension
+    vector<int> n_shape(this->_shape);
+    n_shape.emplace_back(1);
+    copy = copy.reshape(n_shape);
+
+    // transpose axis
+    vector<int> n_axes;
+    for(int i=0;i<this->_ndim+1;++i) n_axes.emplace_back(i);
+    swap(n_axes[_ndim],n_axes[axis]);
+    copy = copy.transpose(n_axes);
+
+    // delete the additional dimension
+    copy = copy.squeeze();
+    // flatten the array
+    copy = copy.flatten();
+
+    // assign argmax
+    int step = this->_shape[axis];
+    for(long long i=0;i<__size;++i){
+        T maxVal = copy[i*step];
+        int idx = 0;
+        for(int j=0;j<step;++j){
+            if(copy[i*step + j] > maxVal){
+                maxVal = copy[i*step + j];
+                idx = j;
+            }
+        }
+        trans[i] = idx;
+    }
+
+    return trans;
+}
+
+// argmin
+template <typename T>
+long long ndarray<T>::argmin(void){
+    ndarray<T> flat = this->flatten();
+    long long idx = 0;
+    T minVal = flat[0];
+    for(long long i;i<this->_size;++i){
+        if(flat[i] < minVal){
+            minVal = flat[i];
+            idx = i;
+        }
+    }
+
+    return idx;
+}
+
+template <typename T>
+ndarray<int> ndarray<T>::argmin(int axis){
+    vector<int> __shape;
+    long long __size = 1;
+    for(int i=0;i<this->_ndim;++i){
+        if(i != axis){
+            __shape.emplace_back(this->_shape[i]);
+            __size *= this->_shape[i];
+        }
+    }
+
+    // initialization
+    vector<int> arr = vector<int>(__size,0);
+    ndarray<int> trans(arr,__shape);
+    // adjust elements
+    // get a copy of ndarray
+    ndarray<T> copy(this->_data,this->_shape,this->_strides,this->_axes);
+    // add a dimension
+    vector<int> n_shape(this->_shape);
+    n_shape.emplace_back(1);
+    copy = copy.reshape(n_shape);
+
+    // transpose axis
+    vector<int> n_axes;
+    for(int i=0;i<this->_ndim+1;++i) n_axes.emplace_back(i);
+    swap(n_axes[_ndim],n_axes[axis]);
+    copy = copy.transpose(n_axes);
+
+    // delete the additional dimension
+    copy = copy.squeeze();
+    // flatten the array
+    copy = copy.flatten();
+
+    // assign argmax
+    int step = this->_shape[axis];
+    for(long long i=0;i<__size;++i){
+        T minVal = copy[i*step];
+        int idx = 0;
+        for(int j=0;j<step;++j){
+            if(copy[i*step + j] < minVal){
+                minVal = copy[i*step + j];
+                idx = j;
+            }
+        }
+        trans[i] = idx;
+    }
 
     return trans;
 }

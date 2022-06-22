@@ -7,10 +7,6 @@
 #pragma once
 using namespace std;
 
-// data type
-static set<string> int_dtypes = {"i","l","x"};
-static set<string> real_dtypes = {"f","d","e"};
-
 class numcpp{
 public:
     // all zero matrix
