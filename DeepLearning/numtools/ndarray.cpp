@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 #include <bits/types/clock_t.h>
 #include <cassert>
+#include <cfloat>
 #include <climits>
 #include <complex>
 #include <csignal>
@@ -14,10 +15,9 @@
 #include <typeinfo>
 #include <stdarg.h>
 #include "check.cpp"
+#include "utils.cpp"
 #pragma once
 using namespace std;
-
-clock_t tic, toc;
 
 // data type
 static set<string> int_dtypes = {"i","l","x"};
@@ -56,7 +56,8 @@ private:
     vector<int> __item_loc(long long args, vector<int> axis=vector<int>());
 
     // reuction method for sum(), max(), min()
-    ndarray reduction(vector<int> axis, void (*func)(vector<T>& array, long long flat_idx, T e), bool keepdim, char method);
+    ndarray _reduction(vector<int> axis, void (*func)(T &a, T &b), bool keepdim, vector<T> &arr, 
+                       long long step, vector<int> &__shape, long long __size);
     // reduction method for argmax(), argmin()
     ndarray<int> argreduction(int axis, bool (*func)(T &a, T &b));
 
@@ -662,129 +663,71 @@ T ndarray<T>::min(void){
     return s;
 }
 
-// reduction help function for sum()
-template <typename T>
-void sum_reduction(vector<T> &array, long long flat_idx, T e){
-    array[flat_idx] += e;
-}
-
-// reduction help function for max()
-template <typename T>
-void max_reduction(vector<T> &array, long long flat_idx,T e){
-    array[flat_idx] = std::max(array[flat_idx],e);
-}
-
-// reduction help function for min()
-template <typename T>
-void min_reduction(vector<T> &array, long long flat_idx,T e){
-    array[flat_idx] = std::min(array[flat_idx],e);
-}
-
 template <typename T>
 ndarray<T> ndarray<T>::sum(vector<int> axis, bool keepdim){
-    return this->reduction(axis,sum_reduction, keepdim,'s');
+    // update nwe shape, size and step
+    long long __size = __reduce_size(this->_shape,this->_ndim,axis);
+    vector<int> __shape = __reduce_shape(this->_shape,this->_ndim,axis);
+    long long step = __reduce_step(this->_shape,this->_ndim,axis);
+    // init array
+    vector<T> arr(__size,0);
+    return this->_reduction(axis, sum_reduction, keepdim, arr, step, __shape, __size);
 }
 
 template <typename T>
 ndarray<T> ndarray<T>::max(vector<int> axis, bool keepdim){
-    return this->reduction(axis,max_reduction, keepdim,'a');
+    // update nwe shape, size and step
+    long long __size = __reduce_size(this->_shape,this->_ndim,axis);
+    vector<int> __shape = __reduce_shape(this->_shape,this->_ndim,axis);
+    long long step = __reduce_step(this->_shape,this->_ndim,axis);
+    // init array
+    vector<T> arr(__size,INT_MIN);
+    return this->_reduction(axis, max_reduction, keepdim, arr, step, __shape, __size);
 }
 
 template <typename T>
 ndarray<T> ndarray<T>::min(vector<int> axis, bool keepdim){
-    return this->reduction(axis,min_reduction, keepdim,'i');
+    // update nwe shape, size and step
+    long long __size = __reduce_size(this->_shape,this->_ndim,axis);
+    vector<int> __shape = __reduce_shape(this->_shape,this->_ndim,axis);
+    long long step = __reduce_step(this->_shape,this->_ndim,axis);
+    // init array
+    vector<T> arr(__size,INT_MAX);
+    return this->_reduction(axis, min_reduction, keepdim, arr, step, __shape, __size);
 }
 
 // reduction method for sum(), min(), max()
 template <typename T>
-ndarray<T> ndarray<T>::reduction(vector<int> axis, void (*func)(vector<T> &array, long long flat_idx, T e), 
-                                 bool keepdim, char method){
+ndarray<T> ndarray<T>::_reduction(vector<int> axis, void (*func)(T &e, T &b), bool keepdim, vector<T> &arr,
+                                  long long step, vector<int> &__shape,long long __size){
     // initialization
-    ndarray<T> trans;
-
-    // figure sum for all axes by default
-    if(axis.size() == 0){
-        vector<T> array;
-
-        switch (method) {
-            case 's':
-                array = {this->sum()};
-                break;
-            case 'a':
-                array = {this->max()};
-                break;
-            case 'i':
-                array = {this->min()};       
-                break;
-            default:
-                break;
-        }
-
-        vector<int> shape = {1};
-
-        trans = ndarray<T>(array,shape);
+    ndarray<T> trans(arr,__shape);
+    // adjust elements
+    // get a copy of ndarray
+    ndarray<T> copy(this->_data,this->_shape,this->_strides,this->_axes);
+    // add dimensions
+    vector<int> n_shape(this->_shape);
+    for(auto j:axis){
+        n_shape.emplace_back(1);
     }
-    // figure sum for specified axis
-    else{
-        // init new shape
-        vector<int> __shape;
-        long long __size = 1;
+    copy = copy.reshape(n_shape);
 
-        for(int i=0;i<_ndim;++i){
-            // flag variable juege whether squeeze the axis
-            bool flag = true;
-            for(auto j:axis){
-                if(i == j){
-                    flag = false;
-                    break;
-                }
-            }
+    // transpose axis
+    vector<int> n_axes;
+    for(int i=0;i<(this->_ndim + axis.size());++i) n_axes.emplace_back(i);
+    for(int i=0;i<axis.size();++i) swap(n_axes[axis[i]],n_axes[_ndim+i]);
+    copy = copy.transpose(n_axes);
 
-            if(flag){
-                __shape.emplace_back(this->_shape[i]);
-                __size *= this->_shape[i];
-            }else{
-                __shape.emplace_back(1);
-            }
+    // delete the additional dimension
+    copy = copy.squeeze();
+    // flatten the array
+    copy = copy.flatten();
+
+    // assign elements
+    for(long long i=0;i<__size;++i){
+        for(long long j=0;j<step;++j){
+            func(trans[i],copy[i*step+j]);
         }
-
-        // init result
-        vector<T> array;
-
-        switch (method) {
-            case 's':
-            {
-                array = vector<T>(__size,0);
-                break;
-            }
-            case 'a':
-            {
-                array = vector<T>(__size,INT_MIN);
-                break;
-            }
-            case 'i':
-            {
-                array = vector<T>(__size,INT_MAX);
-                break;
-            } 
-            default:
-                break;
-        }
-        
-        trans = ndarray<T>(array,__shape);
-        vector<int> __strides = trans.strides();
-
-        // assign element
-        for(long long i=0;i<_size;++i){
-            vector<int> loc = __item_loc(i,axis);
-            func(array,__flat_idx(loc,__strides),this->item(i));
-        }
-        cout<<endl;
-
-        // construct result
-        trans = ndarray<T>(array,__shape);
-        // squeeze
-        if(!keepdim) trans = trans.squeeze();
     }
 
     return trans;
@@ -849,20 +792,6 @@ long long ndarray<T>::argmin(void){
     return idx;
 }
 
-// reduction help function for argmax()
-template <typename T>
-bool argmax_reduction(T &a, T &b){
-    if(a > b) return true;
-    else return false;
-}
-
-// reduction help function for argmin()
-template <typename T>
-bool argmin_reduction(T &a, T &b){
-    if(a < b) return true;
-    else return false;
-}
-
 template <typename T>
 ndarray<int> ndarray<T>::argmax(int axis){
     return this->argreduction(axis, argmax_reduction);
@@ -907,14 +836,14 @@ ndarray<int> ndarray<T>::argreduction(int axis,bool (*func)(T &a, T&b)){
     // flatten the array
     copy = copy.flatten();
 
-    // assign argmax
+    // assign elements
     int step = this->_shape[axis];
     for(long long i=0;i<__size;++i){
-        T maxVal = copy[i*step];
+        T Val = copy[i*step];
         int idx = 0;
         for(int j=0;j<step;++j){
-            if(func(copy[i*step + j],maxVal)){
-                maxVal = copy[i*step + j];
+            if(func(copy[i*step + j],Val)){
+                Val = copy[i*step + j];
                 idx = j;
             }
         }
@@ -923,3 +852,4 @@ ndarray<int> ndarray<T>::argreduction(int axis,bool (*func)(T &a, T&b)){
 
     return trans;
 }
+
