@@ -805,14 +805,9 @@ ndarray<int> ndarray<T>::argmin(int axis){
 // reduction method for argmax(). argmin()
 template <typename T>
 ndarray<int> ndarray<T>::argreduction(int axis,bool (*func)(T &a, T&b)){
-    vector<int> __shape;
-    long long __size = 1;
-    for(int i=0;i<this->_ndim;++i){
-        if(i != axis){
-            __shape.emplace_back(this->_shape[i]);
-            __size *= this->_shape[i];
-        }
-    }
+
+    vector<int> __shape = __reduce_shape(this->_shape, this->_ndim, axis);
+    long long __size = __reduce_size(this->_shape, this->_ndim, axis);
 
     // initialization
     vector<int> arr = vector<int>(__size,0);
