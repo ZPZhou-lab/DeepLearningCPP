@@ -17,6 +17,9 @@
 
 using namespace std;
 
+template <typename T>
+class ndarray;
+
 // time conuter
 clock_t tic, toc;
 
@@ -24,7 +27,7 @@ clock_t tic, toc;
 long long __reduce_size(vector<int> &shape, int ndim, vector<int> &axis){
     // init
     long long __size = 1;
-        // axis set
+    // axis set
     set<int> axis_set;
     for(auto j:axis) axis_set.insert(j);
 
@@ -38,11 +41,25 @@ long long __reduce_size(vector<int> &shape, int ndim, vector<int> &axis){
     return __size;
 }
 
+long long __reduce_size(vector<int> &shape, int ndim, int axis){
+    // init
+    long long __size = 1;
+
+    // compute new size
+    for(int i=0;i<ndim;++i){
+        if(i != axis){
+            __size *= shape[i];
+        }
+    }
+
+    return __size;
+}
+
 // fetch reduction shape
 vector<int> __reduce_shape(vector<int> &shape, int ndim, vector<int> &axis){
     // init
     vector<int> __shape;
-        // axis set
+    // axis set
     set<int> axis_set;
     for(auto j:axis) axis_set.insert(j);
 
@@ -56,11 +73,25 @@ vector<int> __reduce_shape(vector<int> &shape, int ndim, vector<int> &axis){
     return __shape;
 }
 
+vector<int> __reduce_shape(vector<int> &shape, int ndim, int axis){
+    // init
+    vector<int> __shape;
+
+    // compute new shape
+    for(int i=0;i<ndim;++i){
+        if(i != axis){
+            __shape.emplace_back(shape[i]);
+        }
+    }
+
+    return __shape;
+}
+
 // fetch reduction step
 long long __reduce_step(vector<int> &shape, int ndim, vector<int> &axis){
     // init
     long long step = 1;
-        // axis set
+    // axis set
     set<int> axis_set;
     for(auto j:axis) axis_set.insert(j);
 
@@ -75,21 +106,35 @@ long long __reduce_step(vector<int> &shape, int ndim, vector<int> &axis){
 }
 
 // reduction help function for sum()
-template <typename T>
-void sum_reduction(T &a, T &b){
+template <typename T, typename T1>
+void sum_reduction(T1 &a, T &b){
     a += b;
 }
 
 // reduction help function for max()
-template <typename T>
-void max_reduction(T &a, T &b){
+template <typename T, typename T1>
+void max_reduction(T1 &a, T &b){
     a = a < b ? b:a;
 }
 
 // reduction help function for min()
-template <typename T>
-void min_reduction(T &a, T &b){
+template <typename T, typename T1>
+void min_reduction(T1 &a, T &b){
     a = a > b ? b:a;
+}
+
+// reduction help function for any()
+template <typename T, typename T1>
+void any_reduction(T1 &a, T &b){
+    a = a || b;
+    //a = (a == 1 || b != 0) ? 1:0;
+}
+
+// reduction help function for all()
+template <typename T, typename T1>
+void all_reduction(T1 &a, T &b){
+    a = a && b;
+    //a = (a == 1 && b != 1) ? 1:0;
 }
 
 // reduction help function for argmax()
@@ -103,3 +148,4 @@ template <typename T>
 bool argmin_reduction(T &a, T &b){
     return a < b ? true:false;
 }
+

@@ -56,7 +56,8 @@ private:
     vector<int> __item_loc(long long args, vector<int> axis=vector<int>());
 
     // reuction method for sum(), max(), min()
-    ndarray _reduction(vector<int> axis, void (*func)(T &a, T &b), bool keepdim, vector<T> &arr, 
+    template<typename T1>
+    ndarray<T1> _reduction(vector<int> axis, void (*func)(T1 &a,T &b), bool keepdim, vector<T1> &arr, 
                        long long step, vector<int> &__shape, long long __size);
     // reduction method for argmax(), argmin()
     ndarray<int> argreduction(int axis, bool (*func)(T &a, T &b));
@@ -104,6 +105,10 @@ public:
     T min(void);
     ndarray<double> mean(vector<int> axis, bool keepdim=false);
     double mean(void);
+    ndarray<int> any(vector<int> axis, bool keepdim=false);
+    bool any(void);
+    ndarray<int> all(vector<int> axis, bool keepdim=false);
+    bool all(void);
     long long argmax(void);
     ndarray<int> argmax(int axis);
     long long argmin(void);
@@ -663,6 +668,24 @@ T ndarray<T>::min(void){
     return s;
 }
 
+// any()
+template <typename T>
+bool ndarray<T>::any(void){
+    bool flag = false;
+    for(auto e:this->_data) flag = flag || e;
+
+    return flag;
+}
+
+// all()
+template <typename T>
+bool ndarray<T>::all(void){
+    bool flag = true;
+    for(auto e:this->_data) flag = flag && e;
+
+    return flag;
+}
+
 template <typename T>
 ndarray<T> ndarray<T>::sum(vector<int> axis, bool keepdim){
     // update nwe shape, size and step
@@ -696,12 +719,35 @@ ndarray<T> ndarray<T>::min(vector<int> axis, bool keepdim){
     return this->_reduction(axis, min_reduction, keepdim, arr, step, __shape, __size);
 }
 
+template <typename T>
+ndarray<int> ndarray<T>::any(vector<int> axis, bool keepdim){
+    // update nwe shape, size and step
+    long long __size = __reduce_size(this->_shape,this->_ndim,axis);
+    vector<int> __shape = __reduce_shape(this->_shape,this->_ndim,axis);
+    long long step = __reduce_step(this->_shape,this->_ndim,axis);
+    // init array
+    vector<int> arr(__size,0);
+    return this->_reduction(axis, any_reduction, keepdim, arr, step, __shape, __size);
+}
+
+template <typename T>
+ndarray<int> ndarray<T>::all(vector<int> axis, bool keepdim){
+    // update nwe shape, size and step
+    long long __size = __reduce_size(this->_shape,this->_ndim,axis);
+    vector<int> __shape = __reduce_shape(this->_shape,this->_ndim,axis);
+    long long step = __reduce_step(this->_shape,this->_ndim,axis);
+    // init array
+    vector<int> arr(__size,1);
+    return this->_reduction(axis, all_reduction, keepdim, arr, step, __shape, __size);
+}
+
 // reduction method for sum(), min(), max()
 template <typename T>
-ndarray<T> ndarray<T>::_reduction(vector<int> axis, void (*func)(T &e, T &b), bool keepdim, vector<T> &arr,
-                                  long long step, vector<int> &__shape,long long __size){
+template <typename T1>
+ndarray<T1> ndarray<T>::_reduction(vector<int> axis, void (*func)(T1 &a, T &b), bool keepdim, vector<T1> &arr,
+                                   long long step, vector<int> &__shape,long long __size){
     // initialization
-    ndarray<T> trans(arr,__shape);
+    ndarray<T1> trans(arr,__shape);
     // adjust elements
     // get a copy of ndarray
     ndarray<T> copy(this->_data,this->_shape,this->_strides,this->_axes);
