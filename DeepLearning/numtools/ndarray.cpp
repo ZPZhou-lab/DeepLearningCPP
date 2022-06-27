@@ -49,6 +49,8 @@ private:
     vector<long long> __shape_cumprod;
     // maintenance function of shape_cumprod
     void __update_shape_cumprod(void);
+    // inplace operations update
+    void __inplace_change(vector<T> &array, vector<int> &shape, vector<int> &strides, vector<int> &axes);
 
     // internal(private) access method, check is omitted
     T __item(long long args);
@@ -91,10 +93,10 @@ public:
     const vector<T> &data(void);
 
     // array transform
-    ndarray transpose(vector<int>& axes);
-    ndarray reshape(vector<int>& shape);
-    ndarray flatten(void);
-    ndarray squeeze(vector<int> axis=vector<int>());
+    ndarray transpose(vector<int>& axes, bool inplace=false);
+    ndarray reshape(vector<int>& shape, bool inplace=false);
+    ndarray flatten(bool inplace=false);
+    ndarray squeeze(vector<int> axis=vector<int>(), bool inplace=false);
 
     // array operation
     ndarray sum(vector<int> axis, bool keepdim=false);
@@ -114,6 +116,10 @@ public:
     long long argmin(void);
     ndarray<int> argmin(int axis);
     
+    // sort operation
+    void sort(void);
+    void sort(int axis);
+
     // show matrix
     void show(void);
 
@@ -332,6 +338,21 @@ void ndarray<T>::__update_shape_cumprod(void){
     for(int i=_ndim-1;i>0;i--) this->__shape_cumprod[i-1] = this->__shape_cumprod[i] * this->_shape[i];
 }
 
+// array update when inplace operations
+template <typename T>
+void ndarray<T>::__inplace_change(vector<T> &array, vector<int> &shape, vector<int> &strides, vector<int> &axes){
+    // update array
+    this->_data = array;
+    // update array information
+    this->_shape = shape;
+    this->_ndim = shape.size();
+
+    this->_strides = strides;
+    this->_axes = axes;
+
+    __update_shape_cumprod();
+}
+
 // get flat index
 inline long long __flat_idx(vector<int>& loc, vector<int>& strides){
     // initial flat index
@@ -490,7 +511,7 @@ void ndarray<T>::show(void){
 
 // transpose
 template <typename T>
-ndarray<T> ndarray<T>::transpose(vector<int>& axes){
+ndarray<T> ndarray<T>::transpose(vector<int>& axes, bool inplace){
     // anomaly detection
     __check_axes(axes, this->_ndim);
 
@@ -503,12 +524,15 @@ ndarray<T> ndarray<T>::transpose(vector<int>& axes){
     
     // transformed array
     ndarray<T> trans(this->_data,__shape,__strides,__axes);
+    // if inplace, then change the array itself
+    if(inplace)  __inplace_change(this->_data, __shape, __strides, __axes);
+
     return trans;
 }
 
 // reshape
 template <typename T>
-ndarray<T> ndarray<T>::reshape(vector<int> &shape){
+ndarray<T> ndarray<T>::reshape(vector<int> &shape, bool inplace){
     // anomaly detection
     long long check_size = 1;
     for(auto s:shape) check_size *= s;
@@ -551,10 +575,14 @@ ndarray<T> ndarray<T>::reshape(vector<int> &shape){
         }
 
         trans = ndarray<T>(array,shape,__strides,__axes);
+        // if inplace, then change the array itself
+        if(inplace)  __inplace_change(array, shape, __strides, __axes);
     }
     // do not need to adjust the position of elements
     else{
         trans = ndarray<T>(this->_data,shape,__strides,__axes);
+        // if inplace, then change the array itself
+        if(inplace)  __inplace_change(this->_data, shape, __strides, __axes);
     }
 
     return trans;
@@ -562,14 +590,14 @@ ndarray<T> ndarray<T>::reshape(vector<int> &shape){
 
 // flatten
 template <typename T>
-ndarray<T> ndarray<T>::flatten(void){
+ndarray<T> ndarray<T>::flatten(bool inplace){
     vector<int> shape = {(int)this->_size};
-    return reshape(shape);
+    return reshape(shape,inplace);
 }
 
 // squeeze
 template <typename T>
-ndarray<T> ndarray<T>::squeeze(vector<int> axis){
+ndarray<T> ndarray<T>::squeeze(vector<int> axis, bool inplace){
     // initialization
     vector<int> __axes, __shape, __strides, __axes_idx;
     int __ndim = 0;
@@ -635,8 +663,10 @@ ndarray<T> ndarray<T>::squeeze(vector<int> axis){
             }
         }
     }
-    
+
     ndarray<T> trans(this->_data,__shape,__strides,__axes_idx);
+    // if inplace, then change the array itself
+    if(inplace) __inplace_change(this->_data, __shape, __strides, __axes_idx);
 
     return trans;
 }
@@ -894,3 +924,20 @@ ndarray<int> ndarray<T>::argreduction(int axis,bool (*func)(T &a, T&b)){
     return trans;
 }
 
+// sort method
+// 
+template <typename T>
+void ndarray<T>::sort(void){
+    /*
+    The default sort(void) method, the array is flattened before.
+    */
+
+}
+
+template <typename T>
+void ndarray<T>::sort(int axis){
+    /*
+    Axis along which to sort. if axis is -1, sort() will sorts array along the last axis.
+    */
+
+}

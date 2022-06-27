@@ -18,14 +18,15 @@ int main(){
     vector<int> strides;;
 
     shape = {3,2,4};;
-    auto mat1 = nc.arange<double>(0,24);
-    mat1 = mat1.reshape(shape);
-    
-    axis = {1};
+    auto mat1 = nc.randn<double>(shape);
+    mat1.show();
+
+    shape= {4,6};
     startTime = clock();
-    auto mat2 = mat1.all(axis);
+    auto mat2 = mat1.flatten(true);
     endTime = clock();
     printf("time used: %.4fs\n",(double)(endTime - startTime) / CLOCKS_PER_SEC);
+    mat1.show();
     mat2.show();
 
     return 0;
