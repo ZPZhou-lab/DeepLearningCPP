@@ -149,3 +149,22 @@ bool argmin_reduction(T &a, T &b){
     return a < b ? true:false;
 }
 
+// quicksort method
+template <typename T>
+void quicksort(vector<T> &array, long long left, long long right){
+    long long low = left, high = right;
+    T tmp;
+    if(low < high){
+        tmp = array[low];
+        while(low < high){
+            while(high > low && array[high] >= tmp) --high;
+            array[low] = array[high];
+            while(low < high && array[low] <= tmp) ++low;
+            array[high] = array[low];
+        }
+        array[low] = tmp;
+        // recur to sort
+        quicksort(array, left, low-1);
+        quicksort(array, low+1, right);
+    }
+}

@@ -931,7 +931,10 @@ void ndarray<T>::sort(void){
     /*
     The default sort(void) method, the array is flattened before.
     */
-
+    // flat the array
+    this->flatten(true);
+    // do sort
+    quicksort(this->_data,0,this->_size-1);
 }
 
 template <typename T>
