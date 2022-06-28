@@ -9,14 +9,14 @@ using namespace std;
 
 
 // check when shape change
-void __check_shape(long long array_size, long long shape_size){
+void __check_shape(const long long &array_size, const long long &shape_size){
     if(array_size != shape_size){
         printf("the number of elements in array(%lld) does not match that of shape(%lld)\n",array_size,shape_size);
         assert(array_size == shape_size);
     }
 }
 
-void __check_shape(vector<int>& shape1, vector<int>& shape2){
+void __check_shape(const vector<int>& shape1, const vector<int>& shape2){
     if(shape1.size() != shape2.size()){
         printf("operands could not be broadcast together with shapes\n");
         assert(shape1.size() == shape2.size());
@@ -29,21 +29,21 @@ void __check_shape(vector<int>& shape1, vector<int>& shape2){
     }
 }
 
-void __check_index(int idx, int bound, int axis){
+void __check_index(const int &idx, const int &bound, const int &axis){
     if(idx >= bound || idx < 0){
         printf("index %d is out of bounds for axis %d with size %d\n",idx,axis,bound);
         assert(idx >= 0 && idx < bound);
     }
 }
 
-void __check_index(int idx, int bound){
+void __check_index(const int &idx, const int &bound){
     if(idx >= bound || idx < 0){
         printf("index %d is out of bounds with size %d\n",idx,bound);
         assert(idx >= 0 && idx < bound);
     }   
 }
 
-void __check_axes(vector<int>& axes, int ndim){
+void __check_axes(const vector<int>& axes, const int &ndim){
     try{
         string msg;
         if((int)axes.size() != ndim){
@@ -71,7 +71,7 @@ void __check_axes(vector<int>& axes, int ndim){
     }
 }
 
-void __check_squeeze(vector<int> axis, vector<int> shape){
+void __check_squeeze(const vector<int> &axis, const vector<int> &shape){
     for(auto i:axis){
         if(shape[i] > 1){
             printf("cannot select an axis to squeeze out which has size not equal to one\n");
@@ -79,4 +79,11 @@ void __check_squeeze(vector<int> axis, vector<int> shape){
         }
     }
     
+}
+
+void __check_axis(const int &ndim, const int &axis){
+    if(axis >= ndim){
+        printf("axis %d is out of bounds for array of dimension %d\n",axis,ndim);
+        assert(false);
+    }
 }

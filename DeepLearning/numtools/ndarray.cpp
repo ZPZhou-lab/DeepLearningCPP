@@ -119,6 +119,8 @@ public:
     // sort operation
     void sort(void);
     void sort(int axis);
+    ndarray<long long> argsort(void);
+    ndarray<long long> argsort(int axis);
 
     // show matrix
     void show(void);
@@ -345,6 +347,7 @@ void ndarray<T>::__inplace_change(vector<T> &array, vector<int> &shape, vector<i
     this->_data = array;
     // update array information
     this->_shape = shape;
+    this->_ndim = shape.size();
     this->_ndim = shape.size();
 
     this->_strides = strides;
@@ -880,7 +883,7 @@ ndarray<int> ndarray<T>::argmin(int axis){
 
 // reduction method for argmax(). argmin()
 template <typename T>
-ndarray<int> ndarray<T>::argreduction(int axis,bool (*func)(T &a, T&b)){
+ndarray<int> ndarray<T>::argreduction(int axis, bool (*func)(T &a, T&b)){
 
     vector<int> __shape = __reduce_shape(this->_shape, this->_ndim, axis);
     long long __size = __reduce_size(this->_shape, this->_ndim, axis);
@@ -942,5 +945,41 @@ void ndarray<T>::sort(int axis){
     /*
     Axis along which to sort. if axis is -1, sort() will sorts array along the last axis.
     */
+    // check axis
+    if(axis == -1) axis = this->_ndim - 1;
+    __check_axis(this->_ndim,axis);
 
+    long long step = this->_shape[axis];
+
+    // add a dimension
+    vector<int> n_shape(this->_shape);
+    n_shape.emplace_back(1);
+    this->reshape(n_shape,true);
+
+    // transpose axis
+    vector<int> n_axes;
+    for(int i=0;i<this->_ndim;++i) n_axes.emplace_back(i);
+    swap(n_axes[_ndim-1],n_axes[axis]);
+    this->transpose(n_axes,true);
+
+    // delete the additional dimension
+    vector<int> n_axis;
+    n_shape = this->_shape;
+    this->squeeze(n_axis,true);
+
+    // flatten the array
+    this->flatten(true);
+
+    // sort elements
+    for(long long i=0;i<(long long)(this->_size / step);++i){
+        quicksort(this->_data, i*step, (i+1)*step-1);
+    }
+
+    // recover the shape
+    // reverse the squeeze
+    this->reshape(n_shape,true);
+    // reverse the tranpose
+    this->transpose(n_axes,true);
+    // reverse add a dimension
+    this->squeeze(n_axis,true);
 }
