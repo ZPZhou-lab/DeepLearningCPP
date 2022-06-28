@@ -928,7 +928,6 @@ ndarray<int> ndarray<T>::argreduction(int axis, bool (*func)(T &a, T&b)){
 }
 
 // sort method
-// 
 template <typename T>
 void ndarray<T>::sort(void){
     /*
@@ -982,4 +981,25 @@ void ndarray<T>::sort(int axis){
     this->transpose(n_axes,true);
     // reverse add a dimension
     this->squeeze(n_axis,true);
+}
+
+// argsort method
+template <typename T>
+ndarray<long long> ndarray<T>::argsort(void){
+    /*
+    The default sort(void) method, the array is flattened before.
+    */
+    // flat the array
+    auto flat = this->flatten();
+    
+    // construct sort index
+    vector<long long> idx(flat.size());
+    for(long long i=0;i<flat.size();++i) idx[i] = i;
+    vector<int> __shape = {flat.size()};
+
+    // do sort
+    quicksort(flat, idx, 0, flat.size()-1);
+
+    ndarray<long long> sorted_idx(idx,__shape);
+    return sorted_idx;
 }

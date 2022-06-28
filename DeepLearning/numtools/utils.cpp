@@ -168,3 +168,28 @@ void quicksort(vector<T> &array, long long left, long long right){
         quicksort(array, low+1, right);
     }
 }
+
+// quicksort with index
+template <typename T>
+void quicksort(ndarray<T> &array, vector<long long> &idx, long long left, long long right){
+    long long low = left, high = right;
+    T tmp;
+    long long tmp_idx;
+    if(low < high){
+        tmp = array[low];
+        tmp_idx = idx[low];
+        while(low < high){
+            while(high > low && array[high] >= tmp) --high;
+            array[low] = array[high];
+            idx[low] = idx[high];
+            while(low < high && array[low] <= tmp) ++low;
+            array[high] = array[low];
+            idx[high] = idx[low];
+        }
+        array[low] = tmp;
+        idx[low] = tmp_idx;
+        // recur to sort
+        quicksort(array, idx, left, low-1);
+        quicksort(array, idx, low+1, right);
+    }
+}
