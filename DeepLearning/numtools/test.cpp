@@ -17,12 +17,12 @@ int main(){
     vector<int> axis;
     vector<int> strides;
 
-    shape = {10};
+    shape = {3,2,4};
     auto mat1 = nc.randn<double>(shape);
     mat1.show();
 
     startTime = clock();
-    auto mat2 = mat1.argsort();
+    auto mat2 = mat1.argsort(2);
     endTime = clock();
     printf("time used: %.4fs\n",(double)(endTime - startTime) / CLOCKS_PER_SEC);
     mat2.show();

@@ -977,7 +977,7 @@ void ndarray<T>::sort(int axis){
     // recover the shape
     // reverse the squeeze
     this->reshape(n_shape,true);
-    // reverse the tranpose
+    // reverse the transpose
     this->transpose(n_axes,true);
     // reverse add a dimension
     this->squeeze(n_axis,true);
@@ -987,7 +987,7 @@ void ndarray<T>::sort(int axis){
 template <typename T>
 ndarray<long long> ndarray<T>::argsort(void){
     /*
-    The default sort(void) method, the array is flattened before.
+    The default argsort(void) method, the array is flattened before.
     */
     // flat the array
     auto flat = this->flatten();
@@ -1002,4 +1002,55 @@ ndarray<long long> ndarray<T>::argsort(void){
 
     ndarray<long long> sorted_idx(idx,__shape);
     return sorted_idx;
+}
+
+template <typename T>
+ndarray<long long> ndarray<T>::argsort(int axis){
+    /*
+    Axis along which to argsort. if axis is -1, argsort() will sorts array along the last axis.
+    */
+    // check axis
+    if(axis == -1) axis = this->_ndim - 1;
+    __check_axis(this->_ndim,axis);
+
+    long long step = this->_shape[axis];
+
+    // copy array and add a dimension
+    vector<int> n_shape(this->_shape);
+    n_shape.emplace_back(1);
+    auto copy = this->reshape(n_shape);
+
+    // transpose axis
+    vector<int> n_axes;
+    for(int i=0;i<this->_ndim+1;++i) n_axes.emplace_back(i);
+    swap(n_axes[_ndim],n_axes[axis]);
+    copy = copy.transpose(n_axes);
+
+    // delete the additional dimension
+    vector<int> n_axis;
+    n_shape = copy.shape();
+    copy = copy.squeeze();
+
+    // flatten the array
+    copy = copy.flatten();
+
+    // init index
+    vector<long long> idx(this->_size,0);
+    // sort elements
+    for(long long i=0;i<(long long)(this->_size / step);++i){
+        // set init index
+        for(long long j=0;j<step;++j) idx[i*step+j] = j;
+        // do sort
+        quicksort(copy, idx, i*step, (i+1)*step - 1);
+    }
+
+    // construct array
+    // reverse the squeeze
+    ndarray<long long> trans(idx,n_shape);
+    // reverse the transpose
+    trans = trans.transpose(n_axes);
+    // reverse add a dimension
+    trans = trans.squeeze();
+
+    return trans;
 }
