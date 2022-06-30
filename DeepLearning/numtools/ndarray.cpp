@@ -97,6 +97,10 @@ public:
     ndarray reshape(vector<int>& shape, bool inplace=false);
     ndarray flatten(bool inplace=false);
     ndarray squeeze(vector<int> axis=vector<int>(), bool inplace=false);
+    ndarray expand_dims(vector<int> axis);
+    ndarray t(void);
+    ndarray repeat(int repeats, int axis);
+    ndarray repeat(int repeats);
 
     // array operation
     ndarray sum(vector<int> axis, bool keepdim=false);
@@ -121,6 +125,9 @@ public:
     void sort(int axis);
     ndarray<long long> argsort(void);
     ndarray<long long> argsort(int axis);
+
+    // clip the value
+    ndarray clip(T min, T max, bool inplace=false);
 
     // show matrix
     void show(void);
@@ -674,6 +681,16 @@ ndarray<T> ndarray<T>::squeeze(vector<int> axis, bool inplace){
     return trans;
 }
 
+// expand dims
+template <typename T>
+ndarray<T> ndarray<T>::expand_dims(vector<int> axis){
+    /*
+    Expand the shape of an array.
+    Insert a new axis that will appear at the `axis` position in the expanded array shape.
+    axis represents the position in the expanded axes where the new axis (or axes) is placed.
+    */
+}
+
 // sum
 template <typename T>
 T ndarray<T>::sum(void){
@@ -1051,6 +1068,28 @@ ndarray<long long> ndarray<T>::argsort(int axis){
     trans = trans.transpose(n_axes);
     // reverse add a dimension
     trans = trans.squeeze();
+
+    return trans;
+}
+
+// cilp
+template <typename T>
+ndarray<T> ndarray<T>::clip(T min, T max, bool inplace){
+    // copy array
+    vector<T> array(this->_data);
+
+    // clip the elements
+    for(auto &a:array){
+        if(a < min){
+            a = min;
+        }else if(a > max){
+            a = max;
+        }
+    }
+
+    // create ndarray
+    ndarray<T> trans(array,this->_shape,this->_strides,this->_axes);
+    if(inplace) this->_data = array;
 
     return trans;
 }
