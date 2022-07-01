@@ -1102,3 +1102,26 @@ ndarray<_Tp> ndarray<_Tp>::clip(_Tp min, _Tp max, bool inplace){
 
     return trans;
 }
+
+// repeat
+template <typename _Tp>
+ndarray<_Tp> ndarray<_Tp>::repeat(int repeats){
+    // check repeats
+    __check_repeat(repeats);
+
+    // flat the array
+    auto flat = this->flatten();
+    vector<_Tp> array(flat.size() * repeats,0);
+
+    for(long long i=0;i<flat.size();++i){
+        for(int j=0;j<repeats;++j){
+            array[i*repeats+j] = flat[i];
+        }
+    }
+
+    // create array
+    vector<int> __shape = {flat.size()*repeats};
+    ndarray<_Tp> trans(array,__shape);
+    
+    return trans;
+}

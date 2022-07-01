@@ -87,3 +87,10 @@ void __check_axis(const int &ndim, const int &axis){
         assert(false);
     }
 }
+
+void __check_repeat(const int &repeats){
+    if(repeats < 1){
+        printf("non-positive dimensions are not allowed\n");
+        assert(false);
+    }
+}
