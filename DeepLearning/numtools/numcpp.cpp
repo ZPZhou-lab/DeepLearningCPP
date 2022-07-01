@@ -10,81 +10,81 @@ using namespace std;
 class numcpp{
 public:
     // all zero matrix
-    template <typename T>
-    ndarray<T> zeros(vector<int>& shape);
+    template <typename _Tp>
+    ndarray<_Tp> zeros(vector<int>& shape);
 
     // all one matrix
-    template <typename T>
-    ndarray<T> ones(vector<int>& shape);
+    template <typename _Tp>
+    ndarray<_Tp> ones(vector<int>& shape);
 
     // equidistant array
-    template <typename T>
-    ndarray<T> arange(long long start, long long end);
-    template <typename T>
-    ndarray<T> linspace(double start, double end, long long N);
+    template <typename _Tp>
+    ndarray<_Tp> arange(long long start, long long end);
+    template <typename _Tp>
+    ndarray<_Tp> linspace(double start, double end, long long N);
 
     // uniformly distributed random matrix
-    template <typename T>
-    ndarray<T> rand(double low, double high, vector<int>& shape);
+    template <typename _Tp>
+    ndarray<_Tp> rand(double low, double high, vector<int>& shape);
 
     // normal distributed random matrix
-    template <typename T>
-    ndarray<T> normal(double mean, double scale, vector<int>& shape);
+    template <typename _Tp>
+    ndarray<_Tp> normal(double mean, double scale, vector<int>& shape);
     // standard normal distributed random matrix
-    template <typename T> 
-    ndarray<T> randn(vector<int>& shape);
+    template <typename _Tp> 
+    ndarray<_Tp> randn(vector<int>& shape);
 };
 
 
 // all zero matrix
-template <typename T>
-ndarray<T> numcpp::zeros(vector<int>& shape){
+template <typename _Tp>
+ndarray<_Tp> numcpp::zeros(vector<int>& shape){
     long long size = 1;
     for(auto s : shape) size *= s;
-    vector<T> arr(size,0);
-    ndarray<T> mat(arr,shape);
+    vector<_Tp> arr(size,0);
+    ndarray<_Tp> mat(arr,shape);
     return mat;
 }
 
 // all one matrix
-template <typename T>
-ndarray<T> numcpp::ones(vector<int>& shape){
+template <typename _Tp>
+ndarray<_Tp> numcpp::ones(vector<int>& shape){
     long long size = 1;
     for(auto s : shape) size *= s;
-    vector<T> arr(size,1);
-    ndarray<T> mat(arr,shape);
+    vector<_Tp> arr(size,1);
+    ndarray<_Tp> mat(arr,shape);
     return mat;
 }
 
 // equidistant array
-template <typename T>
-ndarray<T> numcpp::arange(long long start, long long end){
+template <typename _Tp>
+ndarray<_Tp> numcpp::arange(long long start, long long end){
     long long size = end - start;
-    vector<T> arr(size,1);
-    for(long long i=0;i<size;++i) arr[i] = (T)(start + i);
+    vector<_Tp> arr(size,1);
+    for(long long i=0;i<size;++i) arr[i] = (_Tp)(start + i);
     vector<int> shape = {(int)size};
-    ndarray<T> mat(arr,shape);
+    ndarray<_Tp> mat(arr,shape);
     return mat;
 }
 // equidistant array
-template <typename T>
-ndarray<T> numcpp::linspace(double start, double end, long long N){
+template <typename _Tp>
+ndarray<_Tp> numcpp::linspace(double start, double end, long long N){
     long long size = N;
-    T sep = (end - start) / (N-1);
-    vector<T> arr(size,1);
-    for(long long i=0;i<size;++i) arr[i] = (T)(start + i*sep);
+    _Tp sep = (end - start) / (N-1);
+    vector<_Tp> arr(size,1);
+    for(long long i=0;i<size;++i) arr[i] = (_Tp)(start + i*sep);
     vector<int> shape = {(int)size};
-    ndarray<T> mat(arr,shape);
+    ndarray<_Tp> mat(arr,shape);
     return mat;
 }
 
 // uniformly distributed random matrix
-template <typename T>
-ndarray<T> numcpp::rand(double low, double high, vector<int>& shape){
+template <typename _Tp>
+ndarray<_Tp> numcpp::rand(double low, double high, vector<int>& shape){
     long long size = 1;
     for(auto s : shape) size *= s;
     // define data type
-    typedef T value_type; 
+    typedef _Tp value_type; 
     value_type _dtype;
     const type_info &dataInfo = typeid(_dtype);
 
@@ -98,7 +98,7 @@ ndarray<T> numcpp::rand(double low, double high, vector<int>& shape){
     uniform_real_distribution<double> distribution_real(low,high);
 
     // create array
-    vector<T> arr(size);
+    vector<_Tp> arr(size);
     if(int_dtypes.find(dataInfo.name()) != int_dtypes.end()){
         auto dice = bind(distribution_int,generator);
         for(long long i=0;i<size;++i) arr[i] = dice();
@@ -106,13 +106,13 @@ ndarray<T> numcpp::rand(double low, double high, vector<int>& shape){
         auto dice = bind(distribution_real,generator);
         for(long long i=0;i<size;++i) arr[i] = dice();
     }
-    ndarray<T> mat(arr,shape);
+    ndarray<_Tp> mat(arr,shape);
     return mat;
 }
 
 // normal distributed random matrix
-template <typename T>
-ndarray<T> numcpp::normal(double mean, double scale, vector<int>& shape){
+template <typename _Tp>
+ndarray<_Tp> numcpp::normal(double mean, double scale, vector<int>& shape){
     long long size = 1;
     for(auto s : shape) size *= s;
 
@@ -121,16 +121,16 @@ ndarray<T> numcpp::normal(double mean, double scale, vector<int>& shape){
     unsigned seed = chrono::system_clock::now().time_since_epoch().count();
     default_random_engine generator(seed);
     // the float generator
-    normal_distribution<T> distribution(mean,scale);
+    normal_distribution<_Tp> distribution(mean,scale);
 
-    vector<T> arr(size);
+    vector<_Tp> arr(size);
     auto dice = bind(distribution,generator);
     for(long long i=0;i<size;++i) arr[i] = dice();
-    ndarray<T> mat(arr,shape);
+    ndarray<_Tp> mat(arr,shape);
     return mat;
 }
 // standart normal distributed random matrix
-template <typename T>
-ndarray<T> numcpp::randn(vector<int>& shape){
-    return this->normal<T>(0,1,shape);
+template <typename _Tp>
+ndarray<_Tp> numcpp::randn(vector<int>& shape){
+    return this->normal<_Tp>(0,1,shape);
 }

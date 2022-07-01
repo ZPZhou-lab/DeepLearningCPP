@@ -17,7 +17,7 @@
 
 using namespace std;
 
-template <typename T>
+template <typename _Tp>
 class ndarray;
 
 // time conuter
@@ -106,54 +106,54 @@ long long __reduce_step(vector<int> &shape, int ndim, vector<int> &axis){
 }
 
 // reduction help function for sum()
-template <typename T, typename T1>
-void sum_reduction(T1 &a, T &b){
+template <typename _Tp, typename T1>
+void sum_reduction(T1 &a, _Tp &b){
     a += b;
 }
 
 // reduction help function for max()
-template <typename T, typename T1>
-void max_reduction(T1 &a, T &b){
+template <typename _Tp, typename T1>
+void max_reduction(T1 &a, _Tp &b){
     a = a < b ? b:a;
 }
 
 // reduction help function for min()
-template <typename T, typename T1>
-void min_reduction(T1 &a, T &b){
+template <typename _Tp, typename T1>
+void min_reduction(T1 &a, _Tp &b){
     a = a > b ? b:a;
 }
 
 // reduction help function for any()
-template <typename T, typename T1>
-void any_reduction(T1 &a, T &b){
+template <typename _Tp, typename T1>
+void any_reduction(T1 &a, _Tp &b){
     a = a || b;
     //a = (a == 1 || b != 0) ? 1:0;
 }
 
 // reduction help function for all()
-template <typename T, typename T1>
-void all_reduction(T1 &a, T &b){
+template <typename _Tp, typename T1>
+void all_reduction(T1 &a, _Tp &b){
     a = a && b;
     //a = (a == 1 && b != 1) ? 1:0;
 }
 
 // reduction help function for argmax()
-template <typename T>
-bool argmax_reduction(T &a, T &b){
+template <typename _Tp>
+bool argmax_reduction(_Tp &a, _Tp &b){
     return a > b ? true:false;
 }
 
 // reduction help function for argmin()
-template <typename T>
-bool argmin_reduction(T &a, T &b){
+template <typename _Tp>
+bool argmin_reduction(_Tp &a, _Tp &b){
     return a < b ? true:false;
 }
 
 // quicksort method
-template <typename T>
-void quicksort(vector<T> &array, long long left, long long right){
+template <typename _Tp>
+void quicksort(vector<_Tp> &array, long long left, long long right){
     long long low = left, high = right;
-    T tmp;
+    _Tp tmp;
     if(low < high){
         tmp = array[low];
         while(low < high){
@@ -170,10 +170,10 @@ void quicksort(vector<T> &array, long long left, long long right){
 }
 
 // quicksort with index
-template <typename T>
-void quicksort(ndarray<T> &array, vector<long long> &idx, long long left, long long right){
+template <typename _Tp>
+void quicksort(ndarray<_Tp> &array, vector<long long> &idx, long long left, long long right){
     long long low = left, high = right;
-    T tmp;
+    _Tp tmp;
     long long tmp_idx;
     if(low < high){
         tmp = array[low];

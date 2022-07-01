@@ -23,15 +23,15 @@ using namespace std;
 static set<string> int_dtypes = {"i","l","x"};
 static set<string> real_dtypes = {"f","d","e"};
 
-template <typename T>
+template <typename _Tp>
 class ndarray{
 private:
     // define _data type
-    typedef T value_type; 
+    typedef _Tp value_type; 
     value_type _dtype;
 
     // store all elements in a vector
-    vector<T> _data; 
+    vector<_Tp> _data; 
     // the numver of elements
     long long _size;
 
@@ -50,34 +50,34 @@ private:
     // maintenance function of shape_cumprod
     void __update_shape_cumprod(void);
     // inplace operations update
-    void __inplace_change(vector<T> &array, vector<int> &shape, vector<int> &strides, vector<int> &axes);
+    void __inplace_change(vector<_Tp> &array, vector<int> &shape, vector<int> &strides, vector<int> &axes);
 
     // internal(private) access method, check is omitted
-    T __item(long long args);
-    T __item(vector<int>& args);
+    _Tp __item(long long args);
+    _Tp __item(vector<int>& args);
     vector<int> __item_loc(long long args, vector<int> axis=vector<int>());
 
     // reuction method for sum(), max(), min()
     template<typename T1>
-    ndarray<T1> _reduction(vector<int> axis, void (*func)(T1 &a,T &b), bool keepdim, vector<T1> &arr, 
+    ndarray<T1> _reduction(vector<int> axis, void (*func)(T1 &a,_Tp &b), bool keepdim, vector<T1> &arr, 
                        long long step, vector<int> &__shape, long long __size);
     // reduction method for argmax(), argmin()
-    ndarray<int> _argreduction(int axis, bool (*func)(T &a, T &b));
+    ndarray<int> _argreduction(int axis, bool (*func)(_Tp &a, _Tp &b));
 
 public:
     // default constructer
     ndarray();
     // constructer
-    ndarray(vector<T>& array, vector<int>& shape);
-    ndarray(vector<T>& array, vector<int>& shape, vector<int>& strides, vector<int>& axes);
+    ndarray(vector<_Tp>& array, vector<int>& shape);
+    ndarray(vector<_Tp>& array, vector<int>& shape, vector<int>& strides, vector<int>& axes);
     // destructor
     ~ndarray();
     
     // access element
-    T item(long long args); // access element by flat index
-    T item(vector<int>& args); // access element by an nd-index into the array
+    _Tp item(long long args); // access element by flat index
+    _Tp item(vector<int>& args); // access element by an nd-index into the array
     
-    T at(long long idx); // access element by index
+    _Tp at(long long idx); // access element by index
 
     // return _data type
     const string dtype(void);
@@ -90,7 +90,7 @@ public:
     // return the strides of the nd-array
     const vector<int> strides(void);
     // fetch _data
-    const vector<T> &data(void);
+    const vector<_Tp> &data(void);
 
     // array transform
     ndarray transpose(vector<int>& axes, bool inplace=false);
@@ -98,17 +98,17 @@ public:
     ndarray flatten(bool inplace=false);
     ndarray squeeze(vector<int> axis=vector<int>(), bool inplace=false);
     ndarray expand_dims(vector<int> axis);
-    ndarray t(bool inplace=false);
+    ndarray T(bool inplace=false);
     ndarray repeat(int repeats, int axis);
     ndarray repeat(int repeats);
 
     // array operation
     ndarray sum(vector<int> axis, bool keepdim=false);
-    T sum(void);
+    _Tp sum(void);
     ndarray max(vector<int> axis, bool keepdim=false);
-    T max(void);
+    _Tp max(void);
     ndarray min(vector<int> axis, bool keepdim=false);
-    T min(void);
+    _Tp min(void);
     ndarray<double> mean(vector<int> axis, bool keepdim=false);
     double mean(void);
     ndarray<int> any(vector<int> axis, bool keepdim=false);
@@ -127,15 +127,15 @@ public:
     ndarray<long long> argsort(int axis);
 
     // clip the value
-    ndarray clip(T min, T max, bool inplace=false);
+    ndarray clip(_Tp min, _Tp max, bool inplace=false);
 
     // show matrix
     void show(void);
 
     // opetator reload
     // operator reload []
-    T &operator [] (long long args);
-    const T &operator [] (long long args) const;
+    _Tp &operator [] (long long args);
+    const _Tp &operator [] (long long args) const;
 
     // operation between ndarray and real number
     template<typename T1>
@@ -160,13 +160,13 @@ public:
 };
 
 // get parameters from an indefinite length parameter list
-template <typename T>
-vector<T> fetchArgs(vector<T>& fetch, T arg){
+template <typename _Tp>
+vector<_Tp> fetchArgs(vector<_Tp>& fetch, _Tp arg){
     fetch.emplace_back(arg);
     return fetch;
 }
-template <typename T, typename ...Args>
-vector<T> fetchArgs(vector<T>& fetch, T arg, Args...args){
+template <typename _Tp, typename ...Args>
+vector<_Tp> fetchArgs(vector<_Tp>& fetch, _Tp arg, Args...args){
     fetch.emplace_back(arg);
     return fetchArgs(fetch,args...);
 }
@@ -181,15 +181,15 @@ vector<int> permute(vector<int>& vec, vector<int>& axes){
 }
 
 // default constructer
-template <typename T>
-ndarray<T>::ndarray(){
+template <typename _Tp>
+ndarray<_Tp>::ndarray(){
     this->_ndim = 0;
     this->_size = 0;
 }
 
 // constructer
-template <typename T>
-ndarray<T>::ndarray(vector<T>& array, vector<int>& shape){
+template <typename _Tp>
+ndarray<_Tp>::ndarray(vector<_Tp>& array, vector<int>& shape){
     // compute size
     long long size = 1;
     for(auto s : shape) size *= s;
@@ -215,8 +215,8 @@ ndarray<T>::ndarray(vector<T>& array, vector<int>& shape){
 }
 
 // constructer
-template <typename T>
-ndarray<T>::ndarray(vector<T>& array, vector<int>& shape, vector<int>& strides, vector<int>& axes){
+template <typename _Tp>
+ndarray<_Tp>::ndarray(vector<_Tp>& array, vector<int>& shape, vector<int>& strides, vector<int>& axes){
     // compute size
     long long size = 1;
     for(auto s:shape) size *= s;
@@ -236,15 +236,15 @@ ndarray<T>::ndarray(vector<T>& array, vector<int>& shape, vector<int>& strides, 
 }
 
 //  destructer
-template <typename T>
-ndarray<T>::~ndarray(){
+template <typename _Tp>
+ndarray<_Tp>::~ndarray(){
     cout<<"Destructor called"<<endl;
 }
 
 // operator reload
-template <typename T>
+template <typename _Tp>
 template <typename T1>
-ndarray<double> ndarray<T>::operator/(const T1 b){
+ndarray<double> ndarray<_Tp>::operator/(const T1 b){
     vector<double> res(this->_data);
     for(int i=0;i<this->_size;++i) res[i] /= b;
 
@@ -254,20 +254,20 @@ ndarray<double> ndarray<T>::operator/(const T1 b){
 }
 
 
-template<typename T>
+template<typename _Tp>
 template<typename T1>
-ndarray<T> ndarray<T>::operator+(const T1 b){
-    vector<T> res(this->_data);
+ndarray<_Tp> ndarray<_Tp>::operator+(const T1 b){
+    vector<_Tp> res(this->_data);
     for(int i=0;i<this->_size;++i) res[i] += b;
 
-    ndarray<T> trans(res,this->_shape);
+    ndarray<_Tp> trans(res,this->_shape);
 
     return trans;
 }
 
-template <typename T>
+template <typename _Tp>
 template <typename T1>
-ndarray<double> ndarray<T>::operator*(const T1 b){
+ndarray<double> ndarray<_Tp>::operator*(const T1 b){
     vector<double> res(this->_data);
     for(int i=0;i<this->_size;++i) res[i] *= b;
 
@@ -276,47 +276,47 @@ ndarray<double> ndarray<T>::operator*(const T1 b){
     return trans;
 }
 
-template <typename T>
+template <typename _Tp>
 template <typename T1>
-ndarray<T> ndarray<T>::operator-(const T1 b){
-    vector<T> res(this->_data);
+ndarray<_Tp> ndarray<_Tp>::operator-(const T1 b){
+    vector<_Tp> res(this->_data);
     for(int i=0;i<this->_size;++i) res[i] -= b;
 
-    ndarray<T> trans(res,this->_shape);
+    ndarray<_Tp> trans(res,this->_shape);
 
     return trans;
 }
 
-template <typename T>
+template <typename _Tp>
 template <typename T1>
-ndarray<T> ndarray<T>::operator+(ndarray<T1> &b){
-    ndarray<T> flat1 = this->flatten();
+ndarray<_Tp> ndarray<_Tp>::operator+(ndarray<T1> &b){
+    ndarray<_Tp> flat1 = this->flatten();
     ndarray<T1> flat2 = b.flatten();
-    vector<T> array(flat1.data());
+    vector<_Tp> array(flat1.data());
     for(int i=0;i<this->_size;++i) array[i] += flat2.at(i);
 
-    ndarray<T> trans(array,this->_shape);
+    ndarray<_Tp> trans(array,this->_shape);
 
     return trans;
 }
 
-template <typename T>
+template <typename _Tp>
 template <typename T1>
-ndarray<T> ndarray<T>::operator-(ndarray<T1> &b){
-    ndarray<T> flat1 = this->flatten();
+ndarray<_Tp> ndarray<_Tp>::operator-(ndarray<T1> &b){
+    ndarray<_Tp> flat1 = this->flatten();
     ndarray<T1> flat2 = b.flatten();
-    vector<T> array(flat1.data());
+    vector<_Tp> array(flat1.data());
     for(int i=0;i<this->_size;++i) array[i] -= flat2.at(i);
 
-    ndarray<T> trans(array,this->_shape);
+    ndarray<_Tp> trans(array,this->_shape);
 
     return trans;
 }
 
-template <typename T>
+template <typename _Tp>
 template <typename T1>
-ndarray<double> ndarray<T>::operator*(ndarray<T1> &b){
-    ndarray<T> flat1 = this->flatten();
+ndarray<double> ndarray<_Tp>::operator*(ndarray<T1> &b){
+    ndarray<_Tp> flat1 = this->flatten();
     ndarray<T1> flat2 = b.flatten();
     vector<double> array(flat1.data());
     for(int i=0;i<this->_size;++i) array[i] *= flat2.at(i);
@@ -326,10 +326,10 @@ ndarray<double> ndarray<T>::operator*(ndarray<T1> &b){
     return trans;
 }
 
-template <typename T>
+template <typename _Tp>
 template <typename T1>
-ndarray<double> ndarray<T>::operator/(ndarray<T1> &b){
-    ndarray<T> flat1 = this->flatten();
+ndarray<double> ndarray<_Tp>::operator/(ndarray<T1> &b){
+    ndarray<_Tp> flat1 = this->flatten();
     ndarray<T1> flat2 = b.flatten();
     vector<double> array(flat1.data());
     for(int i=0;i<this->_size;++i) array[i] /= flat2.at(i);
@@ -341,15 +341,15 @@ ndarray<double> ndarray<T>::operator/(ndarray<T1> &b){
 
 
 // maintenance function of shape_cumprod
-template <typename T>
-void ndarray<T>::__update_shape_cumprod(void){
+template <typename _Tp>
+void ndarray<_Tp>::__update_shape_cumprod(void){
     this->__shape_cumprod = vector<long long>(_ndim,1);
     for(int i=_ndim-1;i>0;i--) this->__shape_cumprod[i-1] = this->__shape_cumprod[i] * this->_shape[i];
 }
 
 // array update when inplace operations
-template <typename T>
-void ndarray<T>::__inplace_change(vector<T> &array, vector<int> &shape, vector<int> &strides, vector<int> &axes){
+template <typename _Tp>
+void ndarray<_Tp>::__inplace_change(vector<_Tp> &array, vector<int> &shape, vector<int> &strides, vector<int> &axes){
     // update array
     this->_data = array;
     // update array information
@@ -377,8 +377,8 @@ inline long long __flat_idx(vector<int>& loc, vector<int>& strides){
 }
 
 // get item location vector
-template <typename T>
-inline vector<int> ndarray<T>::__item_loc(long long args, vector<int> axis){
+template <typename _Tp>
+inline vector<int> ndarray<_Tp>::__item_loc(long long args, vector<int> axis){
     // initial lication
     vector<int> loc(_ndim,0);
     
@@ -394,8 +394,8 @@ inline vector<int> ndarray<T>::__item_loc(long long args, vector<int> axis){
 }
 
 // access element by flat index
-template <typename T>
-inline T ndarray<T>::item(long long args){
+template <typename _Tp>
+inline _Tp ndarray<_Tp>::item(long long args){
     // check index
     __check_index(args,this->_size);
 
@@ -411,8 +411,8 @@ inline T ndarray<T>::item(long long args){
 }
 
 // access element by nd-array index
-template <typename T>
-inline T ndarray<T>::item(vector<int>& args){
+template <typename _Tp>
+inline _Tp ndarray<_Tp>::item(vector<int>& args){
     // initial flat index
     long long flat = 0;
 
@@ -428,25 +428,25 @@ inline T ndarray<T>::item(vector<int>& args){
 }
 
 // access element by seperate nd-array index
-template <typename T>
-inline T ndarray<T>::at(long long idx){
+template <typename _Tp>
+inline _Tp ndarray<_Tp>::at(long long idx){
     // return element
     return this->_data[idx];
 }
 
-template<typename T>
-T &ndarray<T>::operator[](long long args){
+template<typename _Tp>
+_Tp &ndarray<_Tp>::operator[](long long args){
     return this->_data[args];
 }
 
-template <typename T>
-const T &ndarray<T>::operator[](long long args) const{
+template <typename _Tp>
+const _Tp &ndarray<_Tp>::operator[](long long args) const{
     return this->_data[args];
 }
 
 // return _data type
-template <typename T>
-const string ndarray<T>::dtype(void){
+template <typename _Tp>
+const string ndarray<_Tp>::dtype(void){
     map<string,string> dtypes = {
         {"i","int"}, {"f","float"}, {"d","double"}, {"l","long"}, {"b","bool"},
         {"e", "long double"}, {"x","long long"}
@@ -456,38 +456,38 @@ const string ndarray<T>::dtype(void){
 }
 
 // the number of elements
-template <typename T>
-const long long ndarray<T>::size(void){
+template <typename _Tp>
+const long long ndarray<_Tp>::size(void){
     return this->_size;
 }
 
 // the number of dimensions
-template <typename T>
-const int ndarray<T>::ndim(void){
+template <typename _Tp>
+const int ndarray<_Tp>::ndim(void){
     return this->_ndim;
 }
 
 // the number of elements in each dimension
-template <typename T>
-const vector<int> ndarray<T>::shape(void){
+template <typename _Tp>
+const vector<int> ndarray<_Tp>::shape(void){
     return this->_shape;
 }
 
 // the strides of the nd-array
-template <typename T>
-const vector<int> ndarray<T>::strides(void){
+template <typename _Tp>
+const vector<int> ndarray<_Tp>::strides(void){
     return this->_strides;
 }
 
 // fetch data
-template <typename T>
-const vector<T> &ndarray<T>::data(void){
+template <typename _Tp>
+const vector<_Tp> &ndarray<_Tp>::data(void){
     return this->_data;
 }
 
 // print the array
-template <typename T>
-void ndarray<T>::show(void){
+template <typename _Tp>
+void ndarray<_Tp>::show(void){
     const type_info &_dataInfo = typeid(this->_dtype);
     string dtype = _dataInfo.name();
     if(this->_ndim == 1){
@@ -520,8 +520,8 @@ void ndarray<T>::show(void){
 }
 
 // transpose
-template <typename T>
-ndarray<T> ndarray<T>::transpose(vector<int>& axes, bool inplace){
+template <typename _Tp>
+ndarray<_Tp> ndarray<_Tp>::transpose(vector<int>& axes, bool inplace){
     // anomaly detection
     __check_axes(axes, this->_ndim);
 
@@ -533,15 +533,15 @@ ndarray<T> ndarray<T>::transpose(vector<int>& axes, bool inplace){
     vector<int> __axes = permute(this->_shape, axes);
     
     // transformed array
-    ndarray<T> trans(this->_data,__shape,__strides,__axes);
+    ndarray<_Tp> trans(this->_data,__shape,__strides,__axes);
     // if inplace, then change the array itself
     if(inplace)  __inplace_change(this->_data, __shape, __strides, __axes);
 
     return trans;
 }
 
-template <typename T>
-ndarray<T> ndarray<T>::t(bool inplace){
+template <typename _Tp>
+ndarray<_Tp> ndarray<_Tp>::T(bool inplace){
     // set axes
     vector<int> axes;
     for(int i=this->_ndim-1;i>=0;--i) axes.emplace_back(i);
@@ -550,8 +550,8 @@ ndarray<T> ndarray<T>::t(bool inplace){
 }
 
 // reshape
-template <typename T>
-ndarray<T> ndarray<T>::reshape(vector<int> &shape, bool inplace){
+template <typename _Tp>
+ndarray<_Tp> ndarray<_Tp>::reshape(vector<int> &shape, bool inplace){
     // anomaly detection
     long long check_size = 1;
     for(auto s:shape) check_size *= s;
@@ -560,7 +560,7 @@ ndarray<T> ndarray<T>::reshape(vector<int> &shape, bool inplace){
     __check_shape(this->_size,check_size);
 
     // initialization
-    ndarray<T> trans;
+    ndarray<_Tp> trans;
 
     // check whether the position of elements in the array needs to be adjusted
     bool flag = false;
@@ -586,20 +586,20 @@ ndarray<T> ndarray<T>::reshape(vector<int> &shape, bool inplace){
     if(flag){
         // adjust the position of elements
         // copy construction
-        vector<T> array(this->_data);
+        vector<_Tp> array(this->_data);
 
         // element table switching
         for(long long i=0;i<this->_size;++i){
             array[i] = item(i);
         }
 
-        trans = ndarray<T>(array,shape,__strides,__axes);
+        trans = ndarray<_Tp>(array,shape,__strides,__axes);
         // if inplace, then change the array itself
         if(inplace)  __inplace_change(array, shape, __strides, __axes);
     }
     // do not need to adjust the position of elements
     else{
-        trans = ndarray<T>(this->_data,shape,__strides,__axes);
+        trans = ndarray<_Tp>(this->_data,shape,__strides,__axes);
         // if inplace, then change the array itself
         if(inplace)  __inplace_change(this->_data, shape, __strides, __axes);
     }
@@ -608,15 +608,15 @@ ndarray<T> ndarray<T>::reshape(vector<int> &shape, bool inplace){
 }
 
 // flatten
-template <typename T>
-ndarray<T> ndarray<T>::flatten(bool inplace){
+template <typename _Tp>
+ndarray<_Tp> ndarray<_Tp>::flatten(bool inplace){
     vector<int> shape = {(int)this->_size};
     return reshape(shape,inplace);
 }
 
 // squeeze
-template <typename T>
-ndarray<T> ndarray<T>::squeeze(vector<int> axis, bool inplace){
+template <typename _Tp>
+ndarray<_Tp> ndarray<_Tp>::squeeze(vector<int> axis, bool inplace){
     // initialization
     vector<int> __axes, __shape, __strides, __axes_idx;
     int __ndim = 0;
@@ -683,7 +683,7 @@ ndarray<T> ndarray<T>::squeeze(vector<int> axis, bool inplace){
         }
     }
 
-    ndarray<T> trans(this->_data,__shape,__strides,__axes_idx);
+    ndarray<_Tp> trans(this->_data,__shape,__strides,__axes_idx);
     // if inplace, then change the array itself
     if(inplace) __inplace_change(this->_data, __shape, __strides, __axes_idx);
 
@@ -691,8 +691,8 @@ ndarray<T> ndarray<T>::squeeze(vector<int> axis, bool inplace){
 }
 
 // expand dims
-template <typename T>
-ndarray<T> ndarray<T>::expand_dims(vector<int> axis){
+template <typename _Tp>
+ndarray<_Tp> ndarray<_Tp>::expand_dims(vector<int> axis){
     /*
     Expand the shape of an array.
     Insert a new axis that will appear at the `axis` position in the expanded array shape.
@@ -701,35 +701,35 @@ ndarray<T> ndarray<T>::expand_dims(vector<int> axis){
 }
 
 // sum
-template <typename T>
-T ndarray<T>::sum(void){
-    T s = 0;
+template <typename _Tp>
+_Tp ndarray<_Tp>::sum(void){
+    _Tp s = 0;
     for(auto e:this->_data) s += e;
 
     return s;
 }
 
 // max
-template <typename T>
-T ndarray<T>::max(void){
-    T s = INT_MIN;
+template <typename _Tp>
+_Tp ndarray<_Tp>::max(void){
+    _Tp s = INT_MIN;
     for(auto e:this->_data) s = std::max(s,e);
 
     return s;
 }
 
 // min
-template <typename T>
-T ndarray<T>::min(void){
-    T s = INT_MAX;
+template <typename _Tp>
+_Tp ndarray<_Tp>::min(void){
+    _Tp s = INT_MAX;
     for(auto e:this->_data) s = std::min(s,e);
 
     return s;
 }
 
 // any()
-template <typename T>
-bool ndarray<T>::any(void){
+template <typename _Tp>
+bool ndarray<_Tp>::any(void){
     bool flag = false;
     for(auto e:this->_data) flag = flag || e;
 
@@ -737,49 +737,49 @@ bool ndarray<T>::any(void){
 }
 
 // all()
-template <typename T>
-bool ndarray<T>::all(void){
+template <typename _Tp>
+bool ndarray<_Tp>::all(void){
     bool flag = true;
     for(auto e:this->_data) flag = flag && e;
 
     return flag;
 }
 
-template <typename T>
-ndarray<T> ndarray<T>::sum(vector<int> axis, bool keepdim){
+template <typename _Tp>
+ndarray<_Tp> ndarray<_Tp>::sum(vector<int> axis, bool keepdim){
     // update nwe shape, size and step
     long long __size = __reduce_size(this->_shape,this->_ndim,axis);
     vector<int> __shape = __reduce_shape(this->_shape,this->_ndim,axis);
     long long step = __reduce_step(this->_shape,this->_ndim,axis);
     // init array
-    vector<T> arr(__size,0);
+    vector<_Tp> arr(__size,0);
     return this->_reduction(axis, sum_reduction, keepdim, arr, step, __shape, __size);
 }
 
-template <typename T>
-ndarray<T> ndarray<T>::max(vector<int> axis, bool keepdim){
+template <typename _Tp>
+ndarray<_Tp> ndarray<_Tp>::max(vector<int> axis, bool keepdim){
     // update nwe shape, size and step
     long long __size = __reduce_size(this->_shape,this->_ndim,axis);
     vector<int> __shape = __reduce_shape(this->_shape,this->_ndim,axis);
     long long step = __reduce_step(this->_shape,this->_ndim,axis);
     // init array
-    vector<T> arr(__size,INT_MIN);
+    vector<_Tp> arr(__size,INT_MIN);
     return this->_reduction(axis, max_reduction, keepdim, arr, step, __shape, __size);
 }
 
-template <typename T>
-ndarray<T> ndarray<T>::min(vector<int> axis, bool keepdim){
+template <typename _Tp>
+ndarray<_Tp> ndarray<_Tp>::min(vector<int> axis, bool keepdim){
     // update nwe shape, size and step
     long long __size = __reduce_size(this->_shape,this->_ndim,axis);
     vector<int> __shape = __reduce_shape(this->_shape,this->_ndim,axis);
     long long step = __reduce_step(this->_shape,this->_ndim,axis);
     // init array
-    vector<T> arr(__size,INT_MAX);
+    vector<_Tp> arr(__size,INT_MAX);
     return this->_reduction(axis, min_reduction, keepdim, arr, step, __shape, __size);
 }
 
-template <typename T>
-ndarray<int> ndarray<T>::any(vector<int> axis, bool keepdim){
+template <typename _Tp>
+ndarray<int> ndarray<_Tp>::any(vector<int> axis, bool keepdim){
     // update nwe shape, size and step
     long long __size = __reduce_size(this->_shape,this->_ndim,axis);
     vector<int> __shape = __reduce_shape(this->_shape,this->_ndim,axis);
@@ -789,8 +789,8 @@ ndarray<int> ndarray<T>::any(vector<int> axis, bool keepdim){
     return this->_reduction(axis, any_reduction, keepdim, arr, step, __shape, __size);
 }
 
-template <typename T>
-ndarray<int> ndarray<T>::all(vector<int> axis, bool keepdim){
+template <typename _Tp>
+ndarray<int> ndarray<_Tp>::all(vector<int> axis, bool keepdim){
     // update nwe shape, size and step
     long long __size = __reduce_size(this->_shape,this->_ndim,axis);
     vector<int> __shape = __reduce_shape(this->_shape,this->_ndim,axis);
@@ -801,15 +801,15 @@ ndarray<int> ndarray<T>::all(vector<int> axis, bool keepdim){
 }
 
 // reduction method for sum(), min(), max()
-template <typename T>
+template <typename _Tp>
 template <typename T1>
-ndarray<T1> ndarray<T>::_reduction(vector<int> axis, void (*func)(T1 &a, T &b), bool keepdim, vector<T1> &arr,
+ndarray<T1> ndarray<_Tp>::_reduction(vector<int> axis, void (*func)(T1 &a, _Tp &b), bool keepdim, vector<T1> &arr,
                                    long long step, vector<int> &__shape,long long __size){
     // initialization
     ndarray<T1> trans(arr,__shape);
     // adjust elements
     // get a copy of ndarray
-    ndarray<T> copy(this->_data,this->_shape,this->_strides,this->_axes);
+    ndarray<_Tp> copy(this->_data,this->_shape,this->_strides,this->_axes);
     // add dimensions
     vector<int> n_shape(this->_shape);
     for(auto j:axis){
@@ -839,21 +839,21 @@ ndarray<T1> ndarray<T>::_reduction(vector<int> axis, void (*func)(T1 &a, T &b), 
 }
 
 // mean
-template <typename T>
-double ndarray<T>::mean(void){
+template <typename _Tp>
+double ndarray<_Tp>::mean(void){
     double m;
 
-    T s = this->sum();
+    _Tp s = this->sum();
     m = s / this->_size;
 
     return m;
 }
 
 // mean
-template <typename T>
-ndarray<double> ndarray<T>::mean(vector<int> axis, bool keepdim){
+template <typename _Tp>
+ndarray<double> ndarray<_Tp>::mean(vector<int> axis, bool keepdim){
     // figure sum
-    ndarray<T> s = this->sum(axis,keepdim);
+    ndarray<_Tp> s = this->sum(axis,keepdim);
 
     // cimpute number of elements
     long long __num = 1;
@@ -866,11 +866,11 @@ ndarray<double> ndarray<T>::mean(vector<int> axis, bool keepdim){
 }
 
 // argmax
-template <typename T>
-long long ndarray<T>::argmax(void){
-    ndarray<T> flat = this->flatten();
+template <typename _Tp>
+long long ndarray<_Tp>::argmax(void){
+    ndarray<_Tp> flat = this->flatten();
     long long idx = 0;
-    T maxVal = flat[0];
+    _Tp maxVal = flat[0];
     for(long long i=0;i<this->_size;++i){
         if(flat[i] > maxVal){
             maxVal = flat[i];
@@ -882,11 +882,11 @@ long long ndarray<T>::argmax(void){
 }
 
 // argmin
-template <typename T>
-long long ndarray<T>::argmin(void){
-    ndarray<T> flat = this->flatten();
+template <typename _Tp>
+long long ndarray<_Tp>::argmin(void){
+    ndarray<_Tp> flat = this->flatten();
     long long idx = 0;
-    T minVal = flat[0];
+    _Tp minVal = flat[0];
     for(long long i;i<this->_size;++i){
         if(flat[i] < minVal){
             minVal = flat[i];
@@ -897,19 +897,19 @@ long long ndarray<T>::argmin(void){
     return idx;
 }
 
-template <typename T>
-ndarray<int> ndarray<T>::argmax(int axis){
+template <typename _Tp>
+ndarray<int> ndarray<_Tp>::argmax(int axis){
     return this->argreduction(axis, argmax_reduction);
 }
 
-template <typename T>
-ndarray<int> ndarray<T>::argmin(int axis){
+template <typename _Tp>
+ndarray<int> ndarray<_Tp>::argmin(int axis){
     return this->argreduction(axis, argmin_reduction);
 }
 
 // reduction method for argmax(). argmin()
-template <typename T>
-ndarray<int> ndarray<T>::_argreduction(int axis, bool (*func)(T &a, T&b)){
+template <typename _Tp>
+ndarray<int> ndarray<_Tp>::_argreduction(int axis, bool (*func)(_Tp &a, _Tp&b)){
 
     vector<int> __shape = __reduce_shape(this->_shape, this->_ndim, axis);
     long long __size = __reduce_size(this->_shape, this->_ndim, axis);
@@ -919,7 +919,7 @@ ndarray<int> ndarray<T>::_argreduction(int axis, bool (*func)(T &a, T&b)){
     ndarray<int> trans(arr,__shape);
     // adjust elements
     // get a copy of ndarray
-    ndarray<T> copy(this->_data,this->_shape,this->_strides,this->_axes);
+    ndarray<_Tp> copy(this->_data,this->_shape,this->_strides,this->_axes);
     // add a dimension
     vector<int> n_shape(this->_shape);
     n_shape.emplace_back(1);
@@ -939,7 +939,7 @@ ndarray<int> ndarray<T>::_argreduction(int axis, bool (*func)(T &a, T&b)){
     // assign elements
     int step = this->_shape[axis];
     for(long long i=0;i<__size;++i){
-        T Val = copy[i*step];
+        _Tp Val = copy[i*step];
         int idx = 0;
         for(int j=0;j<step;++j){
             if(func(copy[i*step + j],Val)){
@@ -954,8 +954,8 @@ ndarray<int> ndarray<T>::_argreduction(int axis, bool (*func)(T &a, T&b)){
 }
 
 // sort method
-template <typename T>
-void ndarray<T>::sort(void){
+template <typename _Tp>
+void ndarray<_Tp>::sort(void){
     /*
     The default sort(void) method, the array is flattened before.
     */
@@ -965,8 +965,8 @@ void ndarray<T>::sort(void){
     quicksort(this->_data,0,this->_size-1);
 }
 
-template <typename T>
-void ndarray<T>::sort(int axis){
+template <typename _Tp>
+void ndarray<_Tp>::sort(int axis){
     /*
     Axis along which to sort. if axis is -1, sort() will sorts array along the last axis.
     */
@@ -1010,8 +1010,8 @@ void ndarray<T>::sort(int axis){
 }
 
 // argsort method
-template <typename T>
-ndarray<long long> ndarray<T>::argsort(void){
+template <typename _Tp>
+ndarray<long long> ndarray<_Tp>::argsort(void){
     /*
     The default argsort(void) method, the array is flattened before.
     */
@@ -1030,8 +1030,8 @@ ndarray<long long> ndarray<T>::argsort(void){
     return sorted_idx;
 }
 
-template <typename T>
-ndarray<long long> ndarray<T>::argsort(int axis){
+template <typename _Tp>
+ndarray<long long> ndarray<_Tp>::argsort(int axis){
     /*
     Axis along which to argsort. if axis is -1, argsort() will sorts array along the last axis.
     */
@@ -1082,10 +1082,10 @@ ndarray<long long> ndarray<T>::argsort(int axis){
 }
 
 // cilp
-template <typename T>
-ndarray<T> ndarray<T>::clip(T min, T max, bool inplace){
+template <typename _Tp>
+ndarray<_Tp> ndarray<_Tp>::clip(_Tp min, _Tp max, bool inplace){
     // copy array
-    vector<T> array(this->_data);
+    vector<_Tp> array(this->_data);
 
     // clip the elements
     for(auto &a:array){
@@ -1097,7 +1097,7 @@ ndarray<T> ndarray<T>::clip(T min, T max, bool inplace){
     }
 
     // create ndarray
-    ndarray<T> trans(array,this->_shape,this->_strides,this->_axes);
+    ndarray<_Tp> trans(array,this->_shape,this->_strides,this->_axes);
     if(inplace) this->_data = array;
 
     return trans;

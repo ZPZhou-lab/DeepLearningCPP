@@ -22,7 +22,7 @@ int main(){
     mat1.show();
 
     startTime = clock();
-    auto mat2 = mat1.t();
+    auto mat2 = mat1.T();
     endTime = clock();
     printf("time used: %.4fs\n",(double)(endTime - startTime) / CLOCKS_PER_SEC);
     mat2.show();
