@@ -62,7 +62,7 @@ private:
     ndarray<T1> _reduction(vector<int> axis, void (*func)(T1 &a,T &b), bool keepdim, vector<T1> &arr, 
                        long long step, vector<int> &__shape, long long __size);
     // reduction method for argmax(), argmin()
-    ndarray<int> argreduction(int axis, bool (*func)(T &a, T &b));
+    ndarray<int> _argreduction(int axis, bool (*func)(T &a, T &b));
 
 public:
     // default constructer
@@ -98,7 +98,7 @@ public:
     ndarray flatten(bool inplace=false);
     ndarray squeeze(vector<int> axis=vector<int>(), bool inplace=false);
     ndarray expand_dims(vector<int> axis);
-    ndarray t(void);
+    ndarray t(bool inplace=false);
     ndarray repeat(int repeats, int axis);
     ndarray repeat(int repeats);
 
@@ -540,6 +540,15 @@ ndarray<T> ndarray<T>::transpose(vector<int>& axes, bool inplace){
     return trans;
 }
 
+template <typename T>
+ndarray<T> ndarray<T>::t(bool inplace){
+    // set axes
+    vector<int> axes;
+    for(int i=this->_ndim-1;i>=0;--i) axes.emplace_back(i);
+
+    return this->transpose(axes,inplace);
+}
+
 // reshape
 template <typename T>
 ndarray<T> ndarray<T>::reshape(vector<int> &shape, bool inplace){
@@ -900,7 +909,7 @@ ndarray<int> ndarray<T>::argmin(int axis){
 
 // reduction method for argmax(). argmin()
 template <typename T>
-ndarray<int> ndarray<T>::argreduction(int axis, bool (*func)(T &a, T&b)){
+ndarray<int> ndarray<T>::_argreduction(int axis, bool (*func)(T &a, T&b)){
 
     vector<int> __shape = __reduce_shape(this->_shape, this->_ndim, axis);
     long long __size = __reduce_size(this->_shape, this->_ndim, axis);
