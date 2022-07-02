@@ -97,7 +97,8 @@ public:
     ndarray reshape(vector<int>& shape, bool inplace=false);
     ndarray flatten(bool inplace=false);
     ndarray squeeze(vector<int> axis=vector<int>(), bool inplace=false);
-    ndarray expand_dims(vector<int> axis);
+    ndarray expand_dims(vector<int> axis, bool inplace=false);
+    ndarray expand_dims(int axis, bool inplace=false);
     ndarray T(bool inplace=false);
     ndarray repeat(int repeats, int axis);
     ndarray repeat(int repeats);
@@ -692,12 +693,48 @@ ndarray<_Tp> ndarray<_Tp>::squeeze(vector<int> axis, bool inplace){
 
 // expand dims
 template <typename _Tp>
-ndarray<_Tp> ndarray<_Tp>::expand_dims(vector<int> axis){
+ndarray<_Tp> ndarray<_Tp>::expand_dims(vector<int> axis, bool inplace){
     /*
     Expand the shape of an array.
     Insert a new axis that will appear at the `axis` position in the expanded array shape.
     axis represents the position in the expanded axes where the new axis (or axes) is placed.
     */
+    
+    // check expand dims
+    __check_expand(this->_ndim,axis);
+    // new ndim
+    int n_ndim = this->_ndim + axis.size();
+    // init new shape
+    vector<int> n_shape(n_ndim,0);
+    int ptr1 = 0, ptr2 = 0;
+    for(int i=0;i<n_ndim;++i){
+        if(i == axis[ptr2]){
+            n_shape[i] = 1;
+            ptr2++;
+        }else{
+            n_shape[i] = this->_shape[ptr1];
+            ptr1++;
+        }
+    }
+    for(auto s:n_shape) cout<<s<<"  ";
+    cout<<endl;
+    // do reshape
+    return this->reshape(n_shape,inplace);
+}
+
+template <typename _Tp>
+ndarray<_Tp> ndarray<_Tp>::expand_dims(int axis, bool inplace){
+    /*
+    Expand the shape of an array.
+    Insert a new axis that will appear at the `axis` position in the expanded array shape.
+    axis represents the position in the expanded axes where the new axis (or axes) is placed.
+    */
+    
+    // use method expand_dims(vector<int> axis, bool inplace)
+    // init axis
+    vector<int> __axis = {axis};
+    // do reshape
+    return this->expand_dims(__axis,inplace);
 }
 
 // sum

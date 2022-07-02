@@ -8,7 +8,6 @@
 using namespace std;
 
 
-// check when shape change
 void __check_shape(const long long &array_size, const long long &shape_size){
     if(array_size != shape_size){
         printf("the number of elements in array(%lld) does not match that of shape(%lld)\n",array_size,shape_size);
@@ -92,5 +91,15 @@ void __check_repeat(const int &repeats){
     if(repeats < 1){
         printf("non-positive dimensions are not allowed\n");
         assert(false);
+    }
+}
+
+void __check_expand(const int ndim, const vector<int> &axis){
+    int new_ndim = ndim + axis.size();
+    for(auto a:axis){
+        if(a >= new_ndim){
+            printf("axis %d is out of bounds for array of dimension %d\n",a,new_ndim);
+            assert(false);
+        }
     }
 }
