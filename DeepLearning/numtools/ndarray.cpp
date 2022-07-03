@@ -958,9 +958,7 @@ ndarray<int> ndarray<_Tp>::_argreduction(int axis, bool (*func)(_Tp &a, _Tp&b)){
     // get a copy of ndarray
     ndarray<_Tp> copy(this->_data,this->_shape,this->_strides,this->_axes);
     // add a dimension
-    vector<int> n_shape(this->_shape);
-    n_shape.emplace_back(1);
-    copy = copy.reshape(n_shape);
+    copy = copy.expand_dims(this->_ndim);
 
     // transpose axis
     vector<int> n_axes;
@@ -1158,6 +1156,37 @@ ndarray<_Tp> ndarray<_Tp>::repeat(int repeats){
 
     // create array
     vector<int> __shape = {flat.size()*repeats};
+    ndarray<_Tp> trans(array,__shape);
+    
+    return trans;
+}
+
+template <typename _Tp>
+ndarray<_Tp> ndarray<_Tp>::repeat(int repeats, int axis){
+    // check repeats
+    __check_repeat(repeats);
+
+    // init the array
+    long long __size = this->_size * repeats;
+    vector<_Tp> array(__size,0);
+    // flat the array
+    auto flat = this->flatten();
+    flat = flat.reshape(this->_shape);
+    // fetch strides
+    vector<int> __strides(flat.strides());
+    
+    // assign elements
+    for(long long i=0;i<this->_size;++i){
+        long long idx = (i / __strides[axis]) * repeats * __strides[axis] + (i % __strides[axis]); 
+        for(int j=0;j<repeats;++j){
+            array[idx + __strides[axis]*j] = flat[i];
+        }
+    }
+
+    // update new shape
+    vector<int> __shape(this->_shape);
+    __shape[axis] *= repeats;
+
     ndarray<_Tp> trans(array,__shape);
     
     return trans;
