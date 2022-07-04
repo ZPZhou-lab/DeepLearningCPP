@@ -127,6 +127,10 @@ public:
     ndarray<long long> argsort(void);
     ndarray<long long> argsort(int axis);
 
+    // matrix production, i.e. dot method()
+    template<typename T1>
+    ndarray<double> dot(ndarray<T1> &mat);
+
     // clip the value
     ndarray clip(_Tp min, _Tp max, bool inplace=false);
 
@@ -1190,4 +1194,24 @@ ndarray<_Tp> ndarray<_Tp>::repeat(int repeats, int axis){
     ndarray<_Tp> trans(array,__shape);
     
     return trans;
+}
+
+
+// matrix production, dot method()
+template <typename _Tp>
+template <typename T1>
+ndarray<double> ndarray<_Tp>::dot(ndarray<T1> &mat){
+    /*
+    dot(a, b): Dot product of two arrays. Specifically,
+
+    - If both `a` and `b` are 1-D arrays, it is inner product of vectors (without complex conjugation).
+
+    - If both `a` and `b` are 2-D arrays, it is matrix multiplication, but using `matmul` is preferred.
+
+    - If `a` is an N-D array and `b` is a 1-D array, it is a sum product over the last axis of `a` and `b`.
+
+    - If `a` is an N-D array and `b` is an M-D array (where ``M>=2``), it is a sum product over the last axis of `a` and the second-to-last axis of `b`::
+
+    dot(a, b)[i,j,k,m] = sum(a[i,j,:] * b[k,:,m])
+    */ 
 }
