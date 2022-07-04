@@ -1204,14 +1204,32 @@ ndarray<double> ndarray<_Tp>::dot(ndarray<T1> &mat){
     /*
     dot(a, b): Dot product of two arrays. Specifically,
 
+    case 1
     - If both `a` and `b` are 1-D arrays, it is inner product of vectors (without complex conjugation).
-
+    case 2
     - If both `a` and `b` are 2-D arrays, it is matrix multiplication, but using `matmul` is preferred.
-
+    case 3
     - If `a` is an N-D array and `b` is a 1-D array, it is a sum product over the last axis of `a` and `b`.
-
+    case 4
     - If `a` is an N-D array and `b` is an M-D array (where ``M>=2``), it is a sum product over the last axis of `a` and the second-to-last axis of `b`::
 
-    dot(a, b)[i,j,k,m] = sum(a[i,j,:] * b[k,:,m])
     */ 
+
+    // init
+    ndarray<double> trans;
+
+    // case 1
+    if(this->_ndim == 1 && mat.ndim() == 1){
+        // check size
+        __check_dot(this->_size,mat.size());
+
+        // compute inner product
+        vector<double> res(1,0);
+        for(long long i=0;i<this->_size;++i) res[0] += this->_data[i]*mat[i];
+        vector<int> __shape = {1};
+
+        trans = ndarray<double>(res,__shape);
+    }
+
+    return trans;
 }

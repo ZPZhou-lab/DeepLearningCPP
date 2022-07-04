@@ -103,3 +103,10 @@ void __check_expand(const int ndim, const vector<int> &axis){
         }
     }
 }
+
+void __check_dot(const long long size1, const long long size2){
+    if(size1 != size2){
+        printf("shapes (%lld,) and (%lld,) not aligned: %lld (dim 0) != %lld (dim 0)\n",size1,size2,size1,size2);
+        assert(false);
+    }
+}
