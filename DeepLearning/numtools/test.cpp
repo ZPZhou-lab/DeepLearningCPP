@@ -17,8 +17,9 @@ int main(){
     vector<int> axis;
     vector<int> strides;
 
-    shape = {6};
+    shape = {3,2,4};
     auto mat1 = nc.randn<double>(shape);
+    shape = {4};
     auto mat2 = nc.randn<double>(shape);
     mat1.show();
     mat2.show();

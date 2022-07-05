@@ -7,6 +7,7 @@
 #include <csignal>
 #include <cstddef>
 #include <cstdio>
+#include <numeric>
 #include <string>
 #include <cmath>
 #include <unordered_set>
@@ -1223,13 +1224,53 @@ ndarray<double> ndarray<_Tp>::dot(ndarray<T1> &mat){
         // check size
         __check_dot(this->_size,mat.size());
 
-        // compute inner product
+        // init array
         vector<double> res(1,0);
-        for(long long i=0;i<this->_size;++i) res[0] += this->_data[i]*mat[i];
+        // compute inner product
+        res[0] = __inner_product(this->_data,0,mat.data(),0,this->_size);
         vector<int> __shape = {1};
 
         trans = ndarray<double>(res,__shape);
     }
+    // case 3
+    else if(this->_ndim > 1 && mat.ndim() == 1){
+        // check size
+        __check_dot(this->_shape[this->_ndim-1],mat.size());
+
+        // compute new shape and new size
+        long long step = mat.size();
+        long long __size = this->_size / step;
+        
+        // delete the last dim
+        vector<int> __shape(this->_shape);
+        __shape.pop_back();
+
+        // init array
+        vector<double> res(__size);
+        // flatten the array
+        auto flat = this->flatten();
+        
+        // compute inner product
+        for(long long i=0;i<__size;++i) res[i] = __inner_product(flat.data(),i*step,mat.data(),0,step);
+        
+        // create ndarray
+        trans = ndarray<double>(res,__shape);
+
+    }
+    // case 2
+    else if(this->_ndim == 2 && mat.ndim() == 2){
+        // check size
+        __check_dot(this->_shape[1], mat.shape()[0]);
+
+
+    }
+    // case 4
+    else{
+        // check size
+        __check_dot(this->_shape[this->_ndim-1], mat.shape()[mat.ndim()-2]);
+
+    }
+
 
     return trans;
 }

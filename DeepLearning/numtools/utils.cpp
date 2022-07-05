@@ -6,6 +6,7 @@
 #include <csignal>
 #include <cstddef>
 #include <cstdio>
+#include <numeric>
 #include <string>
 #include <cmath>
 #include <sys/cdefs.h>
@@ -192,4 +193,15 @@ void quicksort(ndarray<_Tp> &array, vector<long long> &idx, long long left, long
         quicksort(array, idx, left, low-1);
         quicksort(array, idx, low+1, right);
     }
+}
+
+// inner product, sum of product
+template <typename _Tp1, typename _Tp2>
+double __inner_product(const vector<_Tp1> &arr1, const long long s1, const vector<_Tp2> &arr2, const long long s2, const long long n){
+    // init result
+    double s = 0;
+    // compute inner product
+    for(long long i=0;i<n;++i) s += arr1[s1+i] * arr2[s2+i];
+
+    return s;
 }
