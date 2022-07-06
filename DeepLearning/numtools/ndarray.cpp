@@ -1262,7 +1262,13 @@ ndarray<double> ndarray<_Tp>::dot(ndarray<T1> &mat){
         // check size
         __check_dot(this->_shape[1], mat.shape()[0]);
 
+        // compute matrix production
+        vector<double> res = __matrix_prod(this->flatten().data(),mat.flatten().data(),mat.shape()[0]);
+        // init new shape
+        vector<int> __shape = {this->_shape[0],mat.shape()[1]};
 
+        // create ndarray
+        trans = ndarray<double>(res,__shape);
     }
     // case 4
     else{

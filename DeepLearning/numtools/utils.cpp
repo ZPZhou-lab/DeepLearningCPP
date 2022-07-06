@@ -205,3 +205,24 @@ double __inner_product(const vector<_Tp1> &arr1, const long long s1, const vecto
 
     return s;
 }
+
+// method for compute matrix production
+template <typename _Tp1, typename _Tp2>
+vector<double> __matrix_prod(const vector<_Tp1> &mat1, const vector<_Tp2> &mat2, long long step){
+    // compute number of rows and cols
+    int m = mat1.size() / step, n = mat2.size() / step;
+    
+    // init result
+    vector<double> prod(m*n,0);
+    // init index
+    long long idx = 0;
+    for(int i=0;i<m;++i){
+        for(int j=0;j<n;++j){
+            // compute inner product
+            prod[idx] = __inner_product(mat1, i*step, mat2, j*step, step);
+            idx++;
+        }
+    }
+
+    return prod;
+}
