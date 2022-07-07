@@ -1275,6 +1275,46 @@ ndarray<double> ndarray<_Tp>::dot(ndarray<T1> &mat){
         // check size
         __check_dot(this->_shape[this->_ndim-1], mat.shape()[mat.ndim()-2]);
 
+        // compute new shape and size
+        vector<int> __shape;
+        long long __size = 1;
+        for(int i=0;i<this->_ndim-1;++i){
+            __shape.emplace_back(this->_shape[i]);
+            __size *= this->_shape[i];
+        }
+
+        // transpose the axes of mat
+        vector<int> axes;
+        for(int i=0;i<mat.ndim();++i) axes.emplace_back(i);
+        std::swap(axes[mat.ndim()-1],axes[mat.ndim()-2]);
+        auto mat2 = mat.transpose(axes);
+
+        for(int i=0;i<mat2.ndim()-1;++i){
+            __shape.emplace_back(mat2.shape()[i]);
+            __size *= mat2.shape()[i];
+        }
+
+        // init array
+        vector<double> res(__size,0);
+        
+        // flatten
+        auto flat1 = this->flatten();
+        auto flat2 = mat2.flatten();
+
+        // compute inner product
+        // step for inner product
+        long long step = this->_shape[this->_ndim-1];
+
+        long long size1 = flat1.size() / step, size2 = flat2.size() / step;
+        for(long long i=0;i<size1;++i){
+            for(long long j=0;j<size2;++j){
+                res[i*size2 + j] = __inner_product(flat1.data(), i*step, flat2.data(), j*step, step);
+            }
+        }
+
+        // create ndarray
+        trans = ndarray<double>(res,__shape);
+
     }
 
 
