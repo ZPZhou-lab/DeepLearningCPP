@@ -33,6 +33,11 @@ public:
     // standard normal distributed random matrix
     template <typename _Tp> 
     ndarray<_Tp> randn(vector<int>& shape);
+
+
+    // method reshape()
+    template <typename _Tp>
+    ndarray<_Tp> reshape(ndarray<_Tp> &array, vector<int> &shape);
 };
 
 
@@ -133,4 +138,10 @@ ndarray<_Tp> numcpp::normal(double mean, double scale, vector<int>& shape){
 template <typename _Tp>
 ndarray<_Tp> numcpp::randn(vector<int>& shape){
     return this->normal<_Tp>(0,1,shape);
+}
+
+// reshape
+template <typename _Tp>
+ndarray<_Tp> numcpp::reshape(ndarray<_Tp> &array, vector<int> &shape){
+    return array.reshape(shape);
 }
