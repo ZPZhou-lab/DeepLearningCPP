@@ -152,6 +152,14 @@ public:
     ndarray<double> operator / (const T1 b);
     template<typename T1>
     ndarray operator + (const T1 b);
+    template<typename _Tp1, typename _Tp2>
+    friend ndarray<double> operator+(const _Tp1 a, const ndarray<_Tp2> &b);
+    template<typename _Tp1, typename _Tp2>
+    friend ndarray<double> operator-(const _Tp1 a, const ndarray<_Tp2> &b);
+    template<typename _Tp1, typename _Tp2>
+    friend ndarray<double> operator*(const _Tp1 a, const ndarray<_Tp2> &b);
+    template<typename _Tp1, typename _Tp2>
+    friend ndarray<double> operator/(const _Tp1 a, const ndarray<_Tp2> &b);
 
     // operation between ndarray and ndarray
     template<typename T1>
@@ -269,6 +277,23 @@ ndarray<_Tp> ndarray<_Tp>::operator+(const T1 b){
     ndarray<_Tp> trans(res,this->_shape);
 
     return trans;
+}
+
+template<typename _Tp1, typename _Tp2>
+ndarray<double> operator+(const _Tp1 a, ndarray<_Tp2> &b){
+    return b + a;
+}
+template<typename _Tp1, typename _Tp2>
+ndarray<double> operator-(const _Tp1 a, ndarray<_Tp2> &b){
+    return b - a;
+}
+template<typename _Tp1, typename _Tp2>
+ndarray<double> operator*(const _Tp1 a, ndarray<_Tp2> &b){
+    return b * a;
+}
+template<typename _Tp1, typename _Tp2>
+ndarray<double> operator/(const _Tp1 a, ndarray<_Tp2> &b){
+    return b / a;
 }
 
 template <typename _Tp>
