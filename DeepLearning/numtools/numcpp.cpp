@@ -38,6 +38,13 @@ public:
     // method reshape()
     template <typename _Tp>
     ndarray<_Tp> reshape(ndarray<_Tp> &array, vector<int> &shape);
+    // method transpose()
+    template<typename _Tp>
+    ndarray<_Tp> transpose(ndarray<_Tp> &array, vector<int> &axes);
+    // method flatten()
+    template<typename _Tp>
+    ndarray<_Tp> flatten(ndarray<_Tp> &array);
+
 };
 
 
@@ -144,4 +151,16 @@ ndarray<_Tp> numcpp::randn(vector<int>& shape){
 template <typename _Tp>
 ndarray<_Tp> numcpp::reshape(ndarray<_Tp> &array, vector<int> &shape){
     return array.reshape(shape);
+}
+
+// reshape
+template <typename _Tp>
+ndarray<_Tp> numcpp::transpose(ndarray<_Tp> &array, vector<int> &axes){
+    return array.transpose(axes);
+}
+
+// reshape
+template <typename _Tp>
+ndarray<_Tp> numcpp::flatten(ndarray<_Tp> &array){
+    return array.flatten();
 }
