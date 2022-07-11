@@ -23,7 +23,8 @@ int main(){
     // mat2.show();
 
     startTime = clock();
-    auto mat2 = 1 + mat1;
+    shape = {4,6};
+    auto mat2 = nc.reshape(mat1, shape);
     endTime = clock();
     printf("time used: %.4fs\n",(double)(endTime - startTime) / CLOCKS_PER_SEC);
     mat2.show();

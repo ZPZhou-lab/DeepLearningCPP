@@ -1297,6 +1297,10 @@ ndarray<double> ndarray<_Tp>::dot(ndarray<T1> &mat){
     }
     // case 4
     else{
+        /*
+        对于case 4，应该将其先转换为两个二维矩阵相乘，然后借用快速矩阵乘法，最后再reshape返回到正确的形状
+        将元素放置到二维矩阵所需要的时间复杂度与元素个数相同
+        */
         // check size
         __check_dot(this->_shape[this->_ndim-1], mat.shape()[mat.ndim()-2]);
 
