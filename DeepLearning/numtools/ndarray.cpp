@@ -91,7 +91,7 @@ public:
     // return the strides of the nd-array
     const vector<int> strides(void);
     // fetch _data
-    const vector<_Tp> &data(void);
+    vector<_Tp> &data(void);
 
     // array transform
     ndarray transpose(vector<int>& axes, bool inplace=false);
@@ -512,7 +512,7 @@ const vector<int> ndarray<_Tp>::strides(void){
 
 // fetch data
 template <typename _Tp>
-const vector<_Tp> &ndarray<_Tp>::data(void){
+vector<_Tp> &ndarray<_Tp>::data(void){
     return this->_data;
 }
 
@@ -1327,23 +1327,23 @@ ndarray<double> ndarray<_Tp>::dot(ndarray<T1> &mat){
         vector<double> res(__size,0);
         
         // flatten
-        auto flat1 = this->flatten();
-        auto flat2 = mat2.flatten();
-
-        // compute inner product
+        auto mat1 = this->flatten();
+        mat2 = mat2.flatten();
         // step for inner product
         long long step = this->_shape[this->_ndim-1];
 
-        long long size1 = flat1.size() / step, size2 = flat2.size() / step;
-        for(long long i=0;i<size1;++i){
-            for(long long j=0;j<size2;++j){
-                res[i*size2 + j] = __inner_product(flat1.data(), i*step, flat2.data(), j*step, step);
-            }
-        }
+        long long size1 = mat1.size() / step, size2 = mat2.size() / step;
 
-        // create ndarray
-        trans = ndarray<double>(res,__shape);
+        // create two 2-D array
+        vector<int> __shape1 = {size1,step};
+        mat1 = ndarray<_Tp>(mat1.data(),__shape1);
+        vector<int> __shape2 = {step,size2};
+        mat2 = ndarray<T1>(mat2.data(),__shape2);
 
+        // compute matrix product, use case 2 for fast matrix multiply
+        // do reshape
+        trans = mat1.dot(mat2).reshape(__shape);
+        
     }
 
 
