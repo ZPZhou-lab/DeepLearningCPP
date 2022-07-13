@@ -561,7 +561,7 @@ ndarray<_Tp> ndarray<_Tp>::transpose(vector<int>& axes, bool inplace){
     // update shape
     vector<int> __shape = permute(this->_shape, axes);
     // update axes
-    vector<int> __axes = permute(this->_shape, axes);
+    vector<int> __axes = permute(this->_axes, axes);
     
     // transformed array
     ndarray<_Tp> trans(this->_data,__shape,__strides,__axes);
@@ -1335,9 +1335,9 @@ ndarray<double> ndarray<_Tp>::dot(ndarray<T1> &mat){
         long long size1 = mat1.size() / step, size2 = mat2.size() / step;
 
         // create two 2-D array
-        vector<int> __shape1 = {size1,step};
+        vector<int> __shape1 = {(int)size1,(int)step};
         mat1 = ndarray<_Tp>(mat1.data(),__shape1);
-        vector<int> __shape2 = {step,size2};
+        vector<int> __shape2 = {(int)step,(int)size2};
         mat2 = ndarray<T1>(mat2.data(),__shape2);
 
         // compute matrix product, use case 2 for fast matrix multiply
