@@ -44,6 +44,14 @@ public:
     // method flatten()
     template<typename _Tp>
     ndarray<_Tp> flatten(ndarray<_Tp> &array);
+    // method expand_dims()
+    template<typename _Tp>
+    ndarray<_Tp> expand_dims(ndarray<_Tp> &array, vector<int> axis);
+
+    // computation
+    // method dot() for array
+    template<typename _Tp1, typename _Tp2>
+    ndarray<double> dot(ndarray<_Tp1> &arr1, ndarray<_Tp2> &arr2);
 
 };
 
@@ -163,4 +171,16 @@ ndarray<_Tp> numcpp::transpose(ndarray<_Tp> &array, vector<int> &axes){
 template <typename _Tp>
 ndarray<_Tp> numcpp::flatten(ndarray<_Tp> &array){
     return array.flatten();
+}
+
+// dot
+template <typename _Tp1, typename _Tp2>
+ndarray<double> numcpp::dot(ndarray<_Tp1> &arr1, ndarray<_Tp2> &arr2){
+    return arr1.dot(arr2);
+}
+
+// expand_dims
+template <typename _Tp>
+ndarray<_Tp> numcpp::expand_dims(ndarray<_Tp> &array, vector<int> axis){
+    return array.expand_dims(axis);
 }

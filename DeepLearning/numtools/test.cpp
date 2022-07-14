@@ -17,16 +17,16 @@ int main(){
     vector<int> axis;
     vector<int> strides;
 
-    shape = {2,4,3};
+    shape = {20,40,300};
     auto mat1 = nc.randn<double>(shape);
-    shape = {3,2};
+    shape = {300,500};
     auto mat2 = nc.randn<double>(shape);
 
     startTime = clock();
     auto mat3 = mat1.dot(mat2);
     endTime = clock();
     printf("time used: %.4fs\n",(double)(endTime - startTime) / CLOCKS_PER_SEC);
-    mat3.show();
+    // mat3.show();
 
     return 0;
 }
