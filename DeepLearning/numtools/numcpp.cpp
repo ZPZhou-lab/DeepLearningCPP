@@ -7,6 +7,21 @@
 #pragma once
 using namespace std;
 
+// class for generate random numbers from various distributions
+class randomBses{
+public:
+    // uniformly distributed random matrix
+    template <typename _Tp>
+    ndarray<_Tp> rand(double low, double high, vector<int>& shape);
+
+    // normal distributed random matrix
+    template <typename _Tp>
+    ndarray<_Tp> normal(double mean, double scale, vector<int>& shape);
+    // standard normal distributed random matrix
+    template <typename _Tp> 
+    ndarray<_Tp> randn(vector<int>& shape);
+};
+
 class numcpp{
 public:
     // all zero matrix
@@ -23,17 +38,8 @@ public:
     template <typename _Tp>
     ndarray<_Tp> linspace(double start, double end, long long N);
 
-    // uniformly distributed random matrix
-    template <typename _Tp>
-    ndarray<_Tp> rand(double low, double high, vector<int>& shape);
-
-    // normal distributed random matrix
-    template <typename _Tp>
-    ndarray<_Tp> normal(double mean, double scale, vector<int>& shape);
-    // standard normal distributed random matrix
-    template <typename _Tp> 
-    ndarray<_Tp> randn(vector<int>& shape);
-
+    // class for generate random numbers
+    randomBses random;
 
     // method reshape()
     template <typename _Tp>
@@ -100,7 +106,7 @@ ndarray<_Tp> numcpp::linspace(double start, double end, long long N){
 
 // uniformly distributed random matrix
 template <typename _Tp>
-ndarray<_Tp> numcpp::rand(double low, double high, vector<int>& shape){
+ndarray<_Tp> randomBses::rand(double low, double high, vector<int>& shape){
     long long size = 1;
     for(auto s : shape) size *= s;
     // define data type
@@ -132,7 +138,7 @@ ndarray<_Tp> numcpp::rand(double low, double high, vector<int>& shape){
 
 // normal distributed random matrix
 template <typename _Tp>
-ndarray<_Tp> numcpp::normal(double mean, double scale, vector<int>& shape){
+ndarray<_Tp> randomBses::normal(double mean, double scale, vector<int>& shape){
     long long size = 1;
     for(auto s : shape) size *= s;
 
@@ -151,7 +157,7 @@ ndarray<_Tp> numcpp::normal(double mean, double scale, vector<int>& shape){
 }
 // standart normal distributed random matrix
 template <typename _Tp>
-ndarray<_Tp> numcpp::randn(vector<int>& shape){
+ndarray<_Tp> randomBses::randn(vector<int>& shape){
     return this->normal<_Tp>(0,1,shape);
 }
 
