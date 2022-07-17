@@ -22,6 +22,43 @@ public:
     ndarray<_Tp> randn(vector<int>& shape);
 };
 
+// class for linear algebra method
+class linaig{
+public:
+    // Cholesky decomposition
+    template <typename _Tp>
+    ndarray<double> cholesky(ndarray<_Tp> &array);
+
+    // Compute the determinant of an array
+    template <typename _Tp>
+    double det(ndarray<_Tp> &array);
+
+    // Compute the eigenvalues and right eigenvectors of a square array
+    template <typename _Tp>
+    pair<ndarray<double>, ndarray<double>> eig(ndarray<_Tp> &array);
+
+    // Compute the (multiplicative) inverse of a matrix
+    template <typename _Tp>
+    ndarray<double> inv(ndarray<_Tp> &array);
+
+    // Raise a square matrix to the (integer) power `n`
+    template <typename _Tp>
+    ndarray<double> matrix_power(ndarray<_Tp> &array, int n);
+
+    // Matrix or vector norm
+    template <typename _Tp>
+    double norm(ndarray<_Tp> &array, double ord=2, int axis, bool keepdims=false);
+
+    // Compute the qr factorization of a matrix
+    template <typename _Tp>
+    pair<ndarray<double>, ndarray<double>> qr(ndarray<_Tp> &array, string mode);
+
+    // Solve a linear matrix equation, or system of linear scalar equations
+    template <typename _Tp>
+    ndarray<double> solve(ndarray<_Tp> &A, ndarray<_Tp> &b);
+
+};
+
 class numcpp{
 public:
     // all zero matrix
