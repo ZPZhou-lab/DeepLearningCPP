@@ -10,16 +10,61 @@ using namespace std;
 // class for generate random numbers from various distributions
 class randomBses{
 public:
+    // utility fuctions
+    // randomly permute [0,1,2,...,x-1]
+    ndarray<long long> permutation(long long x);
+    // make a copy and shuffle the elements randomly
+    template<typename _Tp>
+    ndarray<_Tp> permutation(ndarray<_Tp> &x);
+    // randomly permute a sequence in place
+    template<typename _Tp>
+    void shuffle(ndarray<_Tp> &array);
+    // random sanple from 1-D array
+    template<typename _Tp>
+    ndarray<_Tp> choice(ndarray<_Tp> &array, vector<int>& shape, bool replace=true, vector<double> p=vector<double>());
+
+
+    // Univariate distributions
     // uniformly distributed random matrix
+    ndarray<double> uniform(double low, double high, vector<int> shape=vector<int>());
+    // uniformly distributed random matrix for elements in [0,1)
+    template <typename ...Args>
+    ndarray<double> rand(Args...args);
+    // Return random integers from the "discrete uniform" distribution
     template <typename _Tp>
-    ndarray<_Tp> rand(double low, double high, vector<int>& shape);
+    ndarray<_Tp> randint(long long low, long long high, vector<int> shape=vector<int>());
 
     // normal distributed random matrix
-    template <typename _Tp>
-    ndarray<_Tp> normal(double mean, double scale, vector<int>& shape);
+    ndarray<double> normal(double mean, double scale, vector<int> shape=vector<int>());
     // standard normal distributed random matrix
-    template <typename _Tp> 
-    ndarray<_Tp> randn(vector<int>& shape);
+    template<typename ...Args>
+    ndarray<double> randn(Args...args);
+
+    // beta distribution over ``[0, 1]``
+    ndarray<double> beta(double a, double b, vector<int> shape=vector<int>());
+    // binomial distribution
+    ndarray<int> binomial(int n, double p, vector<int> shape=vector<int>());
+    // chisquare distribution
+    ndarray<double> chisquare(double df, vector<int> shape=vector<int>());
+    // exponential distribution
+    ndarray<double> exponontial(double scale, vector<int> shape=vector<int>());
+    // F(Fisher0Snedecor) distribution
+    ndarray<double> f(double dfnum, double dfden, vector<int> shape=vector<int>());
+    // Gamma distribution
+    ndarray<double> Gamma(double shape, double scale, vector<int> _shape=vector<int>());
+    // Geometric distribution
+    ndarray<int> geometric(double p, vector<int> shape=vector<int>());
+    // Poisson distribution
+    ndarray<int> poisson(double lam, vector<int> shape=vector<int>());
+    
+    // Multivariate distributions
+    ndarray<double> multivariate_normal(ndarray<double>& mean, ndarray<double>& cov, vector<int> shape=vector<int>());
+
+    // Standard distribution
+    ndarray<double> standard_cauchy(vector<int> shape=vector<int>());
+    ndarray<double> standard_t(double df, vector<int> shape=vector<int>());
+    ndarray<double> standard_gamma(double shape, vector<int> _shape=vector<int>());
+
 };
 
 // class for linear algebra method
@@ -47,7 +92,7 @@ public:
 
     // Matrix or vector norm
     template <typename _Tp>
-    double norm(ndarray<_Tp> &array, double ord=2, int axis, bool keepdims=false);
+    double norm(ndarray<_Tp> &array, double ord, int axis, bool keepdims=false);
 
     // Compute the qr factorization of a matrix
     template <typename _Tp>
@@ -142,40 +187,68 @@ ndarray<_Tp> numcpp::linspace(double start, double end, long long N){
 }
 
 // uniformly distributed random matrix
-template <typename _Tp>
-ndarray<_Tp> randomBses::rand(double low, double high, vector<int>& shape){
+ndarray<double> randomBses::uniform(double low, double high, vector<int> shape){
     long long size = 1;
     for(auto s : shape) size *= s;
-    // define data type
-    typedef _Tp value_type; 
-    value_type _dtype;
-    const type_info &dataInfo = typeid(_dtype);
+
+    // create random number generator
+    // seed
+    unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+    default_random_engine generator(seed);
+    // the float generator
+    uniform_real_distribution<double> distribution_real(low,high);
+
+    // create array
+    vector<double> arr(size);
+
+    // generate random numbers
+    auto dice = bind(distribution_real,generator);
+    for(long long i=0;i<size;++i) arr[i] = dice();
+
+    // create ndarray
+    ndarray<double> mat(arr,shape);
+    return mat;
+}
+
+// Create an array of the given shape and populate it with random samples from a uniform distribution
+template <typename ...Args>
+ndarray<double> randomBses::rand(Args...args){
+    vector<int> shape;
+    shape = fetchArgs(shape,args...);
+    return this->uniform(0, 1, shape);
+}
+
+/* 
+Return random integers from the "discrete uniform" distribution of 
+the specified dtype in the "closed" interval [`low`, `high`]
+*/
+template <typename _Tp>
+ndarray<_Tp> randomBses::randint(long long low, long long high, vector<int> shape){
+    long long size = 1;
+    for(auto s : shape) size *= s;
 
     // create random number generator
     // seed
     unsigned seed = chrono::system_clock::now().time_since_epoch().count();
     default_random_engine generator(seed);
     // the int generator
-    uniform_int_distribution<long> distribution_int(low,high);
-    // the float generator
-    uniform_real_distribution<double> distribution_real(low,high);
+    uniform_int_distribution<_Tp> distribution_int(low,high);
 
     // create array
     vector<_Tp> arr(size);
-    if(int_dtypes.find(dataInfo.name()) != int_dtypes.end()){
-        auto dice = bind(distribution_int,generator);
-        for(long long i=0;i<size;++i) arr[i] = dice();
-    }else{
-        auto dice = bind(distribution_real,generator);
-        for(long long i=0;i<size;++i) arr[i] = dice();
-    }
+
+    // generate random numbers
+    auto dice = bind(distribution_int,generator);
+    for(long long i=0;i<size;++i) arr[i] = dice();
+
+    // create ndarray
     ndarray<_Tp> mat(arr,shape);
     return mat;
 }
 
+
 // normal distributed random matrix
-template <typename _Tp>
-ndarray<_Tp> randomBses::normal(double mean, double scale, vector<int>& shape){
+ndarray<double> randomBses::normal(double mean, double scale, vector<int> shape){
     long long size = 1;
     for(auto s : shape) size *= s;
 
@@ -184,18 +257,20 @@ ndarray<_Tp> randomBses::normal(double mean, double scale, vector<int>& shape){
     unsigned seed = chrono::system_clock::now().time_since_epoch().count();
     default_random_engine generator(seed);
     // the float generator
-    normal_distribution<_Tp> distribution(mean,scale);
+    normal_distribution<double> distribution(mean,scale);
 
-    vector<_Tp> arr(size);
+    vector<double> arr(size);
     auto dice = bind(distribution,generator);
     for(long long i=0;i<size;++i) arr[i] = dice();
-    ndarray<_Tp> mat(arr,shape);
+    ndarray<double> mat(arr,shape);
     return mat;
 }
 // standart normal distributed random matrix
-template <typename _Tp>
-ndarray<_Tp> randomBses::randn(vector<int>& shape){
-    return this->normal<_Tp>(0,1,shape);
+template <typename ...Args>
+ndarray<double> randomBses::randn(Args...args){
+    vector<int> shape;
+    shape = fetchArgs(shape,args...);
+    return this->normal(0,1,shape);
 }
 
 // reshape

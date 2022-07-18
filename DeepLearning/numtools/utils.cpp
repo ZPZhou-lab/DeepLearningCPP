@@ -24,6 +24,27 @@ class ndarray;
 // time conuter
 clock_t tic, toc;
 
+// get parameters from an indefinite length parameter list
+template <typename _Tp>
+vector<_Tp> fetchArgs(vector<_Tp>& fetch, _Tp arg){
+    fetch.emplace_back(arg);
+    return fetch;
+}
+template <typename _Tp, typename ...Args>
+vector<_Tp> fetchArgs(vector<_Tp>& fetch, _Tp arg, Args...args){
+    fetch.emplace_back(arg);
+    return fetchArgs(fetch,args...);
+}
+
+// permutation of axes
+vector<int> permute(vector<int>& vec, vector<int>& axes){
+    // temporary variable
+    vector<int> permuted(vec.size());
+    for(int i=0;i<vec.size();++i) permuted[i] = vec[axes[i]];
+
+    return permuted;
+}
+
 // fetch reduction size
 long long __reduce_size(vector<int> &shape, int ndim, vector<int> &axis){
     // init
