@@ -3,6 +3,7 @@
 #include <bits/stdc++.h>
 #include <chrono>
 #include <cstdio>
+#include <cstdlib>
 #include <ctime>
 #include <vector>
 using namespace std;
@@ -17,19 +18,15 @@ int main(){
     vector<int> axis;
     vector<int> strides;
 
-
-    shape = {3,5};
-    auto mat1 = nc.random.standard_cauchy(shape);
+    auto mat1 = nc.random.rand(10);
     mat1.show();
-    auto mat2 = nc.random.randn(5,4);
-    mat2.show();
+    nc.random.shuffle(mat1);
+    mat1.show();
     
 
     startTime = clock();
-    auto mat3 = mat1.dot(mat2);
     endTime = clock();
     printf("time used: %.4fs\n",(double)(endTime - startTime) / CLOCKS_PER_SEC);
-    mat3.show();
 
     return 0;
 }
