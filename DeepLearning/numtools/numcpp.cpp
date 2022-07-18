@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
 #include "ndarray.cpp"
+#include <cstdlib>
 #include <vector>
 #include <typeinfo>
 #include <random>
@@ -43,7 +44,7 @@ public:
     // beta distribution over ``[0, 1]``
     ndarray<double> beta(double a, double b, vector<int> shape=vector<int>());
     // binomial distribution
-    ndarray<int> binomial(int n, double p, vector<int> shape=vector<int>());
+    ndarray<double> binomial(int n, double p, vector<int> shape=vector<int>());
     // chisquare distribution
     ndarray<double> chisquare(double df, vector<int> shape=vector<int>());
     // exponential distribution
@@ -53,9 +54,9 @@ public:
     // Gamma distribution
     ndarray<double> Gamma(double shape, double scale, vector<int> _shape=vector<int>());
     // Geometric distribution
-    ndarray<int> geometric(double p, vector<int> shape=vector<int>());
+    ndarray<double> geometric(double p, vector<int> shape=vector<int>());
     // Poisson distribution
-    ndarray<int> poisson(double lam, vector<int> shape=vector<int>());
+    ndarray<double> poisson(double lam, vector<int> shape=vector<int>());
     
     // Multivariate distributions
     ndarray<double> multivariate_normal(ndarray<double>& mean, ndarray<double>& cov, vector<int> shape=vector<int>());
@@ -258,7 +259,7 @@ ndarray<double> randomBses::normal(double mean, double scale, vector<int> shape)
     default_random_engine generator(seed);
     // the float generator
     normal_distribution<double> distribution(mean,scale);
-
+    
     vector<double> arr(size);
     auto dice = bind(distribution,generator);
     for(long long i=0;i<size;++i) arr[i] = dice();
@@ -271,6 +272,25 @@ ndarray<double> randomBses::randn(Args...args){
     vector<int> shape;
     shape = fetchArgs(shape,args...);
     return this->normal(0,1,shape);
+}
+
+// beta distribution over ``[0, 1]``
+ndarray<double> randomBses::binomial(int n, double p, vector<int> shape){
+    long long size = 1;
+    for(auto s : shape) size *= s;
+
+    // create random number generator
+    // seed
+    unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+    default_random_engine generator(seed);
+    // the float generator
+    binomial_distribution<int> distribution(n,p);
+    
+    vector<double> arr(size);
+    auto dice = bind(distribution,generator);
+    for(long long i=0;i<size;++i) arr[i] = dice();
+    ndarray<double> mat(arr,shape);
+    return mat;
 }
 
 // reshape

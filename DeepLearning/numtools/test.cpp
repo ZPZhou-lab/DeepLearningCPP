@@ -19,10 +19,9 @@ int main(){
 
 
     shape = {3,5};
-    auto mat1 = nc.random.randint<long>(0,5,shape);
+    auto mat1 = nc.random.binomial(10, 0.5,shape);
     mat1.show();
-    shape = {5,4};
-    auto mat2 = nc.random.randint<long long>(4,5,shape);
+    auto mat2 = nc.random.randn(5,4);
     mat2.show();
     
 
