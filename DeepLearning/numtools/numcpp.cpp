@@ -52,7 +52,7 @@ public:
     // F(Fisher0Snedecor) distribution
     ndarray<double> f(double dfnum, double dfden, vector<int> shape=vector<int>());
     // Gamma distribution
-    ndarray<double> Gamma(double shape, double scale, vector<int> _shape=vector<int>());
+    ndarray<double> gamma(double shape, double scale, vector<int> _shape=vector<int>());
     // Geometric distribution
     ndarray<double> geometric(double p, vector<int> shape=vector<int>());
     // Poisson distribution
@@ -64,7 +64,6 @@ public:
     // Standard distribution
     ndarray<double> standard_cauchy(vector<int> shape=vector<int>());
     ndarray<double> standard_t(double df, vector<int> shape=vector<int>());
-    ndarray<double> standard_gamma(double shape, vector<int> _shape=vector<int>());
 
 };
 
@@ -290,6 +289,158 @@ ndarray<double> randomBses::binomial(int n, double p, vector<int> shape){
     auto dice = bind(distribution,generator);
     for(long long i=0;i<size;++i) arr[i] = dice();
     ndarray<double> mat(arr,shape);
+    return mat;
+}
+
+// chisquare distribution
+ndarray<double> randomBses::chisquare(double df, vector<int> shape){
+    long long size = 1;
+    for(auto s : shape) size *= s;
+
+    // create random number generator
+    // seed
+    unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+    default_random_engine generator(seed);
+    // the float generator
+    chi_squared_distribution<double> distribution(df);
+    
+    vector<double> arr(size);
+    auto dice = bind(distribution,generator);
+    for(long long i=0;i<size;++i) arr[i] = dice();
+    ndarray<double> mat(arr,shape);
+    return mat;
+}
+
+// exponential distribution
+ndarray<double> randomBses::exponontial(double scale, vector<int> shape){
+    long long size = 1;
+    for(auto s : shape) size *= s;
+
+    // create random number generator
+    // seed
+    unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+    default_random_engine generator(seed);
+    // the float generator
+    exponential_distribution<double> distribution(1 / scale);
+    
+    vector<double> arr(size);
+    auto dice = bind(distribution,generator);
+    for(long long i=0;i<size;++i) arr[i] = dice();
+    ndarray<double> mat(arr,shape);
+    return mat;
+}
+
+// F(Fisher0Snedecor) distribution
+ndarray<double> randomBses::f(double dfnum, double dfden, vector<int> shape){
+    long long size = 1;
+    for(auto s : shape) size *= s;
+
+    // create random number generator
+    // seed
+    unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+    default_random_engine generator(seed);
+    // the float generator
+    fisher_f_distribution<double> distribution(dfnum,dfden);
+    
+    vector<double> arr(size);
+    auto dice = bind(distribution,generator);
+    for(long long i=0;i<size;++i) arr[i] = dice();
+    ndarray<double> mat(arr,shape);
+    return mat;
+}
+
+// Gamma distribution
+ndarray<double> randomBses::gamma(double shape, double scale, vector<int> _shape){
+    long long size = 1;
+    for(auto s : _shape) size *= s;
+
+    // create random number generator
+    // seed
+    unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+    default_random_engine generator(seed);
+    // the float generator
+    gamma_distribution<double> distribution(shape,scale);
+    
+    vector<double> arr(size);
+    auto dice = bind(distribution,generator);
+    for(long long i=0;i<size;++i) arr[i] = dice();
+    ndarray<double> mat(arr,_shape);
+    return mat;
+}
+
+// geometric distribution
+ndarray<double> randomBses::geometric(double p, vector<int> shape){
+    long long size = 1;
+    for(auto s : shape) size *= s;
+
+    // create random number generator
+    // seed
+    unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+    default_random_engine generator(seed);
+    // the float generator
+    geometric_distribution<int> distribution(p);
+    
+    vector<double> arr(size);
+    auto dice = bind(distribution,generator);
+    for(long long i=0;i<size;++i) arr[i] = dice();
+    ndarray<double> mat(arr,shape);
+    return mat;
+}
+
+// Poisson distribution
+ndarray<double> randomBses::poisson(double lam, vector<int> shape){
+    long long size = 1;
+    for(auto s : shape) size *= s;
+
+    // create random number generator
+    // seed
+    unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+    default_random_engine generator(seed);
+    // the float generator
+    poisson_distribution<int> distribution(lam);
+    
+    vector<double> arr(size);
+    auto dice = bind(distribution,generator);
+    for(long long i=0;i<size;++i) arr[i] = dice();
+    ndarray<double> mat(arr,shape);
+    return mat;
+}
+
+// standard t(student) distribution
+ndarray<double> randomBses::standard_t(double df, vector<int> shape){
+    long long size = 1;
+    for(auto s : shape) size *= s;
+
+    // create random number generator
+    // seed
+    unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+    default_random_engine generator(seed);
+    // the float generator
+    student_t_distribution<double> distribution(df);
+    
+    vector<double> arr(size);
+    auto dice = bind(distribution,generator);
+    for(long long i=0;i<size;++i) arr[i] = dice();
+    ndarray<double> mat(arr,shape);
+    return mat;
+}
+
+// standard cauchy distribution
+ndarray<double> randomBses::standard_cauchy(vector<int> _shape){
+    long long size = 1;
+    for(auto s : _shape) size *= s;
+
+    // create random number generator
+    // seed
+    unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+    default_random_engine generator(seed);
+    // the float generator
+    cauchy_distribution<double> distribution(0,1);
+    
+    vector<double> arr(size);
+    auto dice = bind(distribution,generator);
+    for(long long i=0;i<size;++i) arr[i] = dice();
+    ndarray<double> mat(arr,_shape);
     return mat;
 }
 

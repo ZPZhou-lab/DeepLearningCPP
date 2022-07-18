@@ -19,7 +19,7 @@ int main(){
 
 
     shape = {3,5};
-    auto mat1 = nc.random.binomial(10, 0.5,shape);
+    auto mat1 = nc.random.standard_cauchy(shape);
     mat1.show();
     auto mat2 = nc.random.randn(5,4);
     mat2.show();
