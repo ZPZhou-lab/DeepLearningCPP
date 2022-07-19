@@ -20,8 +20,9 @@ int main(){
 
     auto mat1 = nc.random.rand(10);
     mat1.show();
-    nc.random.shuffle(mat1);
-    mat1.show();
+    shape = {5,7};
+    auto mat2 = nc.random.choice(mat1,shape);
+    mat2.show();
     
 
     startTime = clock();

@@ -111,14 +111,16 @@ void __check_dot(const long long size1, const long long size2){
     }
 }
 
-void __check_one_dimension(vector<int> &shape){
-    if(shape.size() != 1){
+void __check_one_dimension(const vector<int> &shape){
+    if(shape.size() == 1 || (shape.size() == 2 && (shape[0] == 1 || shape[1] == 1))){
+        return;
+    }else{
         printf("array must be 1-dimensinal!");
         assert(false);
     }
 }
 
-void __check_choice_sample(long long size, long long array_size){
+void __check_choice_sample(const long long size, const long long array_size){
     if(size > array_size){
         printf("Cannot take a larger sample than population when `replace=false`");
         assert(false);

@@ -255,14 +255,25 @@ ndarray<_Tp> numcpp::randomBase::choice(ndarray<_Tp> &array, vector<int>& shape,
     vector<_Tp> arr(size,0);
     ndarray<_Tp> samples(arr,shape);
 
+    // set random seed
+    unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+    srand(seed);
+
     if(replace){
-        
+        if(p.size() == 0){
+            for(long long i=0;i<size;++i){
+                long long r_idx = std::rand() % array.size();
+                samples[i] = array[r_idx];
+            }
+        }
     }else{
         // make sure the size of array greater than the sample size
         __check_choice_sample(size,array.size());
 
         
     }
+
+    return samples;
 }
 
 // uniformly distributed random matrix
