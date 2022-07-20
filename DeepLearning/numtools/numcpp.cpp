@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <bits/stdc++.h>
 #include "ndarray.cpp"
 #include <cstdlib>
@@ -260,9 +261,44 @@ ndarray<_Tp> numcpp::randomBase::choice(ndarray<_Tp> &array, vector<int>& shape,
     srand(seed);
 
     if(replace){
+        // sample with equal propobility
         if(p.size() == 0){
             for(long long i=0;i<size;++i){
                 long long r_idx = std::rand() % array.size();
+                samples[i] = array[r_idx];
+            }
+        }else{
+        // sample according to propobility vector p
+
+            // make sure all the elments(weights) in p are greater or equal to 0
+            // and make sure the shape of propobility vecter matches array
+            __check_propobility(p,array.size());;
+
+            // compute propobility
+            double p_sum = 0;
+            for(auto pr : p) p_sum += pr;
+            // create a vector to save propobility distribution
+            vector<double> p_dist(p.size(),0);
+            // init
+            p_dist[0] = p[0] / p_sum;
+            // compute propobility
+            for(long long i=1;i<p.size();++i){
+                p_dist[i] = p_dist[i-1] + p[i] / p_sum;
+            }
+
+            // generate random number in [0,1) and assign elements
+            double r_num;
+            long long r_idx;
+            // seed
+            unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+            default_random_engine generator(seed);
+            // the float generator
+            uniform_real_distribution<double> distribution_real(0,1);
+            auto dice = bind(distribution_real,generator);
+
+            for(long long i=0;i<size;++i){
+                r_num = dice();
+                r_idx = upper_bound(p_dist.begin(),p_dist.end(),r_num) - p_dist.begin();
                 samples[i] = array[r_idx];
             }
         }

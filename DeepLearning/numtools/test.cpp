@@ -18,10 +18,11 @@ int main(){
     vector<int> axis;
     vector<int> strides;
 
-    auto mat1 = nc.random.rand(10);
+    auto mat1 = nc.random.randn(5);
+    vector<double> p = {10,1,10,1,1};
     mat1.show();
     shape = {5,7};
-    auto mat2 = nc.random.choice(mat1,shape);
+    auto mat2 = nc.random.choice(mat1,shape,true,p);
     mat2.show();
     
 

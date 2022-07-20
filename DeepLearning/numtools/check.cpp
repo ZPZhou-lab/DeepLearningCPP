@@ -126,3 +126,17 @@ void __check_choice_sample(const long long size, const long long array_size){
         assert(false);
     }
 }
+
+void __check_propobility(const vector<double> &p, const long long size){
+    // check shape and size
+    if(p.size() != size){
+        printf("array and propobility vector must have the same size!");
+        assert(false);
+    }
+    for(auto pr : p){
+        if(pr < 0){
+            printf("weight in propobility vector must greater or equal to 0!");
+            assert(false);
+        }
+    }
+}
