@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <bits/stdc++.h>
 #include "ndarray.cpp"
+#include <climits>
 #include <cstdlib>
 #include <vector>
 #include <typeinfo>
@@ -290,7 +291,6 @@ ndarray<_Tp> numcpp::randomBase::choice(ndarray<_Tp> &array, vector<int>& shape,
             double r_num;
             long long r_idx;
             // seed
-            unsigned seed = chrono::system_clock::now().time_since_epoch().count();
             default_random_engine generator(seed);
             // the float generator
             uniform_real_distribution<double> distribution_real(0,1);
@@ -298,6 +298,7 @@ ndarray<_Tp> numcpp::randomBase::choice(ndarray<_Tp> &array, vector<int>& shape,
 
             for(long long i=0;i<size;++i){
                 r_num = dice();
+                // use binary search to find index
                 r_idx = upper_bound(p_dist.begin(),p_dist.end(),r_num) - p_dist.begin();
                 samples[i] = array[r_idx];
             }
@@ -306,7 +307,42 @@ ndarray<_Tp> numcpp::randomBase::choice(ndarray<_Tp> &array, vector<int>& shape,
         // make sure the size of array greater than the sample size
         __check_choice_sample(size,array.size());
 
-        
+        // create a vector to save elements
+        vector<_Tp> elements(array.data());
+
+        // generate propobility distribution
+        if(p.size() == 0){
+            // set same weight
+            p = vector<double>(array.size(),1);
+        }else{
+            // check weight
+            __check_propobility(p,array.size());;
+        }
+
+        // compute sum of weights
+        double p_sum = 0;
+        for(auto pr : p) p_sum += pr;
+
+        for(long long i=0;i<size;++i){
+            // generate a random number in [0,p_sum)
+            double r_num = (double)std::rand() / INT_MAX * p_sum;
+            // find location
+            double r_sum = 0;
+            long long r_idx = 0;
+
+            while(r_idx < p.size()){
+                r_sum += p[r_idx];
+                if(r_sum >= r_num) break;
+                r_idx++;
+            }
+
+            // assign elements
+            samples[i] = array[r_idx];
+
+            // update propobilit
+            p_sum -= p[r_idx];
+            p[r_idx] = 0;
+        }
     }
 
     return samples;
