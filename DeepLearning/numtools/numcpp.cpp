@@ -10,43 +10,6 @@
 #pragma once
 using namespace std;
 
-// class for linear algebra method
-class linaig{
-public:
-    // Cholesky decomposition
-    template <typename _Tp>
-    ndarray<double> cholesky(ndarray<_Tp> &array);
-
-    // Compute the determinant of an array
-    template <typename _Tp>
-    double det(ndarray<_Tp> &array);
-
-    // Compute the eigenvalues and right eigenvectors of a square array
-    template <typename _Tp>
-    pair<ndarray<double>, ndarray<double>> eig(ndarray<_Tp> &array);
-
-    // Compute the (multiplicative) inverse of a matrix
-    template <typename _Tp>
-    ndarray<double> inv(ndarray<_Tp> &array);
-
-    // Raise a square matrix to the (integer) power `n`
-    template <typename _Tp>
-    ndarray<double> matrix_power(ndarray<_Tp> &array, int n);
-
-    // Matrix or vector norm
-    template <typename _Tp>
-    double norm(ndarray<_Tp> &array, double ord, int axis, bool keepdims=false);
-
-    // Compute the qr factorization of a matrix
-    template <typename _Tp>
-    pair<ndarray<double>, ndarray<double>> qr(ndarray<_Tp> &array, string mode);
-
-    // Solve a linear matrix equation, or system of linear scalar equations
-    template <typename _Tp>
-    ndarray<double> solve(ndarray<_Tp> &A, ndarray<_Tp> &b);
-
-};
-
 class numcpp{
 public:
     // all zero matrix
@@ -55,13 +18,17 @@ public:
 
     // all one matrix
     template <typename _Tp>
-    ndarray<_Tp> ones(vector<int>& shape);
+    ndarray<_Tp> static ones(vector<int>& shape);
+
+    // identical matrix
+    template <typename _Tp>
+    ndarray<_Tp> static eye(long long m,long long n=-1,long long diag=0);
 
     // equidistant array
     template <typename _Tp>
     ndarray<_Tp> static arange(long long start, long long end);
     template <typename _Tp>
-    ndarray<_Tp> linspace(double start, double end, long long N);
+    ndarray<_Tp> static linspace(double start, double end, long long N);
 
     // class for generate random numbers from various distributions
     class randomBase{
@@ -123,6 +90,45 @@ public:
     };
     // class for generate random numbers
     randomBase random;
+
+    // class for linear algebra method
+    class linaigBase{
+    public:
+        // Cholesky decomposition
+        template <typename _Tp>
+        ndarray<double> cholesky(ndarray<_Tp> &array);
+
+        // Compute the determinant of an array
+        template <typename _Tp>
+        double det(ndarray<_Tp> &array);
+
+        // Compute the eigenvalues and right eigenvectors of a square array
+        template <typename _Tp>
+        pair<ndarray<double>, ndarray<double>> eig(ndarray<_Tp> &array);
+
+        // Compute the (multiplicative) inverse of a matrix
+        template <typename _Tp>
+        ndarray<double> inv(ndarray<_Tp> &array);
+
+        // Raise a square matrix to the (integer) power `n`
+        template <typename _Tp>
+        ndarray<double> matrix_power(ndarray<_Tp> &array, int n);
+
+        // Matrix or vector norm
+        template <typename _Tp>
+        double norm(ndarray<_Tp> &array, double ord, int axis, bool keepdims=false);
+
+        // Compute the qr factorization of a matrix
+        template <typename _Tp>
+        pair<ndarray<double>, ndarray<double>> qr(ndarray<_Tp> &array, string mode);
+
+        // Solve a linear matrix equation, or system of linear scalar equations
+        template <typename _Tp>
+        ndarray<double> solve(ndarray<_Tp> &A, ndarray<_Tp> &b);
+
+    };
+
+    linaigBase linaig;
 
     // method reshape()
     template <typename _Tp>
@@ -604,6 +610,31 @@ ndarray<double> numcpp::randomBase::standard_cauchy(vector<int> _shape){
     for(long long i=0;i<size;++i) arr[i] = dice();
     ndarray<double> mat(arr,_shape);
     return mat;
+}
+
+// matrix power
+template <typename _Tp>
+ndarray<double> numcpp::linaigBase::matrix_power(ndarray<_Tp> &array, int n){
+    // check the shape of ndarray
+    __check_2darray(array.shape());
+    __check_rows_equal_cols(array.shape());
+
+    // create an identical matrix
+    vector<int> __shape = {array.shape()[0],array.shape()[0]};
+    auto E = numcpp::ones<double>(__shape);
+    // copy array
+    auto c_array = array;
+
+    // compute matrix power in O(log(n))
+    while(n){
+        if(n&1){
+            E = E.dot(c_array);
+        }
+        c_array = c_array.dot(c_array);
+        n >>= 1;
+    }
+
+    return E;
 }
 
 // reshape

@@ -140,3 +140,17 @@ void __check_propobility(const vector<double> &p, const long long size){
         }
     }
 }
+
+void __check_2darray(const vector<int> &shape){
+    if(shape.size() != 2){
+        printf("matrix power only for 2-D array!");
+        assert(false);
+    }
+}
+
+void __check_rows_equal_cols(const vector<int> &shape){
+    if(shape[0] != shape[1]){
+        printf("The number of rows and columns of the array is not equal!");
+        assert(false);
+    }
+}

@@ -18,16 +18,14 @@ int main(){
     vector<int> axis;
     vector<int> strides;
 
-    auto mat1 = nc.random.randn(10);
+    auto mat1 = nc.random.randn(4,4);
     mat1.show();
-    shape = {2,3};
-    auto mat2 = nc.random.choice(mat1,shape,false);
-    mat2.show();
-    
 
     startTime = clock();
+    auto mat2 = nc.linaig.matrix_power(mat1,4);
     endTime = clock();
     printf("time used: %.4fs\n",(double)(endTime - startTime) / CLOCKS_PER_SEC);
-
+    mat2.show();
+    mat1.show();
     return 0;
 }
