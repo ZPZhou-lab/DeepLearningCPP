@@ -14,7 +14,7 @@ class numcpp{
 public:
     // all zero matrix
     template <typename _Tp>
-    ndarray<_Tp> zeros(vector<int>& shape);
+    ndarray<_Tp> static zeros(vector<int>& shape);
 
     // all one matrix
     template <typename _Tp>
@@ -170,6 +170,26 @@ ndarray<_Tp> numcpp::ones(vector<int>& shape){
     ndarray<_Tp> mat(arr,shape);
     return mat;
 }
+
+// identical matirx
+template <typename _Tp>
+ndarray<_Tp> numcpp::eye(long long m,long long n,long long diag){
+    if(n == -1) n = m;
+    
+    // create a all zero matrix
+    vector<int> __shape = {(int)m,(int)n};
+    auto E = numcpp::zeros<double>(__shape);
+
+    // assign elements
+    long long pos = 0;
+    while(pos + diag < m && pos + diag < n){
+        E[pos * n + pos+diag] = 1;
+        pos++;
+    }
+
+    return E;
+}
+
 
 // equidistant array
 template <typename _Tp>
@@ -620,8 +640,7 @@ ndarray<double> numcpp::linaigBase::matrix_power(ndarray<_Tp> &array, int n){
     __check_rows_equal_cols(array.shape());
 
     // create an identical matrix
-    vector<int> __shape = {array.shape()[0],array.shape()[0]};
-    auto E = numcpp::ones<double>(__shape);
+    auto E = numcpp::eye<double>(array.shape()[0]);
     // copy array
     auto c_array = array;
 
