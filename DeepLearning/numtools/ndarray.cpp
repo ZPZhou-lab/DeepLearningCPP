@@ -142,6 +142,10 @@ public:
     // operator reload []
     _Tp &operator [] (long long args);
     const _Tp &operator [] (long long args) const;
+    // template<typename ...Args>
+    // _Tp &operator [] (Args...args);
+    // template<typename ...Args>
+    // const _Tp &operator [] (Args...args) const;
 
     // operation between ndarray and real number
     template<typename T1>

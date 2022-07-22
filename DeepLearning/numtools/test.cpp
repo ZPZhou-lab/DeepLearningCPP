@@ -18,15 +18,15 @@ int main(){
     vector<int> axis;
     vector<int> strides;
 
-    auto mat1 = nc.random.randn(4,4) / 3;
-    auto mat3 = nc.eye<double>(5);
+    auto mat1 = nc.random.randn(4,2,3) / 3;
+    axes = {1,2,0};
+    mat1.transpose(axes,true);
+    vector<int> idx = {0,2,3};
     mat1.show();
-    mat3.show();
+    cout<<mat1.item(idx)<<endl;
 
     startTime = clock();
-    auto mat2 = nc.linaig.matrix_power(mat1,4);
     endTime = clock();
     printf("time used: %.4fs\n",(double)(endTime - startTime) / CLOCKS_PER_SEC);
-    mat2.show();
     return 0;
 }
