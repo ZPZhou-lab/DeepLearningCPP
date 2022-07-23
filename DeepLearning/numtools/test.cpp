@@ -21,9 +21,10 @@ int main(){
     auto mat1 = nc.random.randn(4,2,3) / 3;
     axes = {1,2,0};
     mat1.transpose(axes,true);
-    vector<int> idx = {0,2,3};
     mat1.show();
-    cout<<mat1.item(idx)<<endl;
+    
+    mat1(0,0,0) = 10;
+    mat1.show();
 
     startTime = clock();
     endTime = clock();

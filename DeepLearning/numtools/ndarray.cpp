@@ -75,8 +75,8 @@ public:
     ~ndarray();
     
     // access element
-    _Tp item(long long args); // access element by flat index
-    _Tp item(vector<int>& args); // access element by an nd-index into the array
+    _Tp &item(long long args); // access element by flat index
+    _Tp &item(vector<int>& args); // access element by an nd-index into the array
     
     _Tp at(long long idx); // access element by index
 
@@ -142,10 +142,10 @@ public:
     // operator reload []
     _Tp &operator [] (long long args);
     const _Tp &operator [] (long long args) const;
-    // template<typename ...Args>
-    // _Tp &operator [] (Args...args);
-    // template<typename ...Args>
-    // const _Tp &operator [] (Args...args) const;
+    template<typename ...Args>
+    _Tp &operator () (Args...args);
+    template<typename ...Args>
+    const _Tp &operator () (Args...args) const;
 
     // operation between ndarray and real number
     template<typename T1>
@@ -409,7 +409,7 @@ inline vector<int> ndarray<_Tp>::__item_loc(long long args, vector<int> axis){
 
 // access element by flat index
 template <typename _Tp>
-inline _Tp ndarray<_Tp>::item(long long args){
+inline _Tp &ndarray<_Tp>::item(long long args){
     // check index
     __check_index(args,this->_size);
 
@@ -426,7 +426,7 @@ inline _Tp ndarray<_Tp>::item(long long args){
 
 // access element by nd-array index
 template <typename _Tp>
-inline _Tp ndarray<_Tp>::item(vector<int>& args){
+inline _Tp &ndarray<_Tp>::item(vector<int>& args){
     // initial flat index
     long long flat = 0;
 
@@ -449,13 +449,29 @@ inline _Tp ndarray<_Tp>::at(long long idx){
 }
 
 template<typename _Tp>
-_Tp &ndarray<_Tp>::operator[](long long args){
+inline _Tp &ndarray<_Tp>::operator[](long long args){
     return this->_data[args];
 }
 
 template <typename _Tp>
 const _Tp &ndarray<_Tp>::operator[](long long args) const{
     return this->_data[args];
+}
+
+template<typename _Tp>
+template<typename ...Args>
+inline _Tp &ndarray<_Tp>::operator()(Args...args){
+    vector<int> idx;
+    idx = fetchArgs(idx,args...);
+    return this->item(idx);
+}
+
+template<typename _Tp>
+template<typename ...Args>
+const _Tp &ndarray<_Tp>::operator()(Args...args) const{
+    vector<int> idx;
+    idx = fetchArgs(idx,args...);
+    return this->item(idx);
 }
 
 // return _data type
