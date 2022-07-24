@@ -65,6 +65,10 @@ private:
     // reduction method for argmax(), argmin()
     ndarray<int> _argreduction(int axis, bool (*func)(_Tp &a, _Tp &b));
 
+    // function for broadcast
+    template <typename T1>
+    pair<ndarray<_Tp>,ndarray<T1>> _broadcast_flatten(ndarray<T1> &b);
+
 public:
     // default constructer
     ndarray();
@@ -73,6 +77,9 @@ public:
     ndarray(vector<_Tp>& array, vector<int>& shape, vector<int>& strides, vector<int>& axes);
     // destructor
     ~ndarray();
+
+    // get a copy
+    ndarray copy(void);
     
     // access element
     _Tp &item(long long args); // access element by flat index
@@ -148,22 +155,18 @@ public:
     const _Tp &operator () (Args...args) const;
 
     // operation between ndarray and real number
-    template<typename T1>
-    ndarray operator - (const T1 b);
-    template<typename T1>
-    ndarray<double> operator * (const T1 b);
-    template<typename T1>
-    ndarray<double> operator / (const T1 b);
-    template<typename T1>
-    ndarray operator + (const T1 b);
-    template<typename _Tp1, typename _Tp2>
-    friend ndarray<double> operator+(const _Tp1 a, const ndarray<_Tp2> &b);
-    template<typename _Tp1, typename _Tp2>
-    friend ndarray<double> operator-(const _Tp1 a, const ndarray<_Tp2> &b);
-    template<typename _Tp1, typename _Tp2>
-    friend ndarray<double> operator*(const _Tp1 a, const ndarray<_Tp2> &b);
-    template<typename _Tp1, typename _Tp2>
-    friend ndarray<double> operator/(const _Tp1 a, const ndarray<_Tp2> &b);
+    ndarray operator - (const double b);
+    ndarray<double> operator * (const double b);
+    ndarray<double> operator / (const double b);
+    ndarray operator + (const double b);
+    template<typename _Tp2>
+    friend ndarray<double> operator+(const double a, const ndarray<_Tp2> &b);
+    template<typename _Tp2>
+    friend ndarray<double> operator-(const double a, const ndarray<_Tp2> &b);
+    template<typename _Tp2>
+    friend ndarray<double> operator*(const double a, const ndarray<_Tp2> &b);
+    template<typename _Tp2>
+    friend ndarray<double> operator/(const double a, const ndarray<_Tp2> &b);
 
     // operation between ndarray and ndarray
     template<typename T1>
@@ -240,8 +243,7 @@ ndarray<_Tp>::~ndarray(){
 
 // operator reload
 template <typename _Tp>
-template <typename T1>
-ndarray<double> ndarray<_Tp>::operator/(const T1 b){
+ndarray<double> ndarray<_Tp>::operator/(const double b){
     vector<double> res(this->_data);
     for(int i=0;i<this->_size;++i) res[i] /= b;
 
@@ -250,10 +252,8 @@ ndarray<double> ndarray<_Tp>::operator/(const T1 b){
     return trans;
 }
 
-
 template<typename _Tp>
-template<typename T1>
-ndarray<_Tp> ndarray<_Tp>::operator+(const T1 b){
+ndarray<_Tp> ndarray<_Tp>::operator+(const double b){
     vector<_Tp> res(this->_data);
     for(int i=0;i<this->_size;++i) res[i] += b;
 
@@ -262,26 +262,25 @@ ndarray<_Tp> ndarray<_Tp>::operator+(const T1 b){
     return trans;
 }
 
-template<typename _Tp1, typename _Tp2>
-ndarray<double> operator+(const _Tp1 a, ndarray<_Tp2> &b){
+template<typename _Tp2>
+ndarray<double> operator+(const double a, ndarray<_Tp2> &b){
     return b + a;
 }
-template<typename _Tp1, typename _Tp2>
-ndarray<double> operator-(const _Tp1 a, ndarray<_Tp2> &b){
+template<typename _Tp2>
+ndarray<double> operator-(const double a, ndarray<_Tp2> &b){
     return b - a;
 }
-template<typename _Tp1, typename _Tp2>
-ndarray<double> operator*(const _Tp1 a, ndarray<_Tp2> &b){
+template<typename _Tp2>
+ndarray<double> operator*(const double a, ndarray<_Tp2> &b){
     return b * a;
 }
-template<typename _Tp1, typename _Tp2>
-ndarray<double> operator/(const _Tp1 a, ndarray<_Tp2> &b){
+template<typename _Tp2>
+ndarray<double> operator/(const double a, ndarray<_Tp2> &b){
     return b / a;
 }
 
 template <typename _Tp>
-template <typename T1>
-ndarray<double> ndarray<_Tp>::operator*(const T1 b){
+ndarray<double> ndarray<_Tp>::operator*(const double b){
     vector<double> res(this->_data);
     for(int i=0;i<this->_size;++i) res[i] *= b;
 
@@ -291,8 +290,7 @@ ndarray<double> ndarray<_Tp>::operator*(const T1 b){
 }
 
 template <typename _Tp>
-template <typename T1>
-ndarray<_Tp> ndarray<_Tp>::operator-(const T1 b){
+ndarray<_Tp> ndarray<_Tp>::operator-(const double b){
     vector<_Tp> res(this->_data);
     for(int i=0;i<this->_size;++i) res[i] -= b;
 
@@ -304,12 +302,22 @@ ndarray<_Tp> ndarray<_Tp>::operator-(const T1 b){
 template <typename _Tp>
 template <typename T1>
 ndarray<_Tp> ndarray<_Tp>::operator+(ndarray<T1> &b){
-    ndarray<_Tp> flat1 = this->flatten();
-    ndarray<T1> flat2 = b.flatten();
-    vector<_Tp> array(flat1.data());
-    for(int i=0;i<this->_size;++i) array[i] += flat2.at(i);
+    // check operator shape
+    bool broadcast = __check_operator_shape(this->shape(),b.shape());
+    // init
+    ndarray<_Tp> trans;
 
-    ndarray<_Tp> trans(array,this->_shape);
+    if(broadcast){
+        auto flat = _broadcast_flatten(b);
+        return flat.first + flat.second;
+    }else{
+        ndarray<_Tp> flat1 = this->flatten();
+        ndarray<T1> flat2 = b.flatten();
+        vector<_Tp> array(flat1.data());
+        for(int i=0;i<this->_size;++i) array[i] += flat2[i];
+
+        trans = ndarray<_Tp>(array,this->_shape);
+    }
 
     return trans;
 }
@@ -317,12 +325,22 @@ ndarray<_Tp> ndarray<_Tp>::operator+(ndarray<T1> &b){
 template <typename _Tp>
 template <typename T1>
 ndarray<_Tp> ndarray<_Tp>::operator-(ndarray<T1> &b){
-    ndarray<_Tp> flat1 = this->flatten();
-    ndarray<T1> flat2 = b.flatten();
-    vector<_Tp> array(flat1.data());
-    for(int i=0;i<this->_size;++i) array[i] -= flat2.at(i);
+    // check operator shape
+    bool broadcast = __check_operator_shape(this->shape(),b.shape());
+    // init
+    ndarray<_Tp> trans;
 
-    ndarray<_Tp> trans(array,this->_shape);
+    if(broadcast){
+        auto flat = _broadcast_flatten(b);
+        return flat.first - flat.second;
+    }else{
+        ndarray<_Tp> flat1 = this->flatten();
+        ndarray<T1> flat2 = b.flatten();
+        vector<_Tp> array(flat1.data());
+        for(int i=0;i<this->_size;++i) array[i] -= flat2[i];
+
+        trans = ndarray<_Tp>(array,this->_shape);
+    }
 
     return trans;
 }
@@ -330,12 +348,22 @@ ndarray<_Tp> ndarray<_Tp>::operator-(ndarray<T1> &b){
 template <typename _Tp>
 template <typename T1>
 ndarray<double> ndarray<_Tp>::operator*(ndarray<T1> &b){
-    ndarray<_Tp> flat1 = this->flatten();
-    ndarray<T1> flat2 = b.flatten();
-    vector<double> array(flat1.data());
-    for(int i=0;i<this->_size;++i) array[i] *= flat2.at(i);
+    // check operator shape
+    bool broadcast = __check_operator_shape(this->shape(),b.shape());
+    // init
+    ndarray<double> trans;
 
-    ndarray<double> trans(array,this->_shape);
+    if(broadcast){
+        auto flat = _broadcast_flatten(b);
+        return flat.first * flat.second;
+    }else{
+        ndarray<_Tp> flat1 = this->flatten();
+        ndarray<T1> flat2 = b.flatten();
+        vector<double> array(flat1.data());
+        for(int i=0;i<this->_size;++i) array[i] *= flat2[i];
+
+        trans = ndarray<double>(array,this->_shape);
+    }
 
     return trans;
 }
@@ -343,12 +371,22 @@ ndarray<double> ndarray<_Tp>::operator*(ndarray<T1> &b){
 template <typename _Tp>
 template <typename T1>
 ndarray<double> ndarray<_Tp>::operator/(ndarray<T1> &b){
-    ndarray<_Tp> flat1 = this->flatten();
-    ndarray<T1> flat2 = b.flatten();
-    vector<double> array(flat1.data());
-    for(int i=0;i<this->_size;++i) array[i] /= flat2.at(i);
+    // check operator shape
+    bool broadcast = __check_operator_shape(this->shape(),b.shape());
+    // init
+    ndarray<double> trans;
 
-    ndarray<double> trans(array,this->_shape);
+    if(broadcast){
+        auto flat = _broadcast_flatten(b);
+        return flat.first / flat.second;
+    }else{
+        ndarray<_Tp> flat1 = this->flatten();
+        ndarray<T1> flat2 = b.flatten();
+        vector<double> array(flat1.data());
+        for(int i=0;i<this->_size;++i) array[i] /= flat2[i];
+
+        trans = ndarray<double>(array,this->_shape);
+    }
 
     return trans;
 }
@@ -745,8 +783,6 @@ ndarray<_Tp> ndarray<_Tp>::expand_dims(vector<int> axis, bool inplace){
             ptr1++;
         }
     }
-    for(auto s:n_shape) cout<<s<<"  ";
-    cout<<endl;
     // do reshape
     return this->reshape(n_shape,inplace);
 }
@@ -1347,4 +1383,49 @@ ndarray<double> ndarray<_Tp>::dot(ndarray<T1> &mat){
 
 
     return trans;
+}
+
+template <typename _Tp>
+template <typename T1>
+pair<ndarray<_Tp>, ndarray<T1>> ndarray<_Tp>::_broadcast_flatten(ndarray<T1> &b){
+    int s1 = this->shape().size(), s2 = b.shape().size();
+    int s = std::min(s1,s2);
+    vector<int> _shape1 = this->shape(), _shape2 = b.shape();
+    // init
+    ndarray<_Tp> flat1 = this->copy();
+    ndarray<T1> flat2 = b.copy();
+
+    // do broadcast for trailing dimension
+    for(int i=0;i<s;++i){
+        // broadcast when dimensions are not equal
+        if(_shape1[s1 - 1 - i] != _shape2[s2 - 1 - i]){
+            // broadcast the array with dimension 1
+            if(_shape1[s1 - 1 - i] == 1){
+                flat1 = flat1.repeat(_shape2[s2 - 1 - i],s1 - 1 - i);
+            }else{
+                flat2 = flat2.repeat(_shape1[s1 - 1 - i],s2 - 1 - i);
+            }
+        }
+    }
+
+    // do broadcast for head dimension
+    if(s1 > s2){
+        for(int i=0;i<s1 - s2;++i){
+            flat2.expand_dims(0,true);
+            flat2 = flat2.repeat(_shape1[s1 - s2 - 1 - i],0);
+        }
+    }else if(s1 < s2){
+        for(int i=0;i<s2 - s1;++i){
+            flat1.expand_dims(0,true);
+            flat1 = flat1.repeat(_shape2[s2 - s1 - 1 - i],0);
+        }
+    }
+
+    return make_pair(flat1,flat2);
+}
+
+template <typename _Tp>
+ndarray<_Tp> ndarray<_Tp>::copy(void){
+    vector<_Tp> data_copy(this->_data);
+    return ndarray<_Tp>(data_copy,this->_shape,this->_strides,this->_axes);
 }

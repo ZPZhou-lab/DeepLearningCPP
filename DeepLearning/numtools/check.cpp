@@ -115,14 +115,14 @@ void __check_one_dimension(const vector<int> &shape){
     if(shape.size() == 1 || (shape.size() == 2 && (shape[0] == 1 || shape[1] == 1))){
         return;
     }else{
-        printf("array must be 1-dimensinal!");
+        printf("array must be 1-dimensinal!\n");
         assert(false);
     }
 }
 
 void __check_choice_sample(const long long size, const long long array_size){
     if(size > array_size){
-        printf("Cannot take a larger sample than population when `replace=false`");
+        printf("Cannot take a larger sample than population when `replace=false`\n");
         assert(false);
     }
 }
@@ -130,12 +130,12 @@ void __check_choice_sample(const long long size, const long long array_size){
 void __check_propobility(const vector<double> &p, const long long size){
     // check shape and size
     if(p.size() != size){
-        printf("array and propobility vector must have the same size!");
+        printf("array and propobility vector must have the same size!\n");
         assert(false);
     }
     for(auto pr : p){
         if(pr < 0){
-            printf("weight in propobility vector must greater or equal to 0!");
+            printf("weight in propobility vector must greater or equal to 0!\n");
             assert(false);
         }
     }
@@ -150,7 +150,47 @@ void __check_2darray(const vector<int> &shape){
 
 void __check_rows_equal_cols(const vector<int> &shape){
     if(shape[0] != shape[1]){
-        printf("The number of rows and columns of the array is not equal!");
+        printf("The number of rows and columns of the array is not equal!\n");
         assert(false);
     }
+}
+
+bool __check_operator_shape(const vector<int> &shape1, const vector<int> &shape2){
+    bool flag = true;
+    if(shape1.size() == shape2.size()){
+        for(int i=0;i<shape1.size();++i){
+            if(shape1[i] != shape2[i]){
+                flag = false;
+                break;
+            }
+        }
+        if(flag){
+            return false;
+        }
+    }else if(shape1.size() < shape2.size()){
+        return __check_operator_shape(shape2,shape1);
+    }
+     
+    // check trailing dimension
+    flag = true;
+    int s1 = shape1.size(), s2 = shape2.size();
+    for(int i=0;i<s2;++i){
+        if(shape1[s1 - 1 - i] != shape2[s2 - 1 - i] && (shape1[s1 - 1 - i] != 1 && shape2[s2 - 1 - i] != 1)){
+            flag = false;
+            break;
+        }
+    }
+
+    if(flag){
+        return true;
+    }else{
+        printf("operands could not be broadcast together with shapes (");
+        for(int i=0;i<shape1.size()-1;++i) cout<<shape1[i]<<",";
+        cout<<shape1[shape1.size()-1]<<") (";
+        for(int i=0;i<shape2.size()-1;++i) cout<<shape2[i]<<",";
+        cout<<shape2[shape2.size()-1]<<")"<<endl;
+        assert(false);
+    }
+
+    return flag;
 }
