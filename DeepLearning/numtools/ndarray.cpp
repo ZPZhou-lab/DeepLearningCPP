@@ -1385,6 +1385,8 @@ ndarray<double> ndarray<_Tp>::dot(ndarray<T1> &mat){
     return trans;
 }
 
+
+// function for broadcast
 template <typename _Tp>
 template <typename T1>
 pair<ndarray<_Tp>, ndarray<T1>> ndarray<_Tp>::_broadcast_flatten(ndarray<T1> &b){

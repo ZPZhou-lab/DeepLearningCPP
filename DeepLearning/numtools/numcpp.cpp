@@ -30,6 +30,29 @@ public:
     template <typename _Tp>
     ndarray<_Tp> static linspace(double start, double end, long long N);
 
+    // math computation
+    template <typename _Tp>
+    ndarray<double> static exp(ndarray<_Tp> &array);
+
+    template <typename _Tp>
+    ndarray<double> static log(ndarray<_Tp> &array);
+
+    template <typename _Tp>
+    ndarray<double> static sin(ndarray<_Tp> &array);
+
+    template <typename _Tp>
+    ndarray<double> static cos(ndarray<_Tp> &array);
+
+    template <typename _Tp>
+    ndarray<double> static tan(ndarray<_Tp> &array);
+
+
+    // statistics method
+    template <typename _Tp>
+    ndarray<_Tp> static sum(ndarray<_Tp> &array, vector<int> axis, bool keepdim=false);
+    template <typename _Tp>
+    _Tp static sum(ndarray<_Tp> &array);
+
     // class for generate random numbers from various distributions
     class randomBase{
     public:
@@ -686,3 +709,12 @@ ndarray<_Tp> numcpp::expand_dims(ndarray<_Tp> &array, vector<int> axis){
     return array.expand_dims(axis);
 }
 
+// sum
+template <typename _Tp>
+ndarray<_Tp> numcpp::sum(ndarray<_Tp> &array, vector<int> axis, bool keepdim){
+    return array.sum(axis,keepdim);
+}
+template <typename _Tp>
+_Tp numcpp::sum(ndarray<_Tp> &array){
+    return array.sum();
+}

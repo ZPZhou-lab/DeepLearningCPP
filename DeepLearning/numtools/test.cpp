@@ -18,16 +18,17 @@ int main(){
     vector<int> axis;
     vector<int> strides;
 
-    auto mat1 = nc.random.randn(2,3,1,2);
-    auto mat2 = nc.random.randn(3,1);
-    mat1.show();
-    mat2.show();
-
+    auto mat1 = nc.random.randn(2,300,4,200);
+    auto mat2 = nc.sum(mat1) / mat1.size();
+    cout<<"sum of mat1: "<<mat2<<endl;
+    
     startTime = clock();
-    ndarray<double> mat3 = mat1 - mat2;
+    axis = {1,3};
+    auto mat3 = nc.sum(mat1,axis,true);
+    mat3 = mat3 / mat3.size();
     endTime = clock();
     printf("time used: %.4fs\n",(double)(endTime - startTime) / CLOCKS_PER_SEC);
-
     mat3.show();
+
     return 0;
 }
