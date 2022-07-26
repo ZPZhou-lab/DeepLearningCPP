@@ -46,6 +46,7 @@ public:
     template <typename _Tp>
     ndarray<double> static tan(ndarray<_Tp> &array);
 
+    // 
 
     // statistics method
     template <typename _Tp>
@@ -53,6 +54,11 @@ public:
     template <typename _Tp>
     _Tp static sum(ndarray<_Tp> &array);
 
+    template <typename _Tp>
+    ndarray<_Tp> static max(ndarray<_Tp> &array, vector<int> axis, bool keepdim=false);
+    template <typename _Tp>
+    _Tp static max(ndarray<_Tp> &array);
+    
     // class for generate random numbers from various distributions
     class randomBase{
     public:
@@ -717,4 +723,14 @@ ndarray<_Tp> numcpp::sum(ndarray<_Tp> &array, vector<int> axis, bool keepdim){
 template <typename _Tp>
 _Tp numcpp::sum(ndarray<_Tp> &array){
     return array.sum();
+}
+
+// max
+template <typename _Tp>
+ndarray<_Tp> numcpp::max(ndarray<_Tp> &array, vector<int> axis, bool keepdim){
+    return array.sum(axis,keepdim);
+}
+template <typename _Tp>
+_Tp numcpp::max(ndarray<_Tp> &array){
+    return array.max();
 }
