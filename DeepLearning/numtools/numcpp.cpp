@@ -58,6 +58,11 @@ public:
     ndarray<_Tp> static max(ndarray<_Tp> &array, vector<int> axis, bool keepdim=false);
     template <typename _Tp>
     _Tp static max(ndarray<_Tp> &array);
+
+    template <typename _Tp>
+    ndarray<_Tp> static min(ndarray<_Tp> &array, vector<int> axis, bool keepdim=false);
+    template <typename _Tp>
+    _Tp static min(ndarray<_Tp> &array);
     
     // class for generate random numbers from various distributions
     class randomBase{
@@ -728,9 +733,19 @@ _Tp numcpp::sum(ndarray<_Tp> &array){
 // max
 template <typename _Tp>
 ndarray<_Tp> numcpp::max(ndarray<_Tp> &array, vector<int> axis, bool keepdim){
-    return array.sum(axis,keepdim);
+    return array.max(axis,keepdim);
 }
 template <typename _Tp>
 _Tp numcpp::max(ndarray<_Tp> &array){
     return array.max();
+}
+
+// min
+template <typename _Tp>
+ndarray<_Tp> numcpp::min(ndarray<_Tp> &array, vector<int> axis, bool keepdim){
+    return array.min(axis,keepdim);
+}
+template <typename _Tp>
+_Tp numcpp::min(ndarray<_Tp> &array){
+    return array.min();
 }

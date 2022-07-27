@@ -25,7 +25,7 @@ int main(){
     
     startTime = clock();
     axis = {1,3};
-    auto mat3 = nc.max(mat1,axis,true);
+    auto mat3 = nc.min(mat1,axis,true);
     endTime = clock();
     printf("time used: %.4fs\n",(double)(endTime - startTime) / CLOCKS_PER_SEC);
     mat3.show();
