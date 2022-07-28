@@ -34,6 +34,8 @@ int main(){
     cout<<"mat4: "<<endl;
     auto mat4 = mat3.astype<float>();
     mat4.show();
+    auto mat5 = nc.exp(mat4);
+    mat5.show();
 
     return 0;
 }

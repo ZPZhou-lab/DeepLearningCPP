@@ -767,10 +767,9 @@ _Tp numcpp::mean(ndarray<_Tp> &array){
 
 // exp
 template <typename _Tp>
-ndarray<double> static exp(ndarray<_Tp> &array){
-    vector<double> n_data(array.data());
-    for(long long i=0;i<n_data.size();++i) n_data[i] = std::exp(n_data[i]);
-    ndarray<double> trans(n_data,array.shape(),array.strides(),array.axes());
+ndarray<double> numcpp::exp(ndarray<_Tp> &array){
+    auto trans = array.template astype<double>();
+    for(long long i=0;i<array.size();++i) trans[i] = std::exp(trans[i]);
 
     return trans;
 }
