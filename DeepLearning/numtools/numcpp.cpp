@@ -3,10 +3,12 @@
 #include "ndarray.cpp"
 #include <climits>
 #include <cstdlib>
+#include <regex>
 #include <vector>
 #include <typeinfo>
 #include <random>
 #include <chrono>
+#include <cmath>
 #pragma once
 using namespace std;
 
@@ -46,8 +48,6 @@ public:
     template <typename _Tp>
     ndarray<double> static tan(ndarray<_Tp> &array);
 
-    // 
-
     // statistics method
     template <typename _Tp>
     ndarray<_Tp> static sum(ndarray<_Tp> &array, vector<int> axis, bool keepdim=false);
@@ -64,6 +64,11 @@ public:
     template <typename _Tp>
     _Tp static min(ndarray<_Tp> &array);
     
+    template <typename _Tp>
+    ndarray<_Tp> static mean(ndarray<_Tp> &array, vector<int> axis, bool keepdim=false);
+    template <typename _Tp>
+    _Tp static mean(ndarray<_Tp> &array);
+
     // class for generate random numbers from various distributions
     class randomBase{
     public:
@@ -748,4 +753,24 @@ ndarray<_Tp> numcpp::min(ndarray<_Tp> &array, vector<int> axis, bool keepdim){
 template <typename _Tp>
 _Tp numcpp::min(ndarray<_Tp> &array){
     return array.min();
+}
+
+// mean
+template <typename _Tp>
+ndarray<_Tp> numcpp::mean(ndarray<_Tp> &array, vector<int> axis, bool keepdim){
+    return array.mean(axis,keepdim);
+}
+template <typename _Tp>
+_Tp numcpp::mean(ndarray<_Tp> &array){
+    return array.mean();
+}
+
+// exp
+template <typename _Tp>
+ndarray<double> static exp(ndarray<_Tp> &array){
+    vector<double> n_data(array.data());
+    for(long long i=0;i<n_data.size();++i) n_data[i] = std::exp(n_data[i]);
+    ndarray<double> trans(n_data,array.shape(),array.strides(),array.axes());
+
+    return trans;
 }

@@ -80,6 +80,9 @@ public:
 
     // get a copy
     ndarray copy(void);
+    // get a copy and change data type
+    template<typename _Tp2>
+    ndarray<_Tp2> astype(void);
     
     // access element
     _Tp &item(long long args); // access element by flat index
@@ -1426,8 +1429,24 @@ pair<ndarray<_Tp>, ndarray<T1>> ndarray<_Tp>::_broadcast_flatten(ndarray<T1> &b)
     return make_pair(flat1,flat2);
 }
 
+// get a copy
 template <typename _Tp>
 ndarray<_Tp> ndarray<_Tp>::copy(void){
     vector<_Tp> data_copy(this->_data);
     return ndarray<_Tp>(data_copy,this->_shape,this->_strides,this->_axes);
+}
+
+// get a copy and change data type
+template <typename _Tp>
+template <typename _Tp2>
+ndarray<_Tp2> ndarray<_Tp>::astype(void){
+    // init data vector
+    vector<_Tp2> n_data(this->_size);
+    // change value type
+    for(long long i=0;i<this->_size;++i) n_data[i] = (_Tp2)this->_data[i];
+    
+    // create ndarray
+    ndarray<_Tp2> trans(n_data,this->_shape,this->_strides,this->_axes);
+
+    return trans;
 }

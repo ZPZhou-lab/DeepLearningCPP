@@ -28,7 +28,12 @@ int main(){
     auto mat3 = nc.min(mat1,axis,true);
     endTime = clock();
     printf("time used: %.4fs\n",(double)(endTime - startTime) / CLOCKS_PER_SEC);
+    cout<<"mat3: "<<endl;
     mat3.show();
+
+    cout<<"mat4: "<<endl;
+    auto mat4 = mat3.astype<float>();
+    mat4.show();
 
     return 0;
 }
