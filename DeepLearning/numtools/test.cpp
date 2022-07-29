@@ -36,6 +36,8 @@ int main(){
     mat4.show();
     auto mat5 = nc.exp(mat4);
     mat5.show();
+    auto mat6 = nc.log(mat5);
+    mat6.show();
 
     return 0;
 }

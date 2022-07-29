@@ -13,6 +13,11 @@
 using namespace std;
 
 class numcpp{
+private:
+    // general method for mathematical map
+    template<typename _Tp>
+    ndarray<double> static _general_math_map(ndarray<_Tp> &array, _Tp (*func)(_Tp a));
+
 public:
     // all zero matrix
     template <typename _Tp>
@@ -765,11 +770,41 @@ _Tp numcpp::mean(ndarray<_Tp> &array){
     return array.mean();
 }
 
+// general method for mathematical map
+template <typename _Tp>
+ndarray<double> numcpp::_general_math_map(ndarray<_Tp> &array, _Tp (*func)(_Tp a)){
+    auto trans = array.template astype<double>();
+    for(long long i=0;i<array.size();++i) trans[i] = (double)func(trans[i]);
+
+    return trans;
+}
+
 // exp
 template <typename _Tp>
 ndarray<double> numcpp::exp(ndarray<_Tp> &array){
-    auto trans = array.template astype<double>();
-    for(long long i=0;i<array.size();++i) trans[i] = std::exp(trans[i]);
+    return _general_math_map(array,std::exp);
+}
 
-    return trans;
+// log
+template <typename _Tp>
+ndarray<double> numcpp::log(ndarray<_Tp> &array){
+    return _general_math_map(array,std::log);
+}
+
+// sin
+template <typename _Tp>
+ndarray<double> numcpp::sin(ndarray<_Tp> &array){
+    return _general_math_map(array,std::sin);
+}
+
+// cos
+template <typename _Tp>
+ndarray<double> numcpp::cos(ndarray<_Tp> &array){
+    return _general_math_map(array,std::cos);
+}
+
+// tan
+template <typename _Tp>
+ndarray<double> numcpp::tan(ndarray<_Tp> &array){
+    return _general_math_map(array,std::tan);
 }
