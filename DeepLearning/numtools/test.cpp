@@ -18,26 +18,29 @@ int main(){
     vector<int> axis;
     vector<int> strides;
 
-    auto mat1 = nc.random.randn(2,3,4,2);
+    vector<double> data = 
+        {1, 2, 3, 4, 
+         2, 3, 4, 1, 
+         3, 4, 1, 2, 
+         4, 1, 2, 3};
+    shape = {4,4};
+    auto mat1 = ndarray<double>(data,shape);
     mat1.show();
-    auto mat2 = nc.sum(mat1) / mat1.size();
-    cout<<"sum of mat1: "<<mat2<<endl;
-    
+
     startTime = clock();
-    axis = {1,3};
-    auto mat3 = nc.min(mat1,axis,true);
+    auto eigs = nc.linaig.eig(mat1);
+    auto eigVals = eigs.first;
+    auto eigVecs= eigs.second;
     endTime = clock();
     printf("time used: %.4fs\n",(double)(endTime - startTime) / CLOCKS_PER_SEC);
-    cout<<"mat3: "<<endl;
-    mat3.show();
 
-    cout<<"mat4: "<<endl;
-    auto mat4 = mat3.astype<float>();
-    mat4.show();
-    auto mat5 = nc.exp(mat4);
-    mat5.show();
-    auto mat6 = nc.log(mat5);
-    mat6.show();
+    eigVals.show();
+    eigVecs.show();
+
+    auto prod = mat1.dot(eigVecs);
+    auto multi = eigVecs * eigVals;
+    multi.show();
+    prod.show();
 
     return 0;
 }

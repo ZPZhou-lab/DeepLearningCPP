@@ -33,7 +33,7 @@ private:
 
     // store all elements in a vector
     vector<_Tp> _data; 
-    // the numver of elements
+    // the number of elements
     long long _size;
 
     // the numver of the dimensions

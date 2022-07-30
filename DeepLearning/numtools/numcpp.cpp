@@ -3,7 +3,9 @@
 #include "ndarray.cpp"
 #include <climits>
 #include <cstdlib>
+#include <map>
 #include <regex>
+#include <utility>
 #include <vector>
 #include <typeinfo>
 #include <random>
@@ -807,4 +809,134 @@ ndarray<double> numcpp::cos(ndarray<_Tp> &array){
 template <typename _Tp>
 ndarray<double> numcpp::tan(ndarray<_Tp> &array){
     return _general_math_map(array,std::tan);
+}
+
+// Compute the eigenvalues and right eigenvectors of a square array
+template <typename _Tp>
+pair<ndarray<double>, ndarray<double>> numcpp::linaigBase::eig(ndarray<_Tp> &array){
+    // check whether array is a square matrix
+    __check_rows_equal_cols(array.shape());
+
+    // change data type to double
+    auto mat = array.template astype<double>();
+    // the number of rows and cols for matrix
+    int dim = mat.shape()[0];
+
+    // init eigenvectors
+    ndarray<double> eigenvecs = eye<double>(dim);
+    // init eigenvalues
+    vector<int> _shape = {dim};
+    ndarray<double> eigenvals = zeros<double>(_shape);
+
+    // iterations
+    int iter = 0;
+    // iteration precision
+    double precision = 1e-10;
+    // max iterations
+    int maxIter = 10000;
+
+    // jacobi iteration to solve eigenvectors and eigenvalues
+    while(true){
+        // Remove diagonal elements 
+        // and search for the largest element and subscript of the absolute value of the matrix
+        double maxVal = mat(0,1);
+        int m_row = 0, m_col = 1;
+        for(int i=0;i<dim;++i){
+            for(int j=0;j<dim;++j){
+                double absVal = std::fabs(mat(i,j));
+                if(i != j && absVal > maxVal){
+                    maxVal = absVal;
+                    m_row = i;
+                    m_col = j;
+                }
+            }
+        }
+
+        // judge threshold condition
+        if(maxVal < precision) break;
+        if(iter > maxIter) break;
+        // update iteration
+        iter++;
+
+        /* compute rotation matrix */
+        // assign vertex
+        double mat_xx = mat(m_row,m_row);
+        double mat_xy = mat(m_row,m_col);
+        double mat_yy = mat(m_col,m_col);
+
+        double Angle = 0.5 * std::atan2(-2 * mat_xy, mat_yy - mat_xx);
+        double sinA = std::sin(Angle), cosA = std::cos(Angle);
+        double sin2A = std::sin(2*Angle), cos2A = std::cos(2*Angle);
+
+        // update matrix
+        mat(m_row,m_row) = mat_xx*cosA*cosA + mat_yy*sinA*sinA + 2*mat_xy*cosA*sinA;
+        mat(m_col,m_col) = mat_xx*sinA*sinA + mat_yy*cosA*cosA - 2*mat_xy*cosA*sinA;
+        mat(m_row,m_col) = 0.5*(mat_yy - mat_xx) * sin2A + mat_xy*cos2A;
+        mat(m_col,m_row) = mat(m_row,m_col);
+
+        for(int i=0;i<dim;++i){
+            if(i != m_col && i != m_row){
+                maxVal = mat(i,m_row);
+                mat(i,m_row) = mat(i,m_col) * sinA + maxVal * cosA;
+                mat(i,m_col) = mat(i,m_col) * cosA - maxVal * sinA;
+            }
+        }
+        for(int j=0;j<dim;++j){
+            if(j != m_col && j!= m_row){
+                maxVal = mat(m_row,j);
+                mat(m_row,j) = mat(m_col,j) * sinA + maxVal * cosA;
+                mat(m_col,j) = mat(m_col,j) * cosA - maxVal * sinA;
+            }
+        }
+
+        //compute eigenvector
+        for(int i=0;i<dim;++i){
+            maxVal = eigenvecs(i,m_row);
+            eigenvecs(i,m_row) = eigenvecs(i,m_col) * sinA + maxVal * cosA;
+            eigenvecs(i,m_col) = eigenvecs(i,m_col) * cosA - maxVal * sinA;
+        }
+    }
+
+    // eigenvalue sorting
+    std::map<double, int> eigenSort;
+    for(int i=0;i<dim;++i){
+        // assign eigenvals
+        eigenvals[i] = mat(i,i);
+        // assign index
+        eigenSort.insert(make_pair(eigenvals[i], i));
+    }
+
+    // save eigenvector elements and adjust sign
+    double *__tmpEigenVec = new double[dim*dim];
+    // get the sorting pointer ptr and arrange the eigenvalues in reverse order
+    std::map<double, int>::reverse_iterator ptr = eigenSort.rbegin();
+
+    // assign elements from eigenvector to tmpEigenVec
+    for(int j=0;j<dim;++ptr, ++j){
+        // iter on the i-th row of the eigenvector
+        for(int i=0;i<dim;++i){
+            __tmpEigenVec[i*dim + j] = eigenvecs(i,ptr->second);
+        }
+        eigenvals[j] = ptr->first; // assign eigenvalue in order
+    }
+
+    for(int i = 0; i < dim; i++){
+        // the sum of the i-th eigenvector
+        double sumVec = 0;
+        for(int j = 0; j < dim; j++)
+            sumVec += __tmpEigenVec[j * dim + i];
+        // If the sum of the eigenvectors is less than zero, 
+        // the sign of the eigenvector is adjusted
+        if(sumVec < 0) for(int j = 0; j < dim; j++) __tmpEigenVec[j * dim + i] *= -1;
+
+    }
+    for(int i = 0; i < dim; i++){
+        for(int j = 0; j < dim; j++) eigenvecs(i,j) = __tmpEigenVec[i * dim + j];
+    }
+
+    // release memory
+    delete [] __tmpEigenVec;
+
+    return make_pair(eigenvals, eigenvecs);
+
 }
