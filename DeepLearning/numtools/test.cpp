@@ -19,28 +19,22 @@ int main(){
     vector<int> strides;
 
     vector<double> data = 
-        {1, 2, 3, 4, 
-         2, 3, 4, 1, 
-         3, 4, 1, 2, 
-         4, 1, 2, 3};
-    shape = {4,4};
+        {1, 2, 3, 4, 5,
+         2, 3, 4, 5, 1, 
+         3, 4, 5, 1, 2, 
+         4, 5, 1, 2, 3,
+         5, 1, 2, 3, 4};
+    shape = {5, 5};
     auto mat1 = ndarray<double>(data,shape);
     mat1.show();
 
     startTime = clock();
-    auto eigs = nc.linaig.eig(mat1);
-    auto eigVals = eigs.first;
-    auto eigVecs= eigs.second;
+    auto eigvals = nc.linaig.eigvals(mat1);
     endTime = clock();
     printf("time used: %.4fs\n",(double)(endTime - startTime) / CLOCKS_PER_SEC);
 
-    eigVals.show();
-    eigVecs.show();
+    eigvals.show();
 
-    auto prod = mat1.dot(eigVecs);
-    auto multi = eigVecs * eigVals;
-    prod.show();
-    multi.show();
 
 
     return 0;

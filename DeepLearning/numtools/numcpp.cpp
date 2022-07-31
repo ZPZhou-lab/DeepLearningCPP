@@ -142,35 +142,40 @@ public:
     public:
         // Cholesky decomposition
         template <typename _Tp>
-        ndarray<double> cholesky(ndarray<_Tp> &array);
+        ndarray<double> static cholesky(ndarray<_Tp> &array);
 
         // Compute the determinant of an array
         template <typename _Tp>
-        double det(ndarray<_Tp> &array);
+        double static det(ndarray<_Tp> &array);
 
         // Compute the eigenvalues and right eigenvectors of a square array
         template <typename _Tp>
-        pair<ndarray<double>, ndarray<double>> eig(ndarray<_Tp> &array);
+        pair<ndarray<double>, ndarray<double>> static eig(ndarray<_Tp> &array);
+
+        // Compute the eigenvalues, 
+        template <typename _Tp>
+        ndarray<double> static eigvals(ndarray<_Tp> &array);
 
         // Compute the (multiplicative) inverse of a matrix
+        // Main difference between `eigvals` and `eig`: the eigenvectors aren't returned
         template <typename _Tp>
-        ndarray<double> inv(ndarray<_Tp> &array);
+        ndarray<double> static inv(ndarray<_Tp> &array);
 
         // Raise a square matrix to the (integer) power `n`
         template <typename _Tp>
-        ndarray<double> matrix_power(ndarray<_Tp> &array, int n);
+        ndarray<double> static matrix_power(ndarray<_Tp> &array, int n);
 
         // Matrix or vector norm
         template <typename _Tp>
-        double norm(ndarray<_Tp> &array, double ord, int axis, bool keepdims=false);
+        double static norm(ndarray<_Tp> &array, double ord, int axis, bool keepdims=false);
 
         // Compute the qr factorization of a matrix
         template <typename _Tp>
-        pair<ndarray<double>, ndarray<double>> qr(ndarray<_Tp> &array, string mode);
+        pair<ndarray<double>, ndarray<double>> static qr(ndarray<_Tp> &array, string mode);
 
         // Solve a linear matrix equation, or system of linear scalar equations
         template <typename _Tp>
-        ndarray<double> solve(ndarray<_Tp> &A, ndarray<_Tp> &b);
+        ndarray<double> static solve(ndarray<_Tp> &A, ndarray<_Tp> &b);
 
     };
 
@@ -939,4 +944,11 @@ pair<ndarray<double>, ndarray<double>> numcpp::linaigBase::eig(ndarray<_Tp> &arr
 
     return make_pair(eigenvals, eigenvecs);
 
+}
+
+// Compute the eigenvalues, 
+template <typename _Tp>
+ndarray<double> numcpp::linaigBase::eigvals(ndarray<_Tp> &array){
+    auto eigen = numcpp::linaigBase::eig(array);
+    return eigen.first;
 }
