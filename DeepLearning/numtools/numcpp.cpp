@@ -831,12 +831,13 @@ pair<ndarray<double>, ndarray<double>> numcpp::linaigBase::eig(ndarray<_Tp> &arr
     // iterations
     int iter = 0;
     // iteration precision
-    double precision = 1e-10;
+    double precision = 1e-6;
     // max iterations
-    int maxIter = 10000;
+    int maxIter = 100;
 
     // jacobi iteration to solve eigenvectors and eigenvalues
     while(true){
+
         // Remove diagonal elements 
         // and search for the largest element and subscript of the absolute value of the matrix
         double maxVal = mat(0,1);
@@ -857,7 +858,6 @@ pair<ndarray<double>, ndarray<double>> numcpp::linaigBase::eig(ndarray<_Tp> &arr
         if(iter > maxIter) break;
         // update iteration
         iter++;
-
         /* compute rotation matrix */
         // assign vertex
         double mat_xx = mat(m_row,m_row);

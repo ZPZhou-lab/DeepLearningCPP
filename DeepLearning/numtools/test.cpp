@@ -39,8 +39,9 @@ int main(){
 
     auto prod = mat1.dot(eigVecs);
     auto multi = eigVecs * eigVals;
-    multi.show();
     prod.show();
+    multi.show();
+
 
     return 0;
 }
