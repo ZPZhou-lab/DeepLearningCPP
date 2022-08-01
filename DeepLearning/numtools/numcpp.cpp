@@ -55,6 +55,15 @@ public:
     template <typename _Tp>
     ndarray<double> static tan(ndarray<_Tp> &array);
 
+    template <typename _Tp>
+    ndarray<double> static sinh(ndarray<_Tp> &array);
+
+    template <typename _Tp>
+    ndarray<double> static cosh(ndarray<_Tp> &array);
+
+    template <typename _Tp>
+    ndarray<double> static tanh(ndarray<_Tp> &array);
+
     // statistics method
     template <typename _Tp>
     ndarray<_Tp> static sum(ndarray<_Tp> &array, vector<int> axis, bool keepdim=false);
@@ -814,6 +823,24 @@ ndarray<double> numcpp::cos(ndarray<_Tp> &array){
 template <typename _Tp>
 ndarray<double> numcpp::tan(ndarray<_Tp> &array){
     return _general_math_map(array,std::tan);
+}
+
+// sinh
+template <typename _Tp>
+ndarray<double> numcpp::sinh(ndarray<_Tp> &array){
+    return _general_math_map(array,std::sinh);
+}
+
+// cosh
+template <typename _Tp>
+ndarray<double> numcpp::cosh(ndarray<_Tp> &array){
+    return _general_math_map(array,std::cosh);
+}
+
+// tanh
+template <typename _Tp>
+ndarray<double> numcpp::tanh(ndarray<_Tp> &array){
+    return _general_math_map(array,std::tanh);
 }
 
 // Compute the eigenvalues and right eigenvectors of a square array
