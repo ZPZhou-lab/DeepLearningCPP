@@ -178,9 +178,17 @@ public:
         template <typename _Tp>
         double static norm(ndarray<_Tp> &array, double ord, int axis, bool keepdims=false);
 
-        // Compute the qr factorization of a matrix
+        // Compute the QR factorization of a matrix
         template <typename _Tp>
-        pair<ndarray<double>, ndarray<double>> static qr(ndarray<_Tp> &array, string mode);
+        pair<ndarray<double>, ndarray<double>> static QR(ndarray<_Tp> &array, string mode);
+    
+        // Compute the LU factorization of a matrix
+        template <typename _Tp>
+        pair<ndarray<double>, ndarray<double>> static LU(ndarray<_Tp> &array);
+    
+        // Compute the SVD factorization of a matrix
+        template <typename _Tp>
+        pair<ndarray<double>, ndarray<double>> static SCD(ndarray<_Tp> &array, string mode);
 
         // Solve a linear matrix equation, or system of linear scalar equations
         template <typename _Tp>
@@ -847,6 +855,7 @@ ndarray<double> numcpp::tanh(ndarray<_Tp> &array){
 template <typename _Tp>
 pair<ndarray<double>, ndarray<double>> numcpp::linaigBase::eig(ndarray<_Tp> &array){
     // check whether array is a square matrix
+    __check_2darray(array.shape());
     __check_rows_equal_cols(array.shape());
 
     // change data type to double
@@ -978,4 +987,39 @@ template <typename _Tp>
 ndarray<double> numcpp::linaigBase::eigvals(ndarray<_Tp> &array){
     auto eigen = numcpp::linaigBase::eig(array);
     return eigen.first;
+}
+
+// Compute the LU factorization of a matrix
+template <typename _Tp>
+pair<ndarray<double>, ndarray<double>> numcpp::linaigBase::LU(ndarray<_Tp> &array){
+   // check whether array is a square matrix
+    __check_2darray(array.shape());
+    __check_rows_equal_cols(array.shape());
+
+    // the dim of the array
+    int dim = array.shape()[0];
+
+    // init
+    vector<int> _shape = {dim,dim};
+    auto L = numcpp::zeros<double>(_shape), 
+         U = numcpp::zeros<double>(_shape);
+
+    // compute LU factorization
+    for(int i=0;i<dim;++i){
+        for(int j=i;j<dim;++j){
+            /*
+            U[i,j] = A[i,j] - sum(L[i,0:i]*U[0:i,j])
+            L[j,i] = (A[j,i] - sum(L[j,0:i]*U[0:i,i])) / U[i,i]
+            */
+            double _tmp1 = 0, _tmp2 = 0;
+            
+            for(int k=0;k<i;++k) _tmp1 += L(i,k)*U(k,j);
+            U(i,j) = array(i,j) - _tmp1;
+
+            for(int k=0;k<i;++k) _tmp2 += L(j,k)*U(k,i);
+            L(j,i) = (array(j,i) - _tmp2) / U(i,i);
+        }
+    }
+
+    return make_pair(L, U);
 }
