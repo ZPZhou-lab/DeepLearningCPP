@@ -1023,3 +1023,46 @@ pair<ndarray<double>, ndarray<double>> numcpp::linaigBase::LU(ndarray<_Tp> &arra
 
     return make_pair(L, U);
 }
+
+//  Solve a linear matrix equation, or system of linear scalar equations
+template <typename _Tp>
+ndarray<double> numcpp::linaigBase::solve(ndarray<_Tp> &A, ndarray<_Tp> &b){
+    // check shape
+    __check_one_dimension(b.shape());
+    __check_rows_equal(A.shape()[0],b.size());
+    
+    // shape
+    int dim = A.shape()[0];
+    
+    // do LU factorization
+    auto lu = numcpp::linaigBase::LU(A);
+    auto L = lu.first, U = lu.second;
+
+    /*
+    Ax = b -> (LU)x = b -> L(Ux) = b -> Ly = b -> Ux = y
+    */
+    vector<int> __shape = {dim,1};
+    ndarray<double> x = numcpp::zeros<double>(__shape),
+                    y = numcpp::zeros<double>(__shape);
+    
+    double _tmp ;
+    // solve Ly = b
+    for(int i=0;i<dim;++i){
+        _tmp = 0;
+        for(int j=0;j<i;++j){
+            _tmp += L(i,j)*y[j];
+        }
+        y[i] = b[i] - _tmp;
+    }
+
+    // solve Ux = y
+    for(int i=dim-1;i>-1;--i){
+        _tmp = 0;
+        for(int j=i+1;j<dim;++j){
+            _tmp += U(i,j)*x[j];
+        }
+        x[i] = (y[i] - _tmp) / U(i,i);
+    }
+
+    return x;
+}

@@ -18,23 +18,18 @@ int main(){
     vector<int> axis;
     vector<int> strides;
 
-    auto mat1 = nc.random.randn(8,8);
-    mat1.show();
+    auto mat1 = nc.random.rand(150,150);
+    auto b = nc.random.rand(150,1);
+    // mat1.show();
+    // b.show();
 
     startTime = clock();
-    auto lu = nc.linaig.LU(mat1);
-    auto mat2 = lu.first;
-    auto mat3 = lu.second;
+    auto x = nc.linaig.solve(mat1,b);
     endTime = clock();
     printf("time used: %.4fs\n",(double)(endTime - startTime) / CLOCKS_PER_SEC);
-    
-    cout<<"L: "<<endl;
-    mat2.show();
-    cout<<"U: "<<endl;
-    mat3.show();
 
-    auto diff = mat2.dot(mat3) - mat1;
-    diff.show();
+    auto diff = mat1.dot(x) - b;
+    cout<<diff.max()<<endl;
 
     return 0;
 }

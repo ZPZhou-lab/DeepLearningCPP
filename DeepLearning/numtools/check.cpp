@@ -194,3 +194,10 @@ bool __check_operator_shape(const vector<int> &shape1, const vector<int> &shape2
 
     return flag;
 }
+
+void __check_rows_equal(const int row1, const int row2){
+    if(row1 != row2){
+        printf("solve: Input operand 1 has a mismatch in its core dimension 0\n");
+        assert(false);
+    }
+}
