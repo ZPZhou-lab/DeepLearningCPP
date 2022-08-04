@@ -148,6 +148,11 @@ public:
 
     // class for linear algebra method
     class linaigBase{
+    private:
+        // LU solver to solve linear matrix equation
+        template<typename _Tp>
+        ndarray<double> static __LU_solver(ndarray<double> &L, ndarray<double> &U, ndarray<_Tp> &b);
+    
     public:
         // Cholesky decomposition
         template <typename _Tp>
@@ -1031,16 +1036,21 @@ ndarray<double> numcpp::linaigBase::solve(ndarray<_Tp> &A, ndarray<_Tp> &b){
     __check_one_dimension(b.shape());
     __check_rows_equal(A.shape()[0],b.size());
     
-    // shape
-    int dim = A.shape()[0];
-    
     // do LU factorization
     auto lu = numcpp::linaigBase::LU(A);
     auto L = lu.first, U = lu.second;
 
+    return __LU_solver(L, U, b);
+}
+
+// LU solver to solve linear matrix equation
+template<typename _Tp>
+ndarray<double> numcpp::linaigBase::__LU_solver(ndarray<double> &L, ndarray<double> &U, ndarray<_Tp> &b){
     /*
     Ax = b -> (LU)x = b -> L(Ux) = b -> Ly = b -> Ux = y
     */
+    int dim = b.size();
+
     vector<int> __shape = {dim,1};
     ndarray<double> x = numcpp::zeros<double>(__shape),
                     y = numcpp::zeros<double>(__shape);

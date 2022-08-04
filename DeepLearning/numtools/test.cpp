@@ -18,8 +18,8 @@ int main(){
     vector<int> axis;
     vector<int> strides;
 
-    auto mat1 = nc.random.rand(150,150);
-    auto b = nc.random.rand(150,1);
+    auto mat1 = nc.random.rand(100,100);
+    auto b = nc.random.rand(100,1);
     // mat1.show();
     // b.show();
 
