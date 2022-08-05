@@ -167,11 +167,11 @@ public:
         pair<ndarray<double>, ndarray<double>> static eig(ndarray<_Tp> &array);
 
         // Compute the eigenvalues, 
+          // Main difference between `eigvals` and `eig`: the eigenvectors aren't returned
         template <typename _Tp>
         ndarray<double> static eigvals(ndarray<_Tp> &array);
 
         // Compute the (multiplicative) inverse of a matrix
-        // Main difference between `eigvals` and `eig`: the eigenvectors aren't returned
         template <typename _Tp>
         ndarray<double> static inv(ndarray<_Tp> &array);
 
@@ -1075,4 +1075,40 @@ ndarray<double> numcpp::linaigBase::__LU_solver(ndarray<double> &L, ndarray<doub
     }
 
     return x;
+}
+
+// Compute the (multiplicative) inverse of a matrix
+template <typename _Tp>
+ndarray<double>  numcpp::linaigBase::inv(ndarray<_Tp> &array){
+    // do LU factorization
+    auto lu = numcpp::linaigBase::LU(array);
+    auto L = lu.first, 
+         U = lu.second;
+
+    int dim = array.shape()[0];
+    // create an identical vector
+    vector<int> __shape = {dim};
+    ndarray<double> e = numcpp::zeros<double>(__shape);
+    e[0] = 1.0;
+
+    // init inv(array)
+    __shape = array.shape();
+    auto inv_array = numcpp::zeros<double>(__shape);
+
+    // solve the first column
+    auto inv_col = __LU_solver(L, U, e);
+    for(int i=0;i<dim;++i) inv_array(i,0) = inv_col[i];
+
+    // sovle other columns
+    for(int j=1;j<dim;++j){
+        // update vector e
+        e[j-1] = 0.0;
+        e[j] = 1.0;
+
+        // solve the j-th column
+        inv_col = __LU_solver(L, U, e);
+        for(int i=0;i<dim;++i) inv_array(i,j) = inv_col[i];
+    }
+
+    return inv_array;
 }
