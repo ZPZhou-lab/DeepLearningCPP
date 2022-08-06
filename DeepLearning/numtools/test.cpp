@@ -18,17 +18,16 @@ int main(){
     vector<int> axis;
     vector<int> strides;
 
-    auto mat1 = nc.random.rand(10,10);
+    auto mat1 = nc.random.randn(50,50);
     // mat1.show();
     // b.show();
 
     startTime = clock();
-    auto mat2 = nc.linaig.inv(mat1);
-    endTime = clock();
+    double det = nc.linaig.det(mat1);
+    cout<<"det of mat1: "<<det<<endl;
     printf("time used: %.4fs\n",(double)(endTime - startTime) / CLOCKS_PER_SEC);
 
-    auto prod = mat1.dot(mat2);
-    prod.show();
+
 
     return 0;
 }

@@ -1112,3 +1112,16 @@ ndarray<double>  numcpp::linaigBase::inv(ndarray<_Tp> &array){
 
     return inv_array;
 }
+
+// Compute the determinant of an array
+template <typename _Tp>
+double numcpp::linaigBase::det(ndarray<_Tp> &array){
+    // compute eigenvalues
+    auto eigvals = numcpp::linaigBase::eigvals(array);
+
+    // compute det
+    double _det = 1.0;
+    for(long long i=0;i<eigvals.size();++i) _det *= eigvals[i];
+
+    return _det;
+}
