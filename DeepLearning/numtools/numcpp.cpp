@@ -1,7 +1,9 @@
 #include <algorithm>
 #include <bits/stdc++.h>
 #include "ndarray.cpp"
+#include <cassert>
 #include <climits>
+#include <cstdio>
 #include <cstdlib>
 #include <map>
 #include <regex>
@@ -152,6 +154,10 @@ public:
         // LU solver to solve linear matrix equation
         template<typename _Tp>
         ndarray<double> static __LU_solver(ndarray<double> &L, ndarray<double> &U, ndarray<_Tp> &b);
+
+        // determine whether the matrix is a positive definite matrix
+        template<typename _Tp>
+        bool static __check_positive_definite_mat(ndarray<_Tp> &array);
     
     public:
         // Cholesky decomposition
@@ -1124,4 +1130,54 @@ double numcpp::linaigBase::det(ndarray<_Tp> &array){
     for(long long i=0;i<eigvals.size();++i) _det *= eigvals[i];
 
     return _det;
+}
+
+// determine whether the matrix is a positive definite matrix
+template<typename _Tp>
+bool numcpp::linaigBase::__check_positive_definite_mat(ndarray<_Tp> &array){
+    // fetch eigenvalues
+    auto eigenvalues = numcpp::linaigBase::eigvals(array);
+
+    // all eigenvalue should greater than 0
+    for(long long i=0;i<eigenvalues.size();++i){
+        if(eigenvalues[i] <= 0) return false;
+    }
+
+    return true;
+}
+    
+
+// Cholesky decomposition
+template <typename _Tp>
+ndarray<double> numcpp::linaigBase::cholesky(ndarray<_Tp> &array){
+    // Determine whether the matrix is a positive definite matrix
+    if(!numcpp::linaigBase::__check_positive_definite_mat(array)){
+        printf("Matrix is not positive definite!\n");
+        assert(false);
+    }
+
+    // do decomposition
+    // init
+    vector<int> __shape = array.shape();
+    int dim = __shape[0];
+    auto L = numcpp::zeros<double>(__shape);
+
+    for(int i=0;i<dim;++i){
+        double _tmp = 0;
+        for(int j=0;j<i;++j) _tmp += L(i,j) * L(i,j);
+        _tmp = array(i,i) - _tmp;
+
+        // compute diag element
+        L(i,i) = _tmp > 0 ? std::sqrt(_tmp) : 0;
+
+        // compute the i-th elements
+        for(int j=i+1;j<dim;++j){
+            _tmp = 0;
+            for(int k=0;k<i;++k) _tmp += L(j,k) * L(i,k);
+
+            L(j,i) = (array(j,i) - _tmp) / L(i,i);
+        }
+    }
+
+    return L;
 }

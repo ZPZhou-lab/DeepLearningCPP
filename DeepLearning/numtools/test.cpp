@@ -17,17 +17,24 @@ int main(){
     vector<int> axes;
     vector<int> axis;
     vector<int> strides;
-
-    auto mat1 = nc.random.randn(50,50);
+    
+    vector<double> data = {1,0.1,0.1,1};
+    shape = {2,2};
+    auto mat1 = ndarray<double>(data,shape);
     // mat1.show();
     // b.show();
 
     startTime = clock();
-    double det = nc.linaig.det(mat1);
-    cout<<"det of mat1: "<<det<<endl;
+    auto L = nc.linaig.cholesky(mat1);
     printf("time used: %.4fs\n",(double)(endTime - startTime) / CLOCKS_PER_SEC);
 
+    L.show();
 
+    auto L_ = L.T();
+    L_.show();
+
+    auto prod = L.dot(L_);
+    prod.show();
 
     return 0;
 }
