@@ -1450,6 +1450,3 @@ ndarray<_Tp2> ndarray<_Tp>::astype(void){
 
     return trans;
 }
-
-// The interface of each method should be adjusted
-// and the `const` or `reference modifier &` of the response should be added
