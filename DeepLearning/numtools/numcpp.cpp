@@ -187,7 +187,10 @@ public:
 
         // Matrix or vector norm
         template <typename _Tp>
-        double static norm(ndarray<_Tp> &array, double ord, int axis, bool keepdims=false);
+        ndarray<double> static norm(ndarray<_Tp> &array, int axis, double ord=2,bool keepdims=false);
+        // 1-norm, 2-norm, F-norm, inf-norm
+        template <typename _Tp>
+        double static norm(ndarray<_Tp> &array, string ord="2-norm");
 
         // Compute the QR factorization of a matrix
         template <typename _Tp>
@@ -1180,4 +1183,23 @@ ndarray<double> numcpp::linaigBase::cholesky(ndarray<_Tp> &array){
     }
 
     return L;
+}
+
+// Matrix or vector norm
+template <typename _Tp>
+double numcpp::linaigBase::norm(ndarray<_Tp> &array, string ord){
+    // check 2-dimensional
+    __check_2darray(array.shape());
+
+    double _norm = 0;
+    if(ord == "2-norm"){
+        // compute eigvalues
+        auto mat = array.T().dot(array);
+        auto eigvalues = numcpp::linaigBase::eigvals(mat);
+
+        // 2-norm equals to the square-root of the max eigvalue of A'A
+        _norm = std::sqrt(eigvalues.max());
+    }
+
+    return _norm;
 }

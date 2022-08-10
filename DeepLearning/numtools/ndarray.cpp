@@ -1004,12 +1004,12 @@ long long ndarray<_Tp>::argmin(void){
 
 template <typename _Tp>
 ndarray<int> ndarray<_Tp>::argmax(int axis){
-    return this->argreduction(axis, argmax_reduction);
+    return this->_argreduction(axis, argmax_reduction);
 }
 
 template <typename _Tp>
 ndarray<int> ndarray<_Tp>::argmin(int axis){
-    return this->argreduction(axis, argmin_reduction);
+    return this->_argreduction(axis, argmin_reduction);
 }
 
 // reduction method for argmax(). argmin()

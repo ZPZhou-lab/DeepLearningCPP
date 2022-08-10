@@ -21,23 +21,14 @@ int main(){
     // vector<double> data = {1,0.1,0.1,1};
     // shape = {2,2};
     // auto mat1 = ndarray<double>(data,shape);
-    auto mat1 = nc.random.randn(8,8);
-    auto mat2 = mat1.T();
-    mat1 = mat1.dot(mat2);
-    mat1.show();
-
+    auto mat1 = nc.random.randn(4,4);
 
     startTime = clock();
-    auto L = nc.linaig.cholesky(mat1);
+    auto mat_norm = nc.linaig.norm(mat1);
     endTime = clock();
     printf("time used: %.4fs\n",(double)(endTime - startTime) / CLOCKS_PER_SEC);
 
-    L.show();
-
-    auto L_ = L.T();
-    
-    auto diff = L.dot(L_) - mat1;
-    diff.show();
+    cout<<"norm: "<<mat_norm<<endl;
 
     return 0;
 }
