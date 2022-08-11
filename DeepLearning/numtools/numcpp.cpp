@@ -66,6 +66,12 @@ public:
     template <typename _Tp>
     ndarray<double> static tanh(ndarray<_Tp> &array);
 
+    template <typename _Tp>
+    ndarray<double> static abs(ndarray<_Tp> &array);
+
+    template <typename _Tp>
+    ndarray<double> static pow(ndarray<_Tp> &array, double r);
+
     // statistics method
     template <typename _Tp>
     ndarray<_Tp> static sum(ndarray<_Tp> &array, vector<int> axis, bool keepdim=false);
@@ -865,6 +871,21 @@ ndarray<double> numcpp::tanh(ndarray<_Tp> &array){
     return _general_math_map(array,std::tanh);
 }
 
+// abs
+template <typename _Tp>
+ndarray<double> numcpp::abs(ndarray<_Tp> &array){
+    return _general_math_map(array,std::abs);
+}
+
+// abs
+template <typename _Tp>
+ndarray<double> numcpp::pow(ndarray<_Tp> &array, double r){
+    auto trans = array.template astype<double>();
+    for(long long i=0;i<array.size();++i) trans[i] = (double)std::pow(trans[i],r);
+
+    return trans;
+}
+
 // Compute the eigenvalues and right eigenvectors of a square array
 template <typename _Tp>
 pair<ndarray<double>, ndarray<double>> numcpp::linaigBase::eig(ndarray<_Tp> &array){
@@ -1199,6 +1220,30 @@ double numcpp::linaigBase::norm(ndarray<_Tp> &array, string ord){
 
         // 2-norm equals to the square-root of the max eigvalue of A'A
         _norm = std::sqrt(eigvalues.max());
+    
+    }else if(ord == "1-norm"){
+        // compute sum of columns
+        vector<int> axis = {0};
+        auto col_sum = numcpp::abs(array).sum(axis);
+
+        // 1-norm equals to the max element of columns sum
+        _norm = col_sum.max();
+    
+    }else if(ord == "f-norm"){
+        // compute sum of the square of elements
+        auto sum_square = numcpp::pow(array,2).sum();
+
+        // Forbenius norm equals to the square root of sum of the square elements
+        _norm = std::sqrt(sum_square);
+    
+    }else if(ord == "inf-norm"){
+        // compute sum of rows
+        vector<int> axis = {1};
+        auto row_sum = numcpp::abs(array).sum(axis);
+
+        // inf-norm equals to the max element of rows sum
+        _norm = row_sum.max();
+    
     }
 
     return _norm;
