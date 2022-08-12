@@ -194,6 +194,8 @@ public:
         // Matrix or vector norm
         template <typename _Tp>
         ndarray<double> static norm(ndarray<_Tp> &array, int axis, double ord=2,bool keepdims=false);
+        template <typename _Tp>
+        double static norm(ndarray<_Tp> &array, double ord=2);
         // 1-norm, 2-norm, F-norm, inf-norm
         template <typename _Tp>
         double static norm(ndarray<_Tp> &array, string ord="2-norm");
@@ -208,7 +210,7 @@ public:
     
         // Compute the SVD factorization of a matrix
         template <typename _Tp>
-        pair<ndarray<double>, ndarray<double>> static SCD(ndarray<_Tp> &array, string mode);
+        pair<ndarray<double>, ndarray<double>> static SVD(ndarray<_Tp> &array, string mode);
 
         // Solve a linear matrix equation, or system of linear scalar equations
         template <typename _Tp>
@@ -1247,4 +1249,24 @@ double numcpp::linaigBase::norm(ndarray<_Tp> &array, string ord){
     }
 
     return _norm;
+}
+
+template <typename _Tp>
+double numcpp::linaigBase::norm(ndarray<_Tp> &array, double ord){
+    // check norm ord
+    __check_norm_ord(array.shape());
+
+    double _norm = 0;
+
+    for(long long i=0;i<array.size();++i) _norm += std::pow(std::abs((double)array[i]),ord);
+
+    _norm = std::pow(_norm,1 / ord);
+
+    return _norm;
+}
+
+// Matrix or vector norm
+template <typename _Tp>
+ndarray<double> numcpp::linaigBase::norm(ndarray<_Tp> &array, int axis, double ord, bool keepdims){
+
 }

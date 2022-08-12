@@ -201,3 +201,10 @@ void __check_rows_equal(const int row1, const int row2){
         assert(false);
     }
 }
+
+void __check_norm_ord(const double ord){
+    if(ord < 0){
+        printf("Invalid norm order for matrices.\n");
+        assert(false);
+    }
+}
