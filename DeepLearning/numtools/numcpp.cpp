@@ -195,7 +195,7 @@ public:
         template <typename _Tp>
         ndarray<double> static norm(ndarray<_Tp> &array, int axis, double ord=2,bool keepdims=false);
         template <typename _Tp>
-        double static norm(ndarray<_Tp> &array, double ord=2);
+        double static pnorm(ndarray<_Tp> &array, double ord=2);
         // 1-norm, 2-norm, F-norm, inf-norm
         template <typename _Tp>
         double static norm(ndarray<_Tp> &array, string ord="2-norm");
@@ -1252,9 +1252,9 @@ double numcpp::linaigBase::norm(ndarray<_Tp> &array, string ord){
 }
 
 template <typename _Tp>
-double numcpp::linaigBase::norm(ndarray<_Tp> &array, double ord){
+double numcpp::linaigBase::pnorm(ndarray<_Tp> &array, double ord){
     // check norm ord
-    __check_norm_ord(array.shape());
+    __check_norm_ord(ord);
 
     double _norm = 0;
 
@@ -1268,5 +1268,44 @@ double numcpp::linaigBase::norm(ndarray<_Tp> &array, double ord){
 // Matrix or vector norm
 template <typename _Tp>
 ndarray<double> numcpp::linaigBase::norm(ndarray<_Tp> &array, int axis, double ord, bool keepdims){
+    // check norm ord
+    __check_norm_ord(ord);
 
+    // compute new shape and size for array
+    vector<int> __shape = __reduce_shape(array.shape(),array.ndim(),axis);
+    long long __size = __reduce_size(array.shape(),array.ndim(),axis);
+
+    // initialization
+    vector<double> arr = vector<double>(__size,0);
+    ndarray<double> _norm(arr,__shape);
+    // adjust elements
+    // get a copy of ndarray
+    ndarray<_Tp> copy = array.copy();
+    // add a dimension
+    copy = copy.expand_dims(array.ndim());
+
+    // transpose axis
+    vector<int> n_axes;
+    for(int i=0;i<array.ndim()+1;++i) n_axes.emplace_back(i);
+    std::swap(n_axes[array.ndim()],n_axes[axis]);
+    copy.transpose(n_axes,true);
+
+    // delete the additional dimension
+    copy = copy.squeeze();
+    // flatten the array
+    copy.flatten(true);
+
+    // assign elements
+    int step = array.shape()[axis];
+    for(long long i=0;i<__size;++i){
+        // compute the norm
+        double res = 0;
+        for(int j=0;j<step;++j){
+            res += std::pow(std::abs(copy[i*step + j]), ord);
+        }
+
+        _norm[i] = std::pow(res, 1 / ord);
+    }
+
+    return _norm;
 }

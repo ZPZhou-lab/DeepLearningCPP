@@ -46,7 +46,7 @@ vector<int> permute(vector<int>& vec, vector<int>& axes){
 }
 
 // fetch reduction size
-long long __reduce_size(vector<int> &shape, int ndim, vector<int> &axis){
+long long __reduce_size(const vector<int> &shape, int ndim, vector<int> &axis){
     // init
     long long __size = 1;
     // axis set
@@ -63,7 +63,7 @@ long long __reduce_size(vector<int> &shape, int ndim, vector<int> &axis){
     return __size;
 }
 
-long long __reduce_size(vector<int> &shape, int ndim, int axis){
+long long __reduce_size(const vector<int> &shape, int ndim, int axis){
     // init
     long long __size = 1;
 
@@ -78,7 +78,7 @@ long long __reduce_size(vector<int> &shape, int ndim, int axis){
 }
 
 // fetch reduction shape
-vector<int> __reduce_shape(vector<int> &shape, int ndim, vector<int> &axis){
+vector<int> __reduce_shape(const vector<int> &shape, int ndim, vector<int> &axis){
     // init
     vector<int> __shape;
     // axis set
@@ -95,7 +95,7 @@ vector<int> __reduce_shape(vector<int> &shape, int ndim, vector<int> &axis){
     return __shape;
 }
 
-vector<int> __reduce_shape(vector<int> &shape, int ndim, int axis){
+vector<int> __reduce_shape(const vector<int> &shape, int ndim, int axis){
     // init
     vector<int> __shape;
 
@@ -110,7 +110,7 @@ vector<int> __reduce_shape(vector<int> &shape, int ndim, int axis){
 }
 
 // fetch reduction step
-long long __reduce_step(vector<int> &shape, int ndim, vector<int> &axis){
+long long __reduce_step(const vector<int> &shape, int ndim, vector<int> &axis){
     // init
     long long step = 1;
     // axis set
