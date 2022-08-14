@@ -91,15 +91,15 @@ public:
     _Tp at(long long idx); // access element by index
 
     // return _data type
-    const string dtype(void);
+    const string dtype(void) const;
     // return the number of elements
-    const long long size(void);
+    const long long size(void) const;
     // return the number of dimensions
-    const int ndim(void);
+    const int ndim(void) const;
     // return the shape of the nd-array
-    const vector<int> shape(void);
+    const vector<int> shape(void) const;
     // return the strides of the nd-array
-    const vector<int> strides(void);
+    const vector<int> strides(void) const;
     // fetch _data
     vector<_Tp> &data(void);
 
@@ -517,7 +517,7 @@ const _Tp &ndarray<_Tp>::operator()(Args...args) const{
 
 // return _data type
 template <typename _Tp>
-const string ndarray<_Tp>::dtype(void){
+const string ndarray<_Tp>::dtype(void) const{
     map<string,string> dtypes = {
         {"i","int"}, {"f","float"}, {"d","double"}, {"l","long"}, {"b","bool"},
         {"e", "long double"}, {"x","long long"}
@@ -528,25 +528,25 @@ const string ndarray<_Tp>::dtype(void){
 
 // the number of elements
 template <typename _Tp>
-const long long ndarray<_Tp>::size(void){
+const long long ndarray<_Tp>::size(void) const{
     return this->_size;
 }
 
 // the number of dimensions
 template <typename _Tp>
-const int ndarray<_Tp>::ndim(void){
+const int ndarray<_Tp>::ndim(void) const{
     return this->_ndim;
 }
 
 // the number of elements in each dimension
 template <typename _Tp>
-const vector<int> ndarray<_Tp>::shape(void){
+const vector<int> ndarray<_Tp>::shape(void) const{
     return this->_shape;
 }
 
 // the strides of the nd-array
 template <typename _Tp>
-const vector<int> ndarray<_Tp>::strides(void){
+const vector<int> ndarray<_Tp>::strides(void) const{
     return this->_strides;
 }
 

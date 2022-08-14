@@ -72,6 +72,11 @@ public:
     template <typename _Tp>
     ndarray<double> static pow(ndarray<_Tp> &array, double r);
 
+    template<typename _Tp>
+    ndarray<double> static sign(ndarray<_Tp> &array);
+    template<typename _Tp>
+    double static sign(_Tp& a);
+
     // statistics method
     template <typename _Tp>
     ndarray<_Tp> static sum(ndarray<_Tp> &array, vector<int> axis, bool keepdim=false);
@@ -215,6 +220,10 @@ public:
         // Solve a linear matrix equation, or system of linear scalar equations
         template <typename _Tp>
         ndarray<double> static solve(ndarray<_Tp> &A, ndarray<_Tp> &b);
+
+        // HouseHolder Transform
+        template <typename _Tp>
+        ndarray<double> static HouseHolder(ndarray<_Tp> &x);
 
     };
 
@@ -888,6 +897,20 @@ ndarray<double> numcpp::pow(ndarray<_Tp> &array, double r){
     return trans;
 }
 
+// sign
+template <typename _Tp>
+ndarray<double> numcpp::sign(ndarray<_Tp> &array){
+    auto trans = array.template astype<double>();
+    for(long long i=0;i<array.size();++i) trans[i] = numcpp::sign(trans[i]);
+
+    return trans;
+}
+
+template <typename _Tp>
+double numcpp::sign(_Tp& a){
+    return a > 0 ? 1.0 : (a == 0 ? 0 : -1);
+}
+
 // Compute the eigenvalues and right eigenvectors of a square array
 template <typename _Tp>
 pair<ndarray<double>, ndarray<double>> numcpp::linaigBase::eig(ndarray<_Tp> &array){
@@ -1308,4 +1331,24 @@ ndarray<double> numcpp::linaigBase::norm(ndarray<_Tp> &array, int axis, double o
     }
 
     return _norm;
+}
+
+
+// HouseHolder Transform
+template <typename _Tp>
+ndarray<double> numcpp::linaigBase::HouseHolder(ndarray<_Tp> &x){
+    // judge dimension
+    __check_one_dimension(x.shape());
+
+    // dim
+    long long n = x.size();
+    // create identical vector
+    auto __shape = x.shape();
+    auto e = numcpp::zeros<double>(__shape);
+    e[0] = 1;
+
+    e = numcpp::sign(x[0]) * numcpp::linaigBase::pnorm(x,2) * e + x;
+    e = e / numcpp::linaigBase::pnorm(e,2);
+
+    return e;
 }

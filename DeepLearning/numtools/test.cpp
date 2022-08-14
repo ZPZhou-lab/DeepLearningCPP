@@ -2,6 +2,8 @@
 #include "numcpp.cpp"
 #include <bits/stdc++.h>
 #include <chrono>
+#include <cmath>
+#include <complex>
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
@@ -21,23 +23,16 @@ int main(){
     // vector<double> data = {1,0.1,0.1,1};
     // shape = {2,2};
     // auto mat1 = ndarray<double>(data,shape);
-    auto mat1 = nc.random.randn(4,4);
-
+    auto x = nc.random.randn(4,1);
+    x.show();
+    
     startTime = clock();
-    auto mat_2_norm = nc.linaig.norm(mat1,"2-norm");
-    auto mat_1_norm = nc.linaig.norm(mat1,"1-norm");
-    auto mat_f_norm = nc.linaig.norm(mat1,"f-norm");
-    auto mat_inf_norm = nc.linaig.norm(mat1,"inf-norm");
-    auto mat_2_norm_vec = nc.linaig.norm(mat1,0,2);
+    auto Hx = nc.linaig.HouseHolder(x);
     endTime = clock();
     printf("time used: %.4fs\n",(double)(endTime - startTime) / CLOCKS_PER_SEC);
 
-    cout<<"2-norm: "<<mat_2_norm<<endl;
-    cout<<"1-norm: "<<mat_1_norm<<endl;
-    cout<<"f-norm: "<<mat_f_norm<<endl;
-    cout<<"inf-norm: "<<mat_inf_norm<<endl;
-    mat_2_norm_vec.show();
-    cout<<"exit"<<endl;
+    Hx.show();
+    cout<<"vector norm of Hx: "<<nc.linaig.pnorm(Hx)<<endl;
 
     return 0;
 }
