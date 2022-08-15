@@ -207,7 +207,7 @@ public:
 
         // Compute the QR factorization of a matrix
         template <typename _Tp>
-        pair<ndarray<double>, ndarray<double>> static QR(ndarray<_Tp> &array, string mode);
+        pair<ndarray<double>, ndarray<double>> static QR(ndarray<_Tp> &array, string mode="full");
     
         // Compute the LU factorization of a matrix
         template <typename _Tp>
@@ -231,21 +231,21 @@ public:
 
     // method reshape()
     template <typename _Tp>
-    ndarray<_Tp> reshape(ndarray<_Tp> &array, vector<int> &shape);
+    ndarray<_Tp> static reshape(ndarray<_Tp> &array, vector<int> &shape);
     // method transpose()
     template<typename _Tp>
-    ndarray<_Tp> transpose(ndarray<_Tp> &array, vector<int> &axes);
+    ndarray<_Tp> static transpose(ndarray<_Tp> &array, vector<int> &axes);
     // method flatten()
     template<typename _Tp>
-    ndarray<_Tp> flatten(ndarray<_Tp> &array);
+    ndarray<_Tp> static flatten(ndarray<_Tp> &array);
     // method expand_dims()
     template<typename _Tp>
-    ndarray<_Tp> expand_dims(ndarray<_Tp> &array, vector<int> axis);
+    ndarray<_Tp> static expand_dims(ndarray<_Tp> &array, vector<int> axis);
 
     // computation
     // method dot() for array
     template<typename _Tp1, typename _Tp2>
-    ndarray<double> dot(ndarray<_Tp1> &arr1, ndarray<_Tp2> &arr2);
+    ndarray<double> static dot(ndarray<_Tp1> &arr1, ndarray<_Tp2> &arr2);
 
 };
 
@@ -1351,4 +1351,61 @@ ndarray<double> numcpp::linaigBase::HouseHolder(ndarray<_Tp> &x){
     e = e / numcpp::linaigBase::pnorm(e,2);
 
     return e;
+}
+
+// Compute the QR factorization of a matrix
+template <typename _Tp>
+pair<ndarray<double>, ndarray<double>> numcpp::linaigBase::QR(ndarray<_Tp> &array, string mode){
+    // check two dimensions
+    __check_2darray(array.shape());
+
+    // dimension
+    int m = array.shape()[0], n = array.shape()[1];
+
+    // init
+    auto R = array.template astype<double>();
+    auto Q = numcpp::eye<double>(m);
+
+    for(int i=0;i<n;++i){
+        vector<int> __shape = {m-i,1};
+        auto x = numcpp::zeros<double>(__shape);
+        for(int k=i;k<m;++k) x[k-i] = R(k,i);
+
+        // do HouseHolder
+        auto v = numcpp::linaigBase::HouseHolder(x);
+
+        // assign elements
+        // compute for R
+        __shape = {m-i,n-i};
+        auto Rtmp = numcpp::zeros<double>(__shape);
+        for(int p=i;p<m;++p){
+            for(int q=i;q<n;++q) Rtmp(p-i,q-i) = R(p,q);
+        }
+
+        auto v_R = v.T().dot(Rtmp);
+        auto v_v_R = v.dot(v_R) * 2;
+        Rtmp = Rtmp - v_v_R;
+
+        for(int p=i;p<m;++p){
+            for(int q=i;q<n;++q)  R(p,q) = Rtmp(p-i,q-i);
+        }
+
+        // compute for Q
+        __shape = {m,m-i};
+        auto Qtmp = numcpp::zeros<double>(__shape);
+        for(int p=0;p<m;++p){
+            for(int q=i;q<m;++q) Qtmp(p,q-i) = Q(p,q);
+        }
+
+        auto Q_v = Qtmp.dot(v);
+        auto v_T = v.T();
+        auto Q_v_v = Q_v.dot(v_T) * 2;
+        Qtmp = Qtmp - Q_v_v;
+
+        for(int p=0;p<m;++p){
+            for(int q=i;q<m;++q)  Q(p,q) = Qtmp(p,q-i);
+        }
+    }
+
+    return make_pair(Q, R);
 }
