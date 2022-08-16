@@ -1407,5 +1407,23 @@ pair<ndarray<double>, ndarray<double>> numcpp::linaigBase::QR(ndarray<_Tp> &arra
         }
     }
 
+    // output reduced matrix
+    if(mode == "reduce"){
+        vector<int> __shape;
+        __shape = {m,n};
+        auto Qtmp = numcpp::zeros<double>(__shape);
+        for(int i=0;i<m;++i){
+            for(int j=0;j<n;++j) Qtmp(i,j) = Q(i,j);
+        }
+        Q = Qtmp;
+
+        __shape = {n,n};
+        auto Rtmp = numcpp::zeros<double>(__shape);
+        for(int i=0;i<n;++i){
+            for(int j=0;j<n;++j) Rtmp(i,j) = R(i,j);
+        }
+        R = Rtmp;
+    }
+    
     return make_pair(Q, R);
 }

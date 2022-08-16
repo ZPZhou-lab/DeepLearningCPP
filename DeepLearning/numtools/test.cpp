@@ -23,11 +23,11 @@ int main(){
     // vector<double> data = {1,0.1,0.1,1};
     // shape = {2,2};
     // auto mat1 = ndarray<double>(data,shape);
-    auto x = nc.random.randn(8,8);
+    auto x = nc.random.randn(8,5);
     x.show();
     
     startTime = clock();
-    auto Hx = nc.linaig.QR(x);
+    auto Hx = nc.linaig.QR(x,"reduce");
     endTime = clock();
     printf("time used: %.4fs\n",(double)(endTime - startTime) / CLOCKS_PER_SEC);
 
@@ -37,8 +37,7 @@ int main(){
     auto diff = Q.dot(R) - x;
     diff.show();
 
-    auto Q_t = Q.T();
-    auto Q_Q = Q.dot(Q_t);
+    auto Q_Q = Q.T().dot(Q);
     Q_Q.show();
 
     return 0;
