@@ -1,5 +1,6 @@
-#include "ndarray.cpp"
-#include "numcpp.cpp"
+#include "./numtools/ndarray.cpp"
+#include "./numtools/numcpp.cpp"
+#include "./ANN/Linear/glm.cpp"
 #include <bits/stdc++.h>
 #include <chrono>
 #include <cmath>
@@ -23,22 +24,21 @@ int main(){
     // vector<double> data = {1,0.1,0.1,1};
     // shape = {2,2};
     // auto mat1 = ndarray<double>(data,shape);
-    auto x = nc.random.randn(8,5);
-    x.show();
+    int n = 50, p = 4;
+    auto x = nc.random.randn(n,p);
+    auto beta = nc.random.randn(p,1);
+    auto noise = nc.random.randn(n) * 0.1;
+    auto y = x.dot(beta) + noise;
     
     startTime = clock();
-    auto Hx = nc.linaig.QR(x,"reduce");
+    auto model = glm::Linear_Regression();
+    model.fit(x, y);
+    auto y_pred = model.predict(x);
+    auto mse = model.score(y, y_pred);
     endTime = clock();
     printf("time used: %.4fs\n",(double)(endTime - startTime) / CLOCKS_PER_SEC);
 
-    auto Q = Hx.first, R = Hx.second;
-    Q.show(), R.show();
-
-    auto diff = Q.dot(R) - x;
-    diff.show();
-
-    auto Q_Q = Q.T().dot(Q);
-    Q_Q.show();
+    cout<<"mse: "<<mse<<endl;
 
     return 0;
 }
