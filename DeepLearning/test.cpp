@@ -24,14 +24,14 @@ int main(){
     // vector<double> data = {1,0.1,0.1,1};
     // shape = {2,2};
     // auto mat1 = ndarray<double>(data,shape);
-    int n = 50, p = 4;
+    int n = 500, p = 10;
     auto x = nc.random.randn(n,p);
     auto beta = nc.random.randn(p,1);
     auto noise = nc.random.randn(n) * 0.1;
     auto y = x.dot(beta) + noise;
     
     startTime = clock();
-    auto model = glm::Linear_Regression();
+    auto model = glm::LinearRegression();
     model.fit(x, y);
     auto y_pred = model.predict(x);
     auto mse = model.score(y, y_pred);
@@ -39,6 +39,11 @@ int main(){
     printf("time used: %.4fs\n",(double)(endTime - startTime) / CLOCKS_PER_SEC);
 
     cout<<"mse: "<<mse<<endl;
+
+    int a = 1;
+    int &b = a;
+    b = 2;
+    cout<<a<<endl;
 
     return 0;
 }

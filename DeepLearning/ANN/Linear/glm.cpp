@@ -12,17 +12,18 @@
 
 namespace glm {
 // linear Regression
-class Linear_Regression{
+class LinearRegression{
 private:
     ndarray<double> beta;
     double intercept;
     bool _fit_intercept;
+    bool _copy_X;
 
 protected:
 
 
 public:
-    Linear_Regression(bool fit_intercept=false);
+    LinearRegression(bool fit_intercept=false, bool copy_X=true);
     // fit the model
     void fit(ndarray<double> &X, ndarray<double> &y);
     // predict the result
@@ -37,24 +38,37 @@ public:
 
 
 // Linear Regression
-glm::Linear_Regression::Linear_Regression(bool fit_intercept){
+glm::LinearRegression::LinearRegression(bool fit_intercept, bool copy_X){
     this->_fit_intercept = fit_intercept;
+    this->_copy_X = copy_X;
 }
 
 // fit the model
-void glm::Linear_Regression::fit(ndarray<double> &X, ndarray<double> &y){
-    auto X_ = X.T();
-    auto X_X = X_.dot(X);
-    this->beta = numcpp::linaigBase::inv(X_X).dot(X_).dot(y);
+void glm::LinearRegression::fit(ndarray<double> &X, ndarray<double> &y){
+    // copy X
+    auto X_ = X;
+    if(this->_copy_X){
+        X_ = X.copy();
+    }
+    
+    // fit the intercept
+    if(this->_fit_intercept){
+        
+    }else{
+        auto X_trans = X_.T();
+        auto X_X = X_trans.dot(X_);
+        this->beta = numcpp::linaigBase::inv(X_X).dot(X_trans).dot(y);
+    }
+
 }
 
 // predict
-ndarray<double> glm::Linear_Regression::predict(ndarray<double> &X){
+ndarray<double> glm::LinearRegression::predict(ndarray<double> &X){
     return X.dot(this->beta);;
 }
 
 // compute MSE
-double glm::Linear_Regression::score(ndarray<double> &y_true, ndarray<double> &y_pred){
+double glm::LinearRegression::score(ndarray<double> &y_true, ndarray<double> &y_pred){
     auto error = y_true - y_pred;
     auto square_error = numcpp::pow(error, 2);
 
