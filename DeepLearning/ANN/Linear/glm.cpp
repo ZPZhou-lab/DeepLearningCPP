@@ -45,6 +45,7 @@ glm::LinearRegression::LinearRegression(bool fit_intercept, bool copy_X){
 
 // fit the model
 void glm::LinearRegression::fit(ndarray<double> &X, ndarray<double> &y){
+    __check_2darray(X.shape());
     // copy X
     auto X_ = X;
     if(this->_copy_X){
