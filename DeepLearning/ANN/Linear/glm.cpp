@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <vector>
+namespace nc = numcpp;
 
 namespace glm {
 // linear Regression
@@ -36,7 +37,6 @@ public:
 }
 
 
-
 // Linear Regression
 glm::LinearRegression::LinearRegression(bool fit_intercept, bool copy_X){
     this->_fit_intercept = fit_intercept;
@@ -58,7 +58,7 @@ void glm::LinearRegression::fit(ndarray<double> &X, ndarray<double> &y){
     }else{
         auto X_trans = X_.T();
         auto X_X = X_trans.dot(X_);
-        this->beta = numcpp::linaigBase::inv(X_X).dot(X_trans).dot(y);
+        this->beta = nc::linalg::inv(X_X).dot(X_trans).dot(y);
     }
 
 }

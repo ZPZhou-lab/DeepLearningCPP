@@ -14,104 +14,94 @@
 #include <chrono>
 #include <cmath>
 #pragma once
+using namespace std;
 
-namespace numcpp {
+class numcpp{
+private:
+    // general method for mathematical map
+    template<typename _Tp>
+    ndarray<double> static _general_math_map(ndarray<_Tp> &array, _Tp (*func)(_Tp a));
+
+public:
     // all zero matrix
     template <typename _Tp>
-    ndarray<_Tp> zeros(vector<int>& shape);
+    ndarray<_Tp> static zeros(vector<int>& shape);
 
     // all one matrix
     template <typename _Tp>
-    ndarray<_Tp> ones(vector<int>& shape);
+    ndarray<_Tp> static ones(vector<int>& shape);
 
     // identical matrix
     template <typename _Tp>
-    ndarray<_Tp> eye(long long m,long long n=-1,long long diag=0);
+    ndarray<_Tp> static eye(long long m,long long n=-1,long long diag=0);
 
     // equidistant array
     template <typename _Tp>
-    ndarray<_Tp> arange(long long start, long long end);
+    ndarray<_Tp> static arange(long long start, long long end);
     template <typename _Tp>
-    ndarray<_Tp> linspace(double start, double end, long long N);
+    ndarray<_Tp> static linspace(double start, double end, long long N);
 
     // math computation
     template <typename _Tp>
-    ndarray<double> exp(ndarray<_Tp> &array);
+    ndarray<double> static exp(ndarray<_Tp> &array);
 
     template <typename _Tp>
-    ndarray<double> log(ndarray<_Tp> &array);
+    ndarray<double> static log(ndarray<_Tp> &array);
 
     template <typename _Tp>
-    ndarray<double> sin(ndarray<_Tp> &array);
+    ndarray<double> static sin(ndarray<_Tp> &array);
 
     template <typename _Tp>
-    ndarray<double> cos(ndarray<_Tp> &array);
+    ndarray<double> static cos(ndarray<_Tp> &array);
 
     template <typename _Tp>
-    ndarray<double> tan(ndarray<_Tp> &array);
+    ndarray<double> static tan(ndarray<_Tp> &array);
 
     template <typename _Tp>
-    ndarray<double> sinh(ndarray<_Tp> &array);
+    ndarray<double> static sinh(ndarray<_Tp> &array);
 
     template <typename _Tp>
-    ndarray<double> cosh(ndarray<_Tp> &array);
+    ndarray<double> static cosh(ndarray<_Tp> &array);
 
     template <typename _Tp>
-    ndarray<double> tanh(ndarray<_Tp> &array);
+    ndarray<double> static tanh(ndarray<_Tp> &array);
 
     template <typename _Tp>
-    ndarray<double> abs(ndarray<_Tp> &array);
+    ndarray<double> static abs(ndarray<_Tp> &array);
 
     template <typename _Tp>
-    ndarray<double> pow(ndarray<_Tp> &array, double r);
+    ndarray<double> static pow(ndarray<_Tp> &array, double r);
 
     template<typename _Tp>
-    ndarray<double> sign(ndarray<_Tp> &array);
+    ndarray<double> static sign(ndarray<_Tp> &array);
     template<typename _Tp>
-    double sign(_Tp& a);
+    double static sign(_Tp& a);
 
     // statistics method
     template <typename _Tp>
-    ndarray<_Tp> sum(ndarray<_Tp> &array, vector<int> axis, bool keepdim=false);
+    ndarray<_Tp> static sum(ndarray<_Tp> &array, vector<int> axis, bool keepdim=false);
     template <typename _Tp>
-    _Tp sum(ndarray<_Tp> &array);
+    _Tp static sum(ndarray<_Tp> &array);
 
     template <typename _Tp>
-    ndarray<_Tp> max(ndarray<_Tp> &array, vector<int> axis, bool keepdim=false);
+    ndarray<_Tp> static max(ndarray<_Tp> &array, vector<int> axis, bool keepdim=false);
     template <typename _Tp>
-    _Tp max(ndarray<_Tp> &array);
+    _Tp static max(ndarray<_Tp> &array);
 
     template <typename _Tp>
-    ndarray<_Tp> min(ndarray<_Tp> &array, vector<int> axis, bool keepdim=false);
+    ndarray<_Tp> static min(ndarray<_Tp> &array, vector<int> axis, bool keepdim=false);
     template <typename _Tp>
-    _Tp min(ndarray<_Tp> &array);
+    _Tp static min(ndarray<_Tp> &array);
     
     template <typename _Tp>
-    ndarray<_Tp> mean(ndarray<_Tp> &array, vector<int> axis, bool keepdim=false);
+    ndarray<_Tp> static mean(ndarray<_Tp> &array, vector<int> axis, bool keepdim=false);
     template <typename _Tp>
-    _Tp mean(ndarray<_Tp> &array);
+    _Tp static mean(ndarray<_Tp> &array);
 
-    // method reshape()
-    template <typename _Tp>
-    ndarray<_Tp> reshape(ndarray<_Tp> &array, vector<int> &shape);
-    // method transpose()
-    template<typename _Tp>
-    ndarray<_Tp> transpose(ndarray<_Tp> &array, vector<int> &axes);
-    // method flatten()
-    template<typename _Tp>
-    ndarray<_Tp> flatten(ndarray<_Tp> &array);
-    // method expand_dims()
-    template<typename _Tp>
-    ndarray<_Tp> expand_dims(ndarray<_Tp> &array, vector<int> axis);
-
-    // computation
-    // method dot() for array
-    template<typename _Tp1, typename _Tp2>
-    ndarray<double> dot(ndarray<_Tp1> &arr1, ndarray<_Tp2> &arr2);
-
-    // method for generate random numbers from various distributions
-    namespace random {
-            // utility fuctions
+    // class for generate random numbers from various distributions
+    class randomBase{
+    public:
+        // utility fuctions
         // randomly permute [0,1,2,...,x-1]
         ndarray<long long> permutation(long long x);
         // make a copy and shuffle the elements randomly
@@ -123,6 +113,7 @@ namespace numcpp {
         // random sanple from 1-D array
         template<typename _Tp>
         ndarray<_Tp> choice(ndarray<_Tp> &array, vector<int>& shape, bool replace=true, vector<double> p=vector<double>());
+
 
         // Univariate distributions
         // uniformly distributed random matrix
@@ -163,64 +154,100 @@ namespace numcpp {
         // Standard distribution
         ndarray<double> standard_cauchy(vector<int> shape=vector<int>());
         ndarray<double> standard_t(double df, vector<int> shape=vector<int>());
-    }
 
-    namespace linalg {
+    };
+    // class for generate random numbers
+    randomBase random;
+
+    // class for linear algebra method
+    class linaigBase{
+    private:
+        // LU solver to solve linear matrix equation
+        template<typename _Tp>
+        ndarray<double> static __LU_solver(ndarray<double> &L, ndarray<double> &U, ndarray<_Tp> &b);
+
+        // determine whether the matrix is a positive definite matrix
+        template<typename _Tp>
+        bool static __check_positive_definite_mat(ndarray<_Tp> &array);
+    
+    public:
         // Cholesky decomposition
         template <typename _Tp>
-        ndarray<double> cholesky(ndarray<_Tp> &array);
+        ndarray<double> static cholesky(ndarray<_Tp> &array);
 
         // Compute the determinant of an array
         template <typename _Tp>
-        double det(ndarray<_Tp> &array);
+        double static det(ndarray<_Tp> &array);
 
         // Compute the eigenvalues and right eigenvectors of a square array
         template <typename _Tp>
-        pair<ndarray<double>, ndarray<double>> eig(ndarray<_Tp> &array);
+        pair<ndarray<double>, ndarray<double>> static eig(ndarray<_Tp> &array);
 
         // Compute the eigenvalues, 
           // Main difference between `eigvals` and `eig`: the eigenvectors aren't returned
         template <typename _Tp>
-        ndarray<double> eigvals(ndarray<_Tp> &array);
+        ndarray<double> static eigvals(ndarray<_Tp> &array);
 
         // Compute the (multiplicative) inverse of a matrix
         template <typename _Tp>
-        ndarray<double> inv(ndarray<_Tp> &array);
+        ndarray<double> static inv(ndarray<_Tp> &array);
 
         // Raise a square matrix to the (integer) power `n`
         template <typename _Tp>
-        ndarray<double> matrix_power(ndarray<_Tp> &array, int n);
+        ndarray<double> static matrix_power(ndarray<_Tp> &array, int n);
 
         // Matrix or vector norm
         template <typename _Tp>
-        ndarray<double> norm(ndarray<_Tp> &array, int axis, double ord=2,bool keepdims=false);
+        ndarray<double> static norm(ndarray<_Tp> &array, int axis, double ord=2,bool keepdims=false);
         template <typename _Tp>
-        double pnorm(ndarray<_Tp> &array, double ord=2);
+        double static pnorm(ndarray<_Tp> &array, double ord=2);
         // 1-norm, 2-norm, F-norm, inf-norm
         template <typename _Tp>
-        double norm(ndarray<_Tp> &array, string ord="2-norm");
+        double static norm(ndarray<_Tp> &array, string ord="2-norm");
 
         // Compute the QR factorization of a matrix
         template <typename _Tp>
-        pair<ndarray<double>, ndarray<double>> QR(ndarray<_Tp> &array, string mode="full");
+        pair<ndarray<double>, ndarray<double>> static QR(ndarray<_Tp> &array, string mode="full");
     
         // Compute the LU factorization of a matrix
         template <typename _Tp>
-        pair<ndarray<double>, ndarray<double>> LU(ndarray<_Tp> &array);
+        pair<ndarray<double>, ndarray<double>> static LU(ndarray<_Tp> &array);
     
         // Compute the SVD factorization of a matrix
         template <typename _Tp>
-        pair<ndarray<double>, ndarray<double>> SVD(ndarray<_Tp> &array, string mode);
+        pair<ndarray<double>, ndarray<double>> static SVD(ndarray<_Tp> &array, string mode);
 
         // Solve a linear matrix equation, or system of linear scalar equations
         template <typename _Tp>
-        ndarray<double> solve(ndarray<_Tp> &A, ndarray<_Tp> &b);
+        ndarray<double> static solve(ndarray<_Tp> &A, ndarray<_Tp> &b);
 
         // HouseHolder Transform
         template <typename _Tp>
-        ndarray<double> HouseHolder(ndarray<_Tp> &x);
-    }
-}
+        ndarray<double> static HouseHolder(ndarray<_Tp> &x);
+
+    };
+
+    linaigBase linaig;
+
+    // method reshape()
+    template <typename _Tp>
+    ndarray<_Tp> static reshape(ndarray<_Tp> &array, vector<int> &shape);
+    // method transpose()
+    template<typename _Tp>
+    ndarray<_Tp> static transpose(ndarray<_Tp> &array, vector<int> &axes);
+    // method flatten()
+    template<typename _Tp>
+    ndarray<_Tp> static flatten(ndarray<_Tp> &array);
+    // method expand_dims()
+    template<typename _Tp>
+    ndarray<_Tp> static expand_dims(ndarray<_Tp> &array, vector<int> axis);
+
+    // computation
+    // method dot() for array
+    template<typename _Tp1, typename _Tp2>
+    ndarray<double> static dot(ndarray<_Tp1> &arr1, ndarray<_Tp2> &arr2);
+
+};
 
 
 // all zero matrix
@@ -262,6 +289,7 @@ ndarray<_Tp> numcpp::eye(long long m,long long n,long long diag){
     return E;
 }
 
+
 // equidistant array
 template <typename _Tp>
 ndarray<_Tp> numcpp::arange(long long start, long long end){
@@ -284,165 +312,8 @@ ndarray<_Tp> numcpp::linspace(double start, double end, long long N){
     return mat;
 }
 
-// reshape
-template <typename _Tp>
-ndarray<_Tp> numcpp::reshape(ndarray<_Tp> &array, vector<int> &shape){
-    return array.reshape(shape);
-}
-
-// reshape
-template <typename _Tp>
-ndarray<_Tp> numcpp::transpose(ndarray<_Tp> &array, vector<int> &axes){
-    return array.transpose(axes);
-}
-
-// reshape
-template <typename _Tp>
-ndarray<_Tp> numcpp::flatten(ndarray<_Tp> &array){
-    return array.flatten();
-}
-
-// dot
-template <typename _Tp1, typename _Tp2>
-ndarray<double> numcpp::dot(ndarray<_Tp1> &arr1, ndarray<_Tp2> &arr2){
-    return arr1.dot(arr2);
-}
-
-// expand_dims
-template <typename _Tp>
-ndarray<_Tp> numcpp::expand_dims(ndarray<_Tp> &array, vector<int> axis){
-    return array.expand_dims(axis);
-}
-
-// sum
-template <typename _Tp>
-ndarray<_Tp> numcpp::sum(ndarray<_Tp> &array, vector<int> axis, bool keepdim){
-    return array.sum(axis,keepdim);
-}
-template <typename _Tp>
-_Tp numcpp::sum(ndarray<_Tp> &array){
-    return array.sum();
-}
-
-// max
-template <typename _Tp>
-ndarray<_Tp> numcpp::max(ndarray<_Tp> &array, vector<int> axis, bool keepdim){
-    return array.max(axis,keepdim);
-}
-template <typename _Tp>
-_Tp numcpp::max(ndarray<_Tp> &array){
-    return array.max();
-}
-
-// min
-template <typename _Tp>
-ndarray<_Tp> numcpp::min(ndarray<_Tp> &array, vector<int> axis, bool keepdim){
-    return array.min(axis,keepdim);
-}
-template <typename _Tp>
-_Tp numcpp::min(ndarray<_Tp> &array){
-    return array.min();
-}
-
-// mean
-template <typename _Tp>
-ndarray<_Tp> numcpp::mean(ndarray<_Tp> &array, vector<int> axis, bool keepdim){
-    return array.mean(axis,keepdim);
-}
-template <typename _Tp>
-_Tp numcpp::mean(ndarray<_Tp> &array){
-    return array.mean();
-}
-
-// general method for mathematical map
-template <typename _Tp>
-ndarray<double> _general_math_map(ndarray<_Tp> &array, _Tp (*func)(_Tp a)){
-    auto trans = array.template astype<double>();
-    for(long long i=0;i<array.size();++i) trans[i] = (double)func(trans[i]);
-
-    return trans;
-}
-
-// exp
-template <typename _Tp>
-ndarray<double> numcpp::exp(ndarray<_Tp> &array){
-    return _general_math_map(array,std::exp);
-}
-
-// log
-template <typename _Tp>
-ndarray<double> numcpp::log(ndarray<_Tp> &array){
-    return _general_math_map(array,std::log);
-}
-
-// sin
-template <typename _Tp>
-ndarray<double> numcpp::sin(ndarray<_Tp> &array){
-    return _general_math_map(array,std::sin);
-}
-
-// cos
-template <typename _Tp>
-ndarray<double> numcpp::cos(ndarray<_Tp> &array){
-    return _general_math_map(array,std::cos);
-}
-
-// tan
-template <typename _Tp>
-ndarray<double> numcpp::tan(ndarray<_Tp> &array){
-    return _general_math_map(array,std::tan);
-}
-
-// sinh
-template <typename _Tp>
-ndarray<double> numcpp::sinh(ndarray<_Tp> &array){
-    return _general_math_map(array,std::sinh);
-}
-
-// cosh
-template <typename _Tp>
-ndarray<double> numcpp::cosh(ndarray<_Tp> &array){
-    return _general_math_map(array,std::cosh);
-}
-
-// tanh
-template <typename _Tp>
-ndarray<double> numcpp::tanh(ndarray<_Tp> &array){
-    return _general_math_map(array,std::tanh);
-}
-
-// abs
-template <typename _Tp>
-ndarray<double> numcpp::abs(ndarray<_Tp> &array){
-    return _general_math_map(array,std::abs);
-}
-
-// abs
-template <typename _Tp>
-ndarray<double> numcpp::pow(ndarray<_Tp> &array, double r){
-    auto trans = array.template astype<double>();
-    for(long long i=0;i<array.size();++i) trans[i] = (double)std::pow(trans[i],r);
-
-    return trans;
-}
-
-// sign
-template <typename _Tp>
-ndarray<double> numcpp::sign(ndarray<_Tp> &array){
-    auto trans = array.template astype<double>();
-    for(long long i=0;i<array.size();++i) trans[i] = numcpp::sign(trans[i]);
-
-    return trans;
-}
-
-template <typename _Tp>
-double numcpp::sign(_Tp& a){
-    return a > 0 ? 1.0 : (a == 0 ? 0 : -1);
-}
-
-
 // randomly permute [0,1,2,...,x-1]
-ndarray<long long> numcpp::random::permutation(long long x){
+ndarray<long long> numcpp::randomBase::permutation(long long x){
     // generate sequence [0,1,2,...,x-1]
     ndarray<long long> seq = arange<long long>(0,x);
     // set random seed
@@ -465,7 +336,7 @@ ndarray<long long> numcpp::random::permutation(long long x){
 
 // make a copy and shuffle the elements randomly
 template <typename _Tp>
-ndarray<_Tp> numcpp::random::permutation(ndarray<_Tp> &x){
+ndarray<_Tp> numcpp::randomBase::permutation(ndarray<_Tp> &x){
     // get a copy
     auto permuted = x.flatten();
 
@@ -480,7 +351,7 @@ ndarray<_Tp> numcpp::random::permutation(ndarray<_Tp> &x){
 
 // randomly permute a sequence in place
 template <typename _Tp>
-void numcpp::random::shuffle(ndarray<_Tp> &array){
+void numcpp::randomBase::shuffle(ndarray<_Tp> &array){
     // set random seed
     unsigned seed = chrono::system_clock::now().time_since_epoch().count();
     srand(seed);
@@ -501,7 +372,7 @@ void numcpp::random::shuffle(ndarray<_Tp> &array){
 
 // random sample from 1-D array
 template <typename _Tp>
-ndarray<_Tp> numcpp::random::choice(ndarray<_Tp> &array, vector<int>& shape, bool replace, vector<double> p){
+ndarray<_Tp> numcpp::randomBase::choice(ndarray<_Tp> &array, vector<int>& shape, bool replace, vector<double> p){
     // check whether array is 1-D array
     __check_one_dimension(array.shape());
 
@@ -603,7 +474,7 @@ ndarray<_Tp> numcpp::random::choice(ndarray<_Tp> &array, vector<int>& shape, boo
 }
 
 // uniformly distributed random matrix
-ndarray<double> numcpp::random::uniform(double low, double high, vector<int> shape){
+ndarray<double> numcpp::randomBase::uniform(double low, double high, vector<int> shape){
     long long size = 1;
     for(auto s : shape) size *= s;
 
@@ -628,10 +499,10 @@ ndarray<double> numcpp::random::uniform(double low, double high, vector<int> sha
 
 // Create an array of the given shape and populate it with random samples from a uniform distribution
 template <typename ...Args>
-ndarray<double> numcpp::random::rand(Args...args){
+ndarray<double> numcpp::randomBase::rand(Args...args){
     vector<int> shape;
     shape = fetchArgs(shape,args...);
-    return numcpp::random::uniform(0, 1, shape);
+    return this->uniform(0, 1, shape);
 }
 
 /* 
@@ -639,7 +510,7 @@ Return random integers from the "discrete uniform" distribution of
 the specified dtype in the "closed" interval [`low`, `high`]
 */
 template <typename _Tp>
-ndarray<_Tp> numcpp::random::randint(long long low, long long high, vector<int> shape){
+ndarray<_Tp> numcpp::randomBase::randint(long long low, long long high, vector<int> shape){
     long long size = 1;
     for(auto s : shape) size *= s;
 
@@ -664,7 +535,7 @@ ndarray<_Tp> numcpp::random::randint(long long low, long long high, vector<int> 
 
 
 // normal distributed random matrix
-ndarray<double> numcpp::random::normal(double mean, double scale, vector<int> shape){
+ndarray<double> numcpp::randomBase::normal(double mean, double scale, vector<int> shape){
     long long size = 1;
     for(auto s : shape) size *= s;
 
@@ -683,14 +554,14 @@ ndarray<double> numcpp::random::normal(double mean, double scale, vector<int> sh
 }
 // standart normal distributed random matrix
 template <typename ...Args>
-ndarray<double> numcpp::random::randn(Args...args){
+ndarray<double> numcpp::randomBase::randn(Args...args){
     vector<int> shape;
     shape = fetchArgs(shape,args...);
-    return numcpp::random::normal(0,1,shape);
+    return this->normal(0,1,shape);
 }
 
 // beta distribution over ``[0, 1]``
-ndarray<double> numcpp::random::binomial(int n, double p, vector<int> shape){
+ndarray<double> numcpp::randomBase::binomial(int n, double p, vector<int> shape){
     long long size = 1;
     for(auto s : shape) size *= s;
 
@@ -709,7 +580,7 @@ ndarray<double> numcpp::random::binomial(int n, double p, vector<int> shape){
 }
 
 // chisquare distribution
-ndarray<double> numcpp::random::chisquare(double df, vector<int> shape){
+ndarray<double> numcpp::randomBase::chisquare(double df, vector<int> shape){
     long long size = 1;
     for(auto s : shape) size *= s;
 
@@ -728,7 +599,7 @@ ndarray<double> numcpp::random::chisquare(double df, vector<int> shape){
 }
 
 // exponential distribution
-ndarray<double> numcpp::random::exponontial(double scale, vector<int> shape){
+ndarray<double> numcpp::randomBase::exponontial(double scale, vector<int> shape){
     long long size = 1;
     for(auto s : shape) size *= s;
 
@@ -747,7 +618,7 @@ ndarray<double> numcpp::random::exponontial(double scale, vector<int> shape){
 }
 
 // F(Fisher0Snedecor) distribution
-ndarray<double> numcpp::random::f(double dfnum, double dfden, vector<int> shape){
+ndarray<double> numcpp::randomBase::f(double dfnum, double dfden, vector<int> shape){
     long long size = 1;
     for(auto s : shape) size *= s;
 
@@ -766,7 +637,7 @@ ndarray<double> numcpp::random::f(double dfnum, double dfden, vector<int> shape)
 }
 
 // Gamma distribution
-ndarray<double> numcpp::random::gamma(double shape, double scale, vector<int> _shape){
+ndarray<double> numcpp::randomBase::gamma(double shape, double scale, vector<int> _shape){
     long long size = 1;
     for(auto s : _shape) size *= s;
 
@@ -785,7 +656,7 @@ ndarray<double> numcpp::random::gamma(double shape, double scale, vector<int> _s
 }
 
 // geometric distribution
-ndarray<double> numcpp::random::geometric(double p, vector<int> shape){
+ndarray<double> numcpp::randomBase::geometric(double p, vector<int> shape){
     long long size = 1;
     for(auto s : shape) size *= s;
 
@@ -804,7 +675,7 @@ ndarray<double> numcpp::random::geometric(double p, vector<int> shape){
 }
 
 // Poisson distribution
-ndarray<double> numcpp::random::poisson(double lam, vector<int> shape){
+ndarray<double> numcpp::randomBase::poisson(double lam, vector<int> shape){
     long long size = 1;
     for(auto s : shape) size *= s;
 
@@ -823,7 +694,7 @@ ndarray<double> numcpp::random::poisson(double lam, vector<int> shape){
 }
 
 // standard t(student) distribution
-ndarray<double> numcpp::random::standard_t(double df, vector<int> shape){
+ndarray<double> numcpp::randomBase::standard_t(double df, vector<int> shape){
     long long size = 1;
     for(auto s : shape) size *= s;
 
@@ -842,7 +713,7 @@ ndarray<double> numcpp::random::standard_t(double df, vector<int> shape){
 }
 
 // standard cauchy distribution
-ndarray<double> numcpp::random::standard_cauchy(vector<int> _shape){
+ndarray<double> numcpp::randomBase::standard_cauchy(vector<int> _shape){
     long long size = 1;
     for(auto s : _shape) size *= s;
 
@@ -862,7 +733,7 @@ ndarray<double> numcpp::random::standard_cauchy(vector<int> _shape){
 
 // matrix power
 template <typename _Tp>
-ndarray<double> numcpp::linalg::matrix_power(ndarray<_Tp> &array, int n){
+ndarray<double> numcpp::linaigBase::matrix_power(ndarray<_Tp> &array, int n){
     // check the shape of ndarray
     __check_2darray(array.shape());
     __check_rows_equal_cols(array.shape());
@@ -884,10 +755,165 @@ ndarray<double> numcpp::linalg::matrix_power(ndarray<_Tp> &array, int n){
     return E;
 }
 
+// reshape
+template <typename _Tp>
+ndarray<_Tp> numcpp::reshape(ndarray<_Tp> &array, vector<int> &shape){
+    return array.reshape(shape);
+}
+
+// reshape
+template <typename _Tp>
+ndarray<_Tp> numcpp::transpose(ndarray<_Tp> &array, vector<int> &axes){
+    return array.transpose(axes);
+}
+
+// reshape
+template <typename _Tp>
+ndarray<_Tp> numcpp::flatten(ndarray<_Tp> &array){
+    return array.flatten();
+}
+
+// dot
+template <typename _Tp1, typename _Tp2>
+ndarray<double> numcpp::dot(ndarray<_Tp1> &arr1, ndarray<_Tp2> &arr2){
+    return arr1.dot(arr2);
+}
+
+// expand_dims
+template <typename _Tp>
+ndarray<_Tp> numcpp::expand_dims(ndarray<_Tp> &array, vector<int> axis){
+    return array.expand_dims(axis);
+}
+
+// sum
+template <typename _Tp>
+ndarray<_Tp> numcpp::sum(ndarray<_Tp> &array, vector<int> axis, bool keepdim){
+    return array.sum(axis,keepdim);
+}
+template <typename _Tp>
+_Tp numcpp::sum(ndarray<_Tp> &array){
+    return array.sum();
+}
+
+// max
+template <typename _Tp>
+ndarray<_Tp> numcpp::max(ndarray<_Tp> &array, vector<int> axis, bool keepdim){
+    return array.max(axis,keepdim);
+}
+template <typename _Tp>
+_Tp numcpp::max(ndarray<_Tp> &array){
+    return array.max();
+}
+
+// min
+template <typename _Tp>
+ndarray<_Tp> numcpp::min(ndarray<_Tp> &array, vector<int> axis, bool keepdim){
+    return array.min(axis,keepdim);
+}
+template <typename _Tp>
+_Tp numcpp::min(ndarray<_Tp> &array){
+    return array.min();
+}
+
+// mean
+template <typename _Tp>
+ndarray<_Tp> numcpp::mean(ndarray<_Tp> &array, vector<int> axis, bool keepdim){
+    return array.mean(axis,keepdim);
+}
+template <typename _Tp>
+_Tp numcpp::mean(ndarray<_Tp> &array){
+    return array.mean();
+}
+
+// general method for mathematical map
+template <typename _Tp>
+ndarray<double> numcpp::_general_math_map(ndarray<_Tp> &array, _Tp (*func)(_Tp a)){
+    auto trans = array.template astype<double>();
+    for(long long i=0;i<array.size();++i) trans[i] = (double)func(trans[i]);
+
+    return trans;
+}
+
+// exp
+template <typename _Tp>
+ndarray<double> numcpp::exp(ndarray<_Tp> &array){
+    return _general_math_map(array,std::exp);
+}
+
+// log
+template <typename _Tp>
+ndarray<double> numcpp::log(ndarray<_Tp> &array){
+    return _general_math_map(array,std::log);
+}
+
+// sin
+template <typename _Tp>
+ndarray<double> numcpp::sin(ndarray<_Tp> &array){
+    return _general_math_map(array,std::sin);
+}
+
+// cos
+template <typename _Tp>
+ndarray<double> numcpp::cos(ndarray<_Tp> &array){
+    return _general_math_map(array,std::cos);
+}
+
+// tan
+template <typename _Tp>
+ndarray<double> numcpp::tan(ndarray<_Tp> &array){
+    return _general_math_map(array,std::tan);
+}
+
+// sinh
+template <typename _Tp>
+ndarray<double> numcpp::sinh(ndarray<_Tp> &array){
+    return _general_math_map(array,std::sinh);
+}
+
+// cosh
+template <typename _Tp>
+ndarray<double> numcpp::cosh(ndarray<_Tp> &array){
+    return _general_math_map(array,std::cosh);
+}
+
+// tanh
+template <typename _Tp>
+ndarray<double> numcpp::tanh(ndarray<_Tp> &array){
+    return _general_math_map(array,std::tanh);
+}
+
+// abs
+template <typename _Tp>
+ndarray<double> numcpp::abs(ndarray<_Tp> &array){
+    return _general_math_map(array,std::abs);
+}
+
+// abs
+template <typename _Tp>
+ndarray<double> numcpp::pow(ndarray<_Tp> &array, double r){
+    auto trans = array.template astype<double>();
+    for(long long i=0;i<array.size();++i) trans[i] = (double)std::pow(trans[i],r);
+
+    return trans;
+}
+
+// sign
+template <typename _Tp>
+ndarray<double> numcpp::sign(ndarray<_Tp> &array){
+    auto trans = array.template astype<double>();
+    for(long long i=0;i<array.size();++i) trans[i] = numcpp::sign(trans[i]);
+
+    return trans;
+}
+
+template <typename _Tp>
+double numcpp::sign(_Tp& a){
+    return a > 0 ? 1.0 : (a == 0 ? 0 : -1);
+}
 
 // Compute the eigenvalues and right eigenvectors of a square array
 template <typename _Tp>
-pair<ndarray<double>, ndarray<double>> numcpp::linalg::eig(ndarray<_Tp> &array){
+pair<ndarray<double>, ndarray<double>> numcpp::linaigBase::eig(ndarray<_Tp> &array){
     // check whether array is a square matrix
     __check_2darray(array.shape());
     __check_rows_equal_cols(array.shape());
@@ -1018,14 +1044,14 @@ pair<ndarray<double>, ndarray<double>> numcpp::linalg::eig(ndarray<_Tp> &array){
 
 // Compute the eigenvalues, 
 template <typename _Tp>
-ndarray<double> numcpp::linalg::eigvals(ndarray<_Tp> &array){
-    auto eigen = numcpp::linalg::eig(array);
+ndarray<double> numcpp::linaigBase::eigvals(ndarray<_Tp> &array){
+    auto eigen = numcpp::linaigBase::eig(array);
     return eigen.first;
 }
 
 // Compute the LU factorization of a matrix
 template <typename _Tp>
-pair<ndarray<double>, ndarray<double>> numcpp::linalg::LU(ndarray<_Tp> &array){
+pair<ndarray<double>, ndarray<double>> numcpp::linaigBase::LU(ndarray<_Tp> &array){
    // check whether array is a square matrix
     __check_2darray(array.shape());
     __check_rows_equal_cols(array.shape());
@@ -1060,13 +1086,13 @@ pair<ndarray<double>, ndarray<double>> numcpp::linalg::LU(ndarray<_Tp> &array){
 
 //  Solve a linear matrix equation, or system of linear scalar equations
 template <typename _Tp>
-ndarray<double> numcpp::linalg::solve(ndarray<_Tp> &A, ndarray<_Tp> &b){
+ndarray<double> numcpp::linaigBase::solve(ndarray<_Tp> &A, ndarray<_Tp> &b){
     // check shape
     __check_one_dimension(b.shape());
     __check_rows_equal(A.shape()[0],b.size());
     
     // do LU factorization
-    auto lu = numcpp::linalg::LU(A);
+    auto lu = numcpp::linaigBase::LU(A);
     auto L = lu.first, U = lu.second;
 
     return __LU_solver(L, U, b);
@@ -1074,7 +1100,7 @@ ndarray<double> numcpp::linalg::solve(ndarray<_Tp> &A, ndarray<_Tp> &b){
 
 // LU solver to solve linear matrix equation
 template<typename _Tp>
-ndarray<double> __LU_solver(ndarray<double> &L, ndarray<double> &U, ndarray<_Tp> &b){
+ndarray<double> numcpp::linaigBase::__LU_solver(ndarray<double> &L, ndarray<double> &U, ndarray<_Tp> &b){
     /*
     Ax = b -> (LU)x = b -> L(Ux) = b -> Ly = b -> Ux = y
     */
@@ -1108,9 +1134,9 @@ ndarray<double> __LU_solver(ndarray<double> &L, ndarray<double> &U, ndarray<_Tp>
 
 // Compute the (multiplicative) inverse of a matrix
 template <typename _Tp>
-ndarray<double>  numcpp::linalg::inv(ndarray<_Tp> &array){
+ndarray<double>  numcpp::linaigBase::inv(ndarray<_Tp> &array){
     // do LU factorization
-    auto lu = numcpp::linalg::LU(array);
+    auto lu = numcpp::linaigBase::LU(array);
     auto L = lu.first, 
          U = lu.second;
 
@@ -1144,9 +1170,9 @@ ndarray<double>  numcpp::linalg::inv(ndarray<_Tp> &array){
 
 // Compute the determinant of an array
 template <typename _Tp>
-double numcpp::linalg::det(ndarray<_Tp> &array){
+double numcpp::linaigBase::det(ndarray<_Tp> &array){
     // compute eigenvalues
-    auto eigvals = numcpp::linalg::eigvals(array);
+    auto eigvals = numcpp::linaigBase::eigvals(array);
 
     // compute det
     double _det = 1.0;
@@ -1157,9 +1183,9 @@ double numcpp::linalg::det(ndarray<_Tp> &array){
 
 // determine whether the matrix is a positive definite matrix
 template<typename _Tp>
-bool __check_positive_definite_mat(ndarray<_Tp> &array){
+bool numcpp::linaigBase::__check_positive_definite_mat(ndarray<_Tp> &array){
     // fetch eigenvalues
-    auto eigenvalues = numcpp::linalg::eigvals(array);
+    auto eigenvalues = numcpp::linaigBase::eigvals(array);
 
     // all eigenvalue should greater than 0
     for(long long i=0;i<eigenvalues.size();++i){
@@ -1172,9 +1198,9 @@ bool __check_positive_definite_mat(ndarray<_Tp> &array){
 
 // Cholesky decomposition
 template <typename _Tp>
-ndarray<double> numcpp::linalg::cholesky(ndarray<_Tp> &array){
+ndarray<double> numcpp::linaigBase::cholesky(ndarray<_Tp> &array){
     // Determine whether the matrix is a positive definite matrix
-    if(!__check_positive_definite_mat(array)){
+    if(!numcpp::linaigBase::__check_positive_definite_mat(array)){
         printf("Matrix is not positive definite!\n");
         assert(false);
     }
@@ -1207,7 +1233,7 @@ ndarray<double> numcpp::linalg::cholesky(ndarray<_Tp> &array){
 
 // Matrix or vector norm
 template <typename _Tp>
-double numcpp::linalg::norm(ndarray<_Tp> &array, string ord){
+double numcpp::linaigBase::norm(ndarray<_Tp> &array, string ord){
     // check 2-dimensional
     __check_2darray(array.shape());
 
@@ -1215,7 +1241,7 @@ double numcpp::linalg::norm(ndarray<_Tp> &array, string ord){
     if(ord == "2-norm"){
         // compute eigvalues
         auto mat = array.T().dot(array);
-        auto eigvalues = numcpp::linalg::eigvals(mat);
+        auto eigvalues = numcpp::linaigBase::eigvals(mat);
 
         // 2-norm equals to the square-root of the max eigvalue of A'A
         _norm = std::sqrt(eigvalues.max());
@@ -1249,7 +1275,7 @@ double numcpp::linalg::norm(ndarray<_Tp> &array, string ord){
 }
 
 template <typename _Tp>
-double numcpp::linalg::pnorm(ndarray<_Tp> &array, double ord){
+double numcpp::linaigBase::pnorm(ndarray<_Tp> &array, double ord){
     // check norm ord
     __check_norm_ord(ord);
 
@@ -1264,7 +1290,7 @@ double numcpp::linalg::pnorm(ndarray<_Tp> &array, double ord){
 
 // Matrix or vector norm
 template <typename _Tp>
-ndarray<double> numcpp::linalg::norm(ndarray<_Tp> &array, int axis, double ord, bool keepdims){
+ndarray<double> numcpp::linaigBase::norm(ndarray<_Tp> &array, int axis, double ord, bool keepdims){
     // check norm ord
     __check_norm_ord(ord);
 
@@ -1310,7 +1336,7 @@ ndarray<double> numcpp::linalg::norm(ndarray<_Tp> &array, int axis, double ord, 
 
 // HouseHolder Transform
 template <typename _Tp>
-ndarray<double> numcpp::linalg::HouseHolder(ndarray<_Tp> &x){
+ndarray<double> numcpp::linaigBase::HouseHolder(ndarray<_Tp> &x){
     // judge dimension
     __check_one_dimension(x.shape());
 
@@ -1321,15 +1347,15 @@ ndarray<double> numcpp::linalg::HouseHolder(ndarray<_Tp> &x){
     auto e = numcpp::zeros<double>(__shape);
     e[0] = 1;
 
-    e = numcpp::sign(x[0]) * numcpp::linalg::pnorm(x,2) * e + x;
-    e = e / numcpp::linalg::pnorm(e,2);
+    e = numcpp::sign(x[0]) * numcpp::linaigBase::pnorm(x,2) * e + x;
+    e = e / numcpp::linaigBase::pnorm(e,2);
 
     return e;
 }
 
 // Compute the QR factorization of a matrix
 template <typename _Tp>
-pair<ndarray<double>, ndarray<double>> numcpp::linalg::QR(ndarray<_Tp> &array, string mode){
+pair<ndarray<double>, ndarray<double>> numcpp::linaigBase::QR(ndarray<_Tp> &array, string mode){
     // check two dimensions
     __check_2darray(array.shape());
 
@@ -1346,7 +1372,7 @@ pair<ndarray<double>, ndarray<double>> numcpp::linalg::QR(ndarray<_Tp> &array, s
         for(int k=i;k<m;++k) x[k-i] = R(k,i);
 
         // do HouseHolder
-        auto v = numcpp::linalg::HouseHolder(x);
+        auto v = numcpp::linaigBase::HouseHolder(x);
 
         // assign elements
         // compute for R
