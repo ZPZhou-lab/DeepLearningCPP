@@ -109,9 +109,23 @@ namespace numcpp {
     template<typename _Tp1, typename _Tp2>
     ndarray<double> dot(ndarray<_Tp1> &arr1, ndarray<_Tp2> &arr2);
 
+    // concat method
+    // Join a sequence of arrays using flatten elements
+    template <typename _Tp>
+    ndarray<_Tp> concat(ndarray<_Tp> &arr1, ndarray<_Tp> & arr2);
+    // Join a sequence of arrays along an existing axis.
+    template <typename _Tp>
+    ndarray<_Tp> concat(ndarray<_Tp> &arr1, ndarray<_Tp> & arr2, int axis);
+    // Stack arrays in sequence horizontally (column wise).
+    template <typename _Tp>
+    ndarray<_Tp> hstack(ndarray<_Tp> &arr1, ndarray<_Tp> & arr2);
+    // Stack arrays in sequence vertically (row wise).
+    template <typename _Tp>
+    ndarray<_Tp> vstack(ndarray<_Tp> &arr1, ndarray<_Tp> & arr2);
+
     // method for generate random numbers from various distributions
     namespace random {
-            // utility fuctions
+        // utility fuctions
         // randomly permute [0,1,2,...,x-1]
         ndarray<long long> permutation(long long x);
         // make a copy and shuffle the elements randomly
@@ -438,6 +452,102 @@ ndarray<double> numcpp::sign(ndarray<_Tp> &array){
 template <typename _Tp>
 double numcpp::sign(_Tp& a){
     return a > 0 ? 1.0 : (a == 0 ? 0 : -1);
+}
+
+// Join a sequence of arrays using flatten elements
+template <typename _Tp>
+ndarray<_Tp> numcpp::concat(ndarray<_Tp> &arr1, ndarray<_Tp> & arr2){
+    auto flat1 = arr1.flatten();
+    auto flat2 = arr2.flatten();
+    return numcpp::concat(flat1, flat2, 0);
+}
+
+// Join a sequence of arrays along an existing axis.
+template <typename _Tp>
+ndarray<_Tp> numcpp::concat(ndarray<_Tp> &arr1, ndarray<_Tp> & arr2, int axis){
+    // check whether two arrays can be concat
+    auto shape1 = arr1.shape(), shape2 = arr2.shape();
+    __check_concat(shape1,shape2,axis);
+
+    // init new shape
+    vector<int> __shape;
+    long long __size = 1;
+    for(int i=0;i<arr1.ndim();++i){
+        if(i == axis){
+            __shape.emplace_back(shape1[i] + shape2[i]);
+        }else{
+            __shape.emplace_back(shape1[i]);
+        }
+        __size *= __shape[i];
+    }
+    // init array
+    vector<_Tp> data(__size,0);
+    ndarray<_Tp> trans;
+
+    // one-dimension we can conccat directly
+    if(arr1.ndim() == 1){
+        // assign elements
+        for(long long i=0;i<arr1.size();++i) data[i] = arr1[i];
+        for(long long i=0;i<arr2.size();++i) data[arr1.size() + i] = arr2[i];
+
+        trans = ndarray<_Tp>(data,__shape);
+    }else{
+        // add a dimension and do transpose
+        ndarray<_Tp> tmp1 = arr1.expand_dims(arr1.ndim());
+        ndarray<_Tp> tmp2 = arr2.expand_dims(arr2.ndim());
+        __shape.emplace_back(1);
+        // transform axes
+        vector<int> n_axes;
+        for(int i=0;i<tmp1.ndim();++i) n_axes.emplace_back(i);
+        std::swap(n_axes[arr1.ndim()],n_axes[axis]);
+        std::swap(__shape[arr1.ndim()],__shape[axis]);
+
+        tmp1.transpose(n_axes,true);
+        tmp2.transpose(n_axes,true);
+        
+        // flatten
+        tmp1.flatten(true);
+        tmp2.flatten(true);
+        
+        // assign elements
+        int concat_dim = __shape[arr1.ndim()];
+        long long step = __size / concat_dim;
+        for(long long i=0;i<step;++i){
+            for(int j=0;j<shape1[axis];++j) data[i*concat_dim + j] = tmp1[i*shape1[axis] + j];
+            for(int j=0;j<shape2[axis];++j) data[i*concat_dim + shape1[axis] + j] = tmp2[i*shape2[axis] + j];
+        }
+
+        // create the array and recover the shape
+        trans = ndarray<_Tp>(data,__shape);
+        // reverse the transpose
+        trans.transpose(n_axes,true);
+        // reverse add a dimension
+        trans.squeeze(vector<int>{arr1.ndim()},true);
+    }
+
+    return trans;
+}
+
+// Stack arrays in sequence vertically (row wise).
+template <typename _Tp>
+ndarray<_Tp> numcpp::vstack(ndarray<_Tp> &arr1, ndarray<_Tp> & arr2){
+    if(arr1.ndim() == 1 || arr2.ndim() == 1){
+        auto tmp1 = arr1.ndim() == 1 ? arr1.expand_dims(0) : arr1;
+        auto tmp2 = arr2.ndim() == 1 ? arr2.expand_dims(0) : arr2;
+        return numcpp::concat(tmp1,tmp2,0);
+    }else{
+        return numcpp::concat(arr1,arr2,0);
+    }
+}
+
+// Stack arrays in sequence horizontally (column wise).
+template <typename _Tp>
+ndarray<_Tp> numcpp::hstack(ndarray<_Tp> &arr1, ndarray<_Tp> & arr2){
+    if(arr1.ndim() == 1 && arr2.ndim() == 1){
+        return numcpp::concat(arr1,arr2,0);
+    }else{
+        return numcpp::concat(arr1,arr2,1);
+    }
 }
 
 

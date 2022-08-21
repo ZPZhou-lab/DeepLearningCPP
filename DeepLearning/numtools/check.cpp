@@ -208,3 +208,25 @@ void __check_norm_ord(const double ord){
         assert(false);
     }
 }
+
+void __check_concat(const vector<int> &shape1, const vector<int> &shape2, int axis){
+    if(shape1.size() != shape2.size()){
+        printf("all the input array dimensions for the concatenation axis must match exactly!\n");
+        assert(false);
+    }else{
+        if(axis < 0){
+            printf("axis must be greater than or equal to 0.\n");
+            assert(false);
+        }
+        if(axis >= shape1.size()){
+            printf("axis must be less than the matrix dimension %d.\n",(int)shape1.size());
+            assert(false);
+        }
+        for(int i=0;i<shape1.size();++i){
+            if((i != axis) && shape1[i] != shape2[i]){
+                printf("all the input array dimensions for the concatenation axis must match exactly!\n");
+                assert(false);
+            }
+        }
+    }
+}

@@ -41,6 +41,7 @@ public:
 glm::LinearRegression::LinearRegression(bool fit_intercept, bool copy_X){
     this->_fit_intercept = fit_intercept;
     this->_copy_X = copy_X;
+    this->intercept = 0;
 }
 
 // fit the model
@@ -65,7 +66,8 @@ void glm::LinearRegression::fit(ndarray<double> &X, ndarray<double> &y){
 
 // predict
 ndarray<double> glm::LinearRegression::predict(ndarray<double> &X){
-    return X.dot(this->beta);;
+    __check_2darray(X.shape());
+    return X.dot(this->beta); + this->intercept;
 }
 
 // compute MSE
