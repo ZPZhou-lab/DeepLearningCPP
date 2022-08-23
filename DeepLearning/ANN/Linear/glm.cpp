@@ -21,6 +21,7 @@ private:
     double _intercept;
     bool _fit_intercept;
     bool _copy_X;
+    bool _norm;
     bool _fitted;
     ndarray<double> __solve_beta(ndarray<double> &X, ndarray<double> &y);
     // the number of feature dimension
@@ -30,7 +31,7 @@ protected:
 
 
 public:
-    LinearRegression(bool fit_intercept=false, bool copy_X=true);
+    LinearRegression(bool fit_intercept=false, bool copy_X=true, bool norm=false);
     // fit the model
     void fit(ndarray<double> &X, ndarray<double> &y);
     // predict the result
@@ -46,11 +47,12 @@ public:
 
 
 // Linear Regression
-glm::LinearRegression::LinearRegression(bool fit_intercept, bool copy_X){
+glm::LinearRegression::LinearRegression(bool fit_intercept, bool copy_X, bool norm){
     this->_fit_intercept = fit_intercept;
     this->_copy_X = copy_X;
     this->_intercept = 0;
     this->_fitted = false;
+    this->_norm = norm;
 }
 
 // fit the model
@@ -64,6 +66,11 @@ void glm::LinearRegression::fit(ndarray<double> &X, ndarray<double> &y){
     auto X_ = X;
     if(this->_copy_X){
         X_ = X.copy();
+    }
+
+    if(this->_norm){
+        auto X_mean = X_.mean(vector<int>{0});
+        X_ = X_ - X_mean;
     }
     
     // fit the intercept
