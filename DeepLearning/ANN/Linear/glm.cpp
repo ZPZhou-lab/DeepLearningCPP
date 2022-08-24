@@ -17,7 +17,6 @@ namespace glm {
 // linear Regression
 class LinearRegression{
 private:
-    ndarray<double> _beta;
     double _intercept;
     bool _fit_intercept;
     bool _copy_X;
@@ -28,7 +27,7 @@ private:
     int _p;
 
 protected:
-
+    ndarray<double> _beta;
 
 public:
     LinearRegression(bool fit_intercept=false, bool copy_X=true, bool norm=false);
@@ -41,6 +40,17 @@ public:
     // get coef
     ndarray<double> coef(void);
     double intercept(void);
+};
+
+// weighted Least Sqaure Regression
+class WeightedLeastSquare : public LinearRegression{
+private:
+
+protected:
+
+public:
+    // fit the model
+    void fit(ndarray<double> &X, ndarray<double> &W, ndarray<double> &y);
 };
 
 }
@@ -119,4 +129,27 @@ ndarray<double> glm::LinearRegression::coef(){
 }
 double glm::LinearRegression::intercept(){
     return this->_intercept;
+}
+
+void glm::WeightedLeastSquare::fit(ndarray<double> &X, ndarray<double> &W, ndarray<double> &y){
+    // compute W * X
+    auto W_X = W.dot(X);
+    // do QR on W * X
+    auto qr = nc::linalg::QR(W_X,"reduce");
+    auto Q = qr.first, R = qr.second;
+
+    // the transpose of Q
+    auto Q_t = Q.T();
+    auto W_y = W.dot(y);
+    auto b = nc::dot(Q_t, W_y);
+
+    // init
+    int n = b.shape()[0];
+    vector<int> __shape = {n,1};
+    this->_beta = nc::zeros<double>(__shape);
+
+    // solve beta
+    for(int i=n-1;i>-1;i--){
+
+    }
 }
