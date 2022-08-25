@@ -16,7 +16,7 @@ namespace nc = numcpp;
 int main(){
     clock_t startTime, endTime;
     
-    int n = 50, p = 10;
+    int n = 10, p = 5;
     double intercept = 2;
 
     auto x = nc::random::randn(n,p);
@@ -39,6 +39,11 @@ int main(){
 
     cout<<"mse: "<<mse<<endl;
     cout<<"intercept: "<<model.intercept()<<endl;
+
+    auto subX = x.subarr(vector<int>{1,4,2,5});
+    subX.show();
+
+    x.show();
 
     return 0;
 }

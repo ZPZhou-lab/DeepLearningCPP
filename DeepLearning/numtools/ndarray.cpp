@@ -181,6 +181,9 @@ public:
     template<typename T1>
     ndarray<double> operator / (ndarray<T1> &b);
 
+    // subarray method
+    ndarray subarr(const vector<int>& indices);
+
 };
 
 // default constructer
@@ -1449,6 +1452,40 @@ ndarray<_Tp2> ndarray<_Tp>::astype(void){
     ndarray<_Tp2> trans(n_data,this->_shape,this->_strides,this->_axes);
 
     return trans;
+}
+
+// subarray method
+template <typename _Tp>
+ndarray<_Tp> ndarray<_Tp>::subarr(const vector<int>& indices){
+    __check_subarr(this->_shape,indices);
+    // init
+    auto subarray = ndarray<_Tp>();
+    
+    if(indices.size() == 2){
+        long long start = indices[0], end = indices[1];
+        vector<_Tp> data = vector<_Tp>(end - start,0);
+        // assign elements
+        for(long long i=start;i<end;++i) data[i] = this->_data[i];
+        vector<int> __shape = {(int)(end - start),1};
+        subarray = ndarray<_Tp>(data,__shape);
+    }
+    if(indices.size() == 4){
+        int row_s = indices[0], row_e = indices[1], col_s = indices[2], col_e = indices[3];
+        // init
+        vector<_Tp> data = vector<_Tp>((row_e - row_s)*(col_e - col_s),0);
+        vector<int> __shape = {(row_e - row_s), (col_e - col_s)};
+        subarray = ndarray<_Tp>(data,__shape);
+        // assign elements
+        vector<int> idx;
+        for(int i=row_s;i<row_e;++i){
+            for(int j=col_s;j<col_e;++j){
+                idx = {i,j};
+                subarray(i - row_s,j - col_s) = this->item(idx);
+            }
+        }
+    }
+
+    return subarray;
 }
 
 // The interface of each method should be adjusted

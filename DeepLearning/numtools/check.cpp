@@ -230,3 +230,14 @@ void __check_concat(const vector<int> &shape1, const vector<int> &shape2, int ax
         }
     }
 }
+
+void __check_subarr(const vector<int> &shape, const vector<int> &indices){
+    if(shape.size() != (int)indices.size() / 2){
+        printf("array do not match indices!\n");
+        assert(false);
+    }
+    if(indices.size() != 2 && indices.size() != 4){
+        printf("subarr only support for 1-D array or 2-D array now.\n");
+        assert(false);
+    }
+}
