@@ -232,6 +232,13 @@ void __check_concat(const vector<int> &shape1, const vector<int> &shape2, int ax
 }
 
 void __check_subarr(const vector<int> &shape, const vector<int> &indices){
+    if(shape.size() == 1){
+        if(indices.size() != 2){
+            printf("array do not match indices!\n");
+            assert(false);
+        }
+        return;
+    }
     if(shape.size() != (int)indices.size() / 2){
         printf("array do not match indices!\n");
         assert(false);
