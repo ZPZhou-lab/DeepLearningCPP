@@ -150,6 +150,11 @@ void glm::WeightedLeastSquare::fit(ndarray<double> &X, ndarray<double> &W, ndarr
 
     // solve beta
     for(int i=n-1;i>-1;i--){
+        auto Rsub = R.subarr(vector<int>{i,i+1,i+1,n});
+        auto beta_sub = this->_beta.subarr(vector<int>{i+1,n});
 
+        auto R_beta = nc::dot(Rsub, beta_sub); //  may need fix
+
+        this->_beta[i] = (y[i] - R_beta[0]) / R(i,i);
     }
 }
