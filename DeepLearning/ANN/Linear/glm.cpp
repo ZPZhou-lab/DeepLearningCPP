@@ -17,7 +17,6 @@ namespace glm {
 // linear Regression
 class LinearRegression{
 private:
-    double _intercept;
     bool _fit_intercept;
     bool _copy_X;
     bool _norm;
@@ -28,6 +27,7 @@ private:
 
 protected:
     ndarray<double> _beta;
+    double _intercept;
 
 public:
     LinearRegression(bool fit_intercept=false, bool copy_X=true, bool norm=false);
@@ -51,6 +51,18 @@ protected:
 public:
     // fit the model
     void fit(ndarray<double> &X, ndarray<double> &W, ndarray<double> &y);
+};
+
+class Ridge : public LinearRegression{
+private:
+
+protected:
+
+public:
+    // constructor
+    Ridge(double alpha=1.0, bool fit_intercept=false, bool copy_X=true, bool norm=false);
+    // fit
+    void fit(ndarray<double> &X, ndarray<double> &y);
 };
 
 }
@@ -157,4 +169,13 @@ void glm::WeightedLeastSquare::fit(ndarray<double> &X, ndarray<double> &W, ndarr
 
         this->_beta[i] = (y[i] - R_beta[0]) / R(i,i);
     }
+}
+
+// Ridge Constructor
+glm::Ridge::Ridge(double alpha, bool fit_intercept, bool copy_X, bool norm){
+
+}
+
+void glm::Ridge::fit(ndarray<double> &X, ndarray<double> &y){
+
 }
