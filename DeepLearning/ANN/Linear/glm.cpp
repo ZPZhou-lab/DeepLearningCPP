@@ -57,7 +57,7 @@ class Ridge : public LinearRegression{
 private:
 
 protected:
-
+    double _alpha;
 public:
     // constructor
     Ridge(double alpha=1.0, bool fit_intercept=false, bool copy_X=true, bool norm=false);
@@ -173,6 +173,7 @@ void glm::WeightedLeastSquare::fit(ndarray<double> &X, ndarray<double> &W, ndarr
 
 // Ridge Constructor
 glm::Ridge::Ridge(double alpha, bool fit_intercept, bool copy_X, bool norm){
+    this->_alpha = alpha;
 
 }
 
