@@ -180,3 +180,5 @@ glm::Ridge::Ridge(double alpha, bool fit_intercept, bool copy_X, bool norm){
 void glm::Ridge::fit(ndarray<double> &X, ndarray<double> &y){
 
 }
+
+// no uppdate
