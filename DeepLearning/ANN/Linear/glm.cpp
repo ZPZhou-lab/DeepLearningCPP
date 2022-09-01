@@ -17,17 +17,17 @@ namespace glm {
 // linear Regression
 class LinearRegression{
 private:
-    bool _fit_intercept;
-    bool _copy_X;
-    bool _norm;
-    bool _fitted;
     ndarray<double> __solve_beta(ndarray<double> &X, ndarray<double> &y);
-    // the number of feature dimension
-    int _p;
 
 protected:
     ndarray<double> _beta;
     double _intercept;
+    bool _fit_intercept;
+    bool _copy_X;
+    bool _norm;
+    bool _fitted;
+    // the number of feature dimension
+    int _p;
 
 public:
     LinearRegression(bool fit_intercept=false, bool copy_X=true, bool norm=false);
@@ -174,11 +174,11 @@ void glm::WeightedLeastSquare::fit(ndarray<double> &X, ndarray<double> &W, ndarr
 // Ridge Constructor
 glm::Ridge::Ridge(double alpha, bool fit_intercept, bool copy_X, bool norm){
     this->_alpha = alpha;
-
+    this->_fit_intercept = fit_intercept;
+    this->_copy_X = copy_X;
+    this->_norm = norm;
 }
 
 void glm::Ridge::fit(ndarray<double> &X, ndarray<double> &y){
 
 }
-
-// no uppdate
